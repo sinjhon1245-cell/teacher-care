@@ -2,8 +2,9 @@
 // index.html에 적힌 순서대로 데이터 파일을 읽어 다음을 확인해요.
 //  1) 필수 항목·출처(sources) 번호·확인일(verifiedAt) 형식
 //  2) 교육지원청 관할(areas) 중복·누락: 한 시·군·구가 두 교육지원청에 들어가면 오류
-//  3) 지역 간 전화번호 혼입: 한 지역 파일에 다른 지역의 대표번호가 있으면 오류
-//  4) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
+//  3) 전화번호 형식: 대표번호·연락처·신청 방법에 든 번호가 올바른 국내 형식인지(032-5606-600 같은 오기 방지)
+//  4) 지역 간 전화번호 혼입: 한 지역 파일에 다른 지역의 대표번호가 있으면 오류
+//  5) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -21,14 +22,37 @@ vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
 const { REGIONS, REGION_ORDER } = vm.runInContext('({ REGIONS, REGION_ORDER })', ctx);
 
-const PHONE = /\b(?:0\d{1,2}|1\d{3})-\d{3,4}(?:-\d{4})?\b/g;
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+
+// 전화번호 후보: 두 자리 이상 숫자로 시작해 하이픈으로 이어진 숫자 묶음 전체(예: 032-5606-600, 02-12345-678도 통째로 잡혀요).
+// 한 자리로 시작하는 ARS 표기(2-4번)와 점으로 쓴 날짜(2026. 3. 1.)는 후보가 되지 않아요. 112처럼 하이픈 없는 번호도 대상이 아니에요.
+const PHONE_CANDIDATE = /(?<![\d-])\d{2,}(?:-\d+)+(?![\d-])/g;
+const AREA = '(?:02|0(?:3[1-3]|4[1-4]|5[1-5]|6[1-4]|70))'; // 서울 02, 지역번호 031~064, 인터넷전화 070
+const VALID_PHONE = [
+  new RegExp(`^${AREA}-\\d{3,4}-\\d{4}$`), // 일반 번호: 02-1234-5678, 032-123-4567, 070-7848-0794
+  new RegExp(`^${AREA}-1395$`),             // 교원 보호 대표번호(지역번호+1395): 02-1395, 032-1395
+  /^1[5-9]\d{2}-\d{4}$/                     // 전국 대표번호: 1600-8787, 1588-5255
+];
+const isValidPhone = n => VALID_PHONE.some(re => re.test(n));
+const phonesIn = text => String(text).match(PHONE_CANDIDATE) || [];
+
+// 지역 데이터에서 번호가 들어가는 필드(대표번호, 토큰 값, 연락처, 신청 방법)만 모아요
+function contactTexts(r) {
+  const out = [['hot', r.hot], ...Object.entries(r.terms).map(([k, v]) => ['terms.' + k, v])];
+  for (const key of ['offices', 'programs', 'orgs']) {
+    (r[key] || []).forEach((item, i) => {
+      for (const f of ['contact', 'apply']) if (item[f]) out.push([`${key}[${i}].${f} (${item.name || item.t})`, item[f]]);
+    });
+  }
+  return out;
+}
 
 // 공통 데이터: 전국 공통 긴급번호(112) 외의 번호 금지
 const common = fs.readFileSync(path.join(root, 'data/common.js'), 'utf8');
-for (const n of common.match(PHONE) || []) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
+for (const n of phonesIn(common)) if (isValidPhone(n) || /^0\d/.test(n)) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
 
-const numbersOf = id => new Set(JSON.stringify(REGIONS[id]).match(PHONE) || []);
+// 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
+const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
 let total = 0;
 
 for (const id of REGION_ORDER) {
@@ -59,10 +83,15 @@ for (const id of REGION_ORDER) {
   }
   total += seen.size;
 
+  // 전화번호 형식
+  for (const [field, value] of contactTexts(r)) {
+    for (const n of phonesIn(value)) if (!isValidPhone(n)) errors.push(`${tag} 전화번호 형식 오류: ${n} — ${field}`);
+  }
+
   // 다른 지역 번호 혼입
   const mine = numbersOf(id);
   for (const other of REGION_ORDER.filter(x => x !== id)) {
-    const theirs = new Set([REGIONS[other].hot, ...Object.values(REGIONS[other].terms).map(t => (t.match(PHONE) || [])[0]).filter(Boolean)]);
+    const theirs = new Set([REGIONS[other].hot, ...Object.values(REGIONS[other].terms).flatMap(phonesIn)]);
     for (const n of theirs) if (mine.has(n)) errors.push(`${tag} 다른 지역(${other}) 번호 포함: ${n}`);
   }
 

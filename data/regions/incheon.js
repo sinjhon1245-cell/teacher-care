@@ -19,7 +19,8 @@ registerRegion({
     { title: '인천광역시 행정구역(2026. 7. 1. 2군 9구)', url: 'https://www.incheon.go.kr/IC040102', verifiedAt: '2026-09-24' },
     { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24' },
     { title: '교육지원청 관할 조례 개정 입법예고(교육청공고 제2026-385호, 2027. 3. 1. 시행 예정)', url: 'https://www.ice.go.kr/law/na/ntt/selectNttInfo.do?nttSn=3385048&mi=12782', verifiedAt: '2026-09-24' },
-    { title: '교원 위협대처 경호서비스 안내', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11819&cntntsId=855', verifiedAt: '2026-09-24' }
+    { title: '교원 위협대처 경호서비스 안내', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11819&cntntsId=855', verifiedAt: '2026-09-24' },
+    { title: '인천광역시교육청 기관별 조직도 — 교육지원청 대표전화', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=12059&cntntsId=1034', verifiedAt: '2026-09-25' }
   ],
 
   // 대표번호와 ARS 안내(2026 교육활동보호 매뉴얼)
@@ -46,7 +47,7 @@ registerRegion({
     { name: '남부교육지원청', dept: '초등교육과', areas: ['미추홀구', '제물포구', '영종구', '옹진군'], contact: '032-762-7361 · 032-1395(2-1번)', hours: '평일 근무 시간' },
     { name: '북부교육지원청', dept: '초등교육과', areas: ['부평구', '계양구'], contact: '032-524-9631 · 032-1395(2-2번)', hours: '평일 근무 시간' },
     { name: '동부교육지원청', dept: '초등교육과', areas: ['남동구', '연수구'], contact: '032-460-6000 · 032-1395(2-3번)', hours: '평일 근무 시간' },
-    { name: '서부교육지원청', dept: '초등교육과', areas: ['서해구', '검단구'], contact: '032-5606-600 · 032-1395(2-4번)', hours: '평일 근무 시간' },
+    { name: '서부교육지원청', dept: '초등교육과', areas: ['서해구', '검단구'], contact: '032-560-6600 · 032-1395(2-4번)', hours: '평일 근무 시간' },
     { name: '강화교육지원청', dept: '교육지원과', areas: ['강화군'], contact: '032-930-7777 · 032-1395(2-5번)', hours: '평일 근무 시간' }
   ],
   areaNote: '2026. 7. 1. 행정체제 개편 후 구역 기준이에요. 2027. 3. 1.부터 영종·검단교육지원청 신설이 예고되어 있어요(입법예고 중).',
