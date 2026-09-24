@@ -45,6 +45,7 @@ function contactTexts(r) {
   for (const key of ['offices', 'programs', 'orgs']) {
     (r[key] || []).forEach((item, i) => {
       for (const f of ['contact', 'apply']) if (item[f]) out.push([`${key}[${i}].${f} (${item.name || item.t})`, item[f]]);
+      (item.contacts || []).forEach((c, j) => out.push([`${key}[${i}].contacts[${j}] (${item.name || item.t})`, c.value]));
     });
   }
   return out;

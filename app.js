@@ -562,7 +562,12 @@ const App = {
           ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : ''}
         </div>
         <p>${p.sum}</p>
-        ${this.facts([['담당', p.org || UNKNOWN], ['신청 방법', p.apply || UNKNOWN], ['연락처', p.contact ? linkifyPhone(p.contact) : UNKNOWN], ['대상', p.target]])}
+        ${this.facts([
+          ['담당', p.org || UNKNOWN], ['신청 방법', p.apply || UNKNOWN],
+          // 용도가 다른 번호(contacts)는 용도별로 나눠 보여 줘요
+          ...(p.contacts ? p.contacts.map(c => [c.label, linkifyPhone(c.value)]) : [['연락처', p.contact ? linkifyPhone(p.contact) : UNKNOWN]]),
+          ['대상', p.target]
+        ])}
         ${actionButtons(programChannels(p))}
         <p class="muted small">${sourceLine(R, p)}</p>
       </li>
@@ -638,11 +643,12 @@ const UNKNOWN = '<span class="unknown">공식 안내 확인 필요</span>';
 const CHANNEL_ORDER = ['apply', 'kakao', 'phone', 'guide', 'office', 'officeGuide'];
 const CHANNEL_LABEL = { apply: '온라인 신청', kakao: '카카오톡 상담', phone: '전화 문의', guide: '공식 안내', office: '교육지원청 홈페이지', officeGuide: '교육활동보호 안내' };
 
-// 지원 항목: 데이터의 channels + 연락처의 첫 번호(전화 문의)
+// 지원 항목: 데이터의 channels + 전화 버튼. 용도별 번호(contacts)가 있으면 call이 붙은 번호로, 없으면 연락처의 첫 번호로 걸어요
 function programChannels(p) {
   const list = (p.channels || []).slice();
-  const phone = firstPhone(p.contact);
-  if (phone && !list.some(c => c.type === 'phone')) list.push({ type: 'phone', tel: phone });
+  const callable = p.contacts && p.contacts.find(c => c.call);
+  const phone = firstPhone(callable ? callable.value : p.contact);
+  if (phone) list.push({ type: 'phone', tel: phone, label: callable ? callable.call : undefined });
   return list;
 }
 
