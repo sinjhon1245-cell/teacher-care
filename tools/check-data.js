@@ -6,6 +6,7 @@
 //  4) 지역 간 전화번호 혼입: 한 지역 파일에 다른 지역의 대표번호가 있으면 오류
 //  5) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
 //  6) 지원제도(programs)의 area가 지원 찾기 유형(SUPPORT_TYPES)에 연결돼 있는지
+//  7) 상황별 도움의 세부 상황(SITUS)이 모두 큰 상황(SITU_GROUPS)에 속하는지
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -21,7 +22,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { REGIONS, REGION_ORDER, SUPPORT_TYPES } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES })', ctx);
+const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -53,6 +54,10 @@ const common = fs.readFileSync(path.join(root, 'data/common.js'), 'utf8');
 for (const n of phonesIn(common)) if (isValidPhone(n) || /^0\d/.test(n)) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
 
 // 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
+// 상황별 도움: 그룹이 없는 세부 상황은 화면에서 사라지므로 오류, 빈 그룹도 오류
+SITUS.forEach((st, i) => { if (!SITU_GROUPS.some(g => g.id === st.g)) errors.push(`SITUS[${i}] 큰 상황(g) 없음: ${st.t}`); });
+SITU_GROUPS.forEach(g => { if (!SITUS.some(st => st.g === g.id)) errors.push(`SITU_GROUPS ${g.id}: 세부 상황이 없어요`); });
+
 const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
 let total = 0;
 

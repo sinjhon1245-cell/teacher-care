@@ -158,7 +158,6 @@ const App = {
       ${this.renderHero()}
       ${this.renderQuick()}
       ${this.renderStepsSummary()}
-      ${this.renderSupportTypes()}
       ${this.renderFinder()}
       ${this.renderFaq()}
     `;
@@ -181,7 +180,7 @@ const App = {
           </div>
         ` : this.renderRegionPicker('근무 지역을 고르면 연락할 곳을 알려 드려요')}
         <div class="hero-actions">
-          <button class="btn btn-secondary" onclick="App.nav('proc')">대응 절차 확인</button>
+          <button class="btn btn-primary" onclick="App.nav('proc')">지금 대응 절차 확인</button>
           <button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기</button>
         </div>
         ${this.emergencyNote()}
@@ -249,24 +248,6 @@ const App = {
     return SUPPORT_TYPES.filter(t => R.programs.some(p => t.areas.includes(p.area)));
   },
 
-  renderSupportTypes() {
-    const R = this.R;
-    const items = this.availableTypes().map(t => `
-      <li><button class="type-link" onclick="${R ? `App.nav('support', { supportType: '${t.id}' })` : `App.goHome('region-picker')`}">
-        <span class="type-label">${t.label}</span><span class="type-desc">${t.desc}</span>
-      </button></li>
-    `).join('');
-    return `
-      <section class="section">
-        <div class="section-head">
-          <h2 class="h2">지금 받을 수 있는 지원</h2>
-          <button class="link-btn" onclick="App.nav('support')">지원 찾기</button>
-        </div>
-        <ul class="type-grid">${items}</ul>
-      </section>
-    `;
-  },
-
   // 시·군·구 → 담당 교육지원청. 지역 수와 상관없이 select 하나로 표현해요(경기 31개 시·군도 한 화면)
   renderFinder() {
     const R = this.R;
@@ -328,6 +309,7 @@ const App = {
       <section class="section">
         <h2 class="h2">자주 묻는 질문</h2>
         <ul class="faq-list">${items}</ul>
+        <p class="more-link"><button class="link-btn" onclick="App.nav('support')">법률·심리·민원 등 지원 찾기 →</button></p>
       </section>
     `;
   },
@@ -389,32 +371,34 @@ const App = {
   // ══════════════ 상황별 도움 ══════════════
   renderGuide() {
     const S = this.state;
-    const sorted = SITUS.map((s, i) => ({ ...s, i }))
-      .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
-    const rows = sorted.map(s => {
-      const open = S.situ === s.i;
-      const urgent = s.urgency === URGENCY_ORDER[0];
+    // 큰 상황(SITU_GROUPS)을 누르면 그 안의 세부 상황 안내를 위험한 순서로 모두 보여요
+    const rows = SITU_GROUPS.map(g => {
+      const subs = SITUS.filter(s => s.g === g.id)
+        .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
+      const open = S.situ === g.id;
+      const detail = s => `
+        <div class="situ-sub">
+          ${subs.length > 1 ? `<h3 class="support-title">${s.t}</h3>` : ''}
+          <p class="muted small">${s.urgency} · 예: ${s.ex}</p>
+          <p class="action-first">${s.act}</p>
+          ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+        </div>
+      `;
       return `
-        <li class="action ${urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
-          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('situ', ${s.i})">
-            ${urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
-            <span class="action-label">${s.t}<span class="action-meta">${urgent ? '' : `${s.urgency} · `}${s.subject}</span></span>
+        <li class="action ${g.urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
+          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('situ', '${g.id}')">
+            ${g.urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
+            <span class="action-label">${g.t}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          ${open ? `
-            <div class="action-body">
-              <p class="muted small">예: ${s.ex}</p>
-              <p class="action-first">${s.act}</p>
-              ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
-            </div>
-          ` : ''}
+          ${open ? `<div class="action-body">${subs.map(detail).join('')}</div>` : ''}
         </li>
       `;
     }).join('');
     return `
       <section class="section page">
         <h1 class="page-title">상황별 도움</h1>
-        <p class="muted">지금 상황과 가장 가까운 항목을 누르세요. 위험한 상황이 먼저 나와요.</p>
+        <p class="muted">지금 상황과 가장 가까운 항목을 누르세요.</p>
         ${this.emergencyNote()}
         <ul class="action-list">${rows}</ul>
         <p class="muted small">구체적인 사안의 교육활동 침해 해당 여부는 사실관계 조사와 지역교권보호위원회 심의로 판단돼요.</p>
