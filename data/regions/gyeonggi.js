@@ -29,6 +29,12 @@ registerRegion({
   hotName: '경기 교권보호119 콜센터',
   hotSummary: '경기도학교안전공제회 교육활동안심지원단 전담 인력이 먼저 응대해요. 법률·보상은 안심지원단이, 행정·심리는 지역 교권보호지원센터가 이어서 지원해요.',
   menuNote: '연결 후 음성 안내에 따라 상담을 요청하세요.',
+  // 지원 찾기 '지역 지원 허브'의 바로 이용하기(시·도교육청 홈페이지는 officeUrl로 자동 추가)
+  links: [
+    { type: 'apply', label: '교권보호119 온라인 상담(본인인증)', url: 'https://www.gessia.or.kr/compe/taconline.php' },
+    { type: 'guide', label: '경기교권보호지원센터 안내', url: 'https://more.goe.go.kr/eapc/subList/30300002114' },
+    { type: 'guide', label: '교권보호119 콜센터 안내', url: 'https://more.goe.go.kr/eapc/subList/30300001942' }
+  ],
 
   terms: {
     HOT: '1600-8787', HOT1: '1600-8787', HOT2: '1600-8787',

@@ -17,7 +17,7 @@ const App = {
     step: 0,            // 대응 절차에서 선택한 단계
     situ: null,         // 상황별 도움에서 펼친 큰 상황(그룹 id) 또는 세부 상황('s' + 번호)
     filters: {},        // 상세 조건 { 그룹명: [선택값] }
-    filterOpen: false,
+    filterOpen: null,   // 상세 조건 영역을 연 상태(null이면 데스크톱은 펼침, 모바일은 접힘)
     supportType: 'all', // 지원 찾기에서 고른 도움 유형
     faqOpen: null,
     checks: {}
@@ -445,14 +445,21 @@ const App = {
     `;
   },
 
-  // ══════════════ 상황별 도움 = 판단 ══════════════
+  // ══════════════ 상황별 도움 = 판단 → 선택 → 결과 ══════════════
+  // 상황 하나의 안내. ‘관련 대응 절차’·‘관련 지원 보기’는 상황 데이터(stages·supports)로 둘러볼 곳만 안내해요
   situDetail(s, withTitle) {
+    const step = STAGE_TO_STEP[s.stages[0]];
+    const type = this.R ? this.availableTypes().find(t => s.supports.some(v => t.situ.includes(v))) : null;
     return `
       <div class="situ-sub">
-        ${withTitle ? `<h3 class="sub-title">${s.t}</h3>` : ''}
-        <p class="muted small">${s.urgency} · 예: ${s.ex}</p>
-        <p class="action-first">${s.act}</p>
+        ${withTitle ? `<h3 class="sub-title">${s.t} ${urgencyBadge(s.urgency)}</h3>` : ''}
+        <p class="muted small">예: ${s.ex}</p>
+        <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.act}</p></div>
         ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="App.nav('proc', { step: ${step === undefined ? 0 : step} })">관련 대응 절차 →</button>
+          <button class="btn btn-secondary" onclick="App.nav('support', { supportType: '${type ? type.id : 'all'}' })">관련 지원 보기${type ? `(${type.label})` : ''} →</button>
+        </div>
       </div>
     `;
   },
@@ -460,80 +467,123 @@ const App = {
   renderGuide() {
     const S = this.state;
     const active = Object.keys(S.filters).length > 0;
+    const selected = FILTER_DEFS.flatMap(d => S.filters[d.g] || []);
     const matches = SITUS.map((s, i) => ({ ...s, i })).filter(s => FILTER_DEFS.every(d => {
       const sel = S.filters[d.g] || [];
       return sel.length === 0 || sel.some(o => d.test(s, o));
     })).sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
 
-    // 선택지는 실제로 해당하는 상황이 있는 것만(개수와 함께) 보여 줘요
-    const filterGroups = FILTER_DEFS.map(d => {
+    // 조건 영역: 왼쪽 그룹 이름, 오른쪽 선택지(해당 상황이 있는 것만 개수와 함께)
+    const rows = FILTER_DEFS.map(d => {
       const chips = d.opts.map(o => ({ o, n: SITUS.filter(s => d.test(s, o)).length })).filter(x => x.n).map(({ o, n }) => {
         const on = (S.filters[d.g] || []).includes(o);
         return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" onclick="App.toggleFilter('${d.g}','${o}')">${o} <span class="chip-count">${n}</span></button>`;
       }).join('');
-      return `<fieldset class="filter-group"><legend>${d.g}</legend><div class="chip-row">${chips}</div></fieldset>`;
+      return `<div class="filter-row" role="group" aria-label="${d.g}"><span class="filter-label">${d.g}</span><div class="chip-row">${chips}</div></div>`;
     }).join('');
+    // 데스크톱은 기본으로 펼치고, 모바일은 접어서 시작해요(사용자가 연 상태는 유지)
+    const open = S.filterOpen === null ? isDesktop() || active : S.filterOpen;
 
     const groupRows = SITU_GROUPS.map(g => {
       const subs = SITUS.filter(s => s.g === g.id)
         .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
-      const open = S.situ === g.id;
+      const isOpen = S.situ === g.id;
       return `
-        <li class="action ${g.urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
-          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('situ', '${g.id}')">
+        <li class="action ${g.urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
+          <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${g.id}')">
             ${g.urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
             <span class="action-label">${g.t}</span>
+            <span class="action-count">${subs.length}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          ${open ? `<div class="action-body">${subs.map(s => this.situDetail(s, subs.length > 1)).join('')}</div>` : ''}
+          ${isOpen ? `<div class="action-body">${subs.map(s => this.situDetail(s, subs.length > 1)).join('')}</div>` : ''}
         </li>
       `;
     }).join('');
 
     const resultRows = matches.map(s => {
       const key = 's' + s.i;
-      const open = S.situ === key;
+      const isOpen = S.situ === key;
       const urgent = s.urgency === URGENCY_ORDER[0];
       return `
-        <li class="action ${urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
-          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('situ', '${key}')">
-            ${urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
+        <li class="action ${urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
+          <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
             <span class="action-label">${s.t}</span>
+            ${urgencyBadge(s.urgency)}
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          ${open ? `<div class="action-body">${this.situDetail(s, false)}</div>` : ''}
+          ${isOpen ? `<div class="action-body">${this.situDetail(s, false)}</div>` : ''}
         </li>
       `;
     }).join('');
 
-    const activeCount = Object.values(S.filters).reduce((n, a) => n + a.length, 0);
     return `
       <section class="section page">
         ${this.eyebrow('판단')}
         <h1 class="page-title">상황별 도움</h1>
-        <p class="muted">지금 상황과 가장 가까운 항목을 누르세요. 더 좁혀 찾으려면 상세 조건을 쓰세요.</p>
+        <p class="muted">조건을 고르면 맞는 상황과 지금 할 일을 보여 드려요. 큰 상황에서 바로 골라도 돼요.</p>
         ${this.emergencyNote()}
-        <details class="filter-panel" ${S.filterOpen || active ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
-          <summary>상세 조건으로 찾기${activeCount ? ` <span class="badge badge-accent">${activeCount}개 선택</span>` : ''}</summary>
-          ${filterGroups}
-          <div class="filter-footer">
-            <span class="filter-count" aria-live="polite">${matches.length}개 상황 찾음</span>
-            ${active ? '<button class="link-btn" onclick="App.clearFilters()">필터 초기화</button>' : ''}
-          </div>
+        <details class="tool-panel filter-panel" ${open ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
+          <summary><span class="tool-title">상세 조건으로 찾기</span>${selected.length ? `<span class="badge badge-accent">${selected.length}개 선택</span>` : ''}<span class="chevron" aria-hidden="true"></span></summary>
+          <div class="filter-rows">${rows}</div>
         </details>
-        ${active
-          ? (matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">조건에 맞는 상황이 없어요. 조건을 줄여 보세요.</p>')
-          : `<ul class="action-list">${groupRows}</ul>`}
+        ${active ? `
+          <div class="result-head" aria-live="polite">
+            <div>
+              <p class="result-count">${matches.length}개 상황을 찾았어요</p>
+              <p class="muted small">선택 조건: ${selected.join(' · ')}</p>
+            </div>
+            <button class="btn btn-secondary" onclick="App.clearFilters()">필터 초기화</button>
+          </div>
+          ${matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">조건에 맞는 상황이 없어요. 조건을 줄여 보세요.</p>'}
+        ` : `
+          <div class="result-head"><p class="result-count">큰 상황으로 바로 찾기</p></div>
+          <ul class="action-list">${groupRows}</ul>
+        `}
         <p class="muted small">구체적인 사안의 교육활동 침해 해당 여부는 사실관계 조사와 지역교권보호위원회 심의로 판단돼요.</p>
+        ${sourceBox('안내 근거', COMMON_SOURCES, latestDate(COMMON_SOURCES))}
       </section>
     `;
   },
 
-  // ══════════════ 지원 찾기 = 연결 ══════════════
+  // ══════════════ 지원 찾기 = 연결 → 유형 선택 → 신청·상담 ══════════════
   // 현재 지역에서 실제로 지원이 있는 유형만
   availableTypes() {
     const R = this.R;
     return R ? SUPPORT_TYPES.filter(t => R.programs.some(p => t.areas.includes(p.area))) : SUPPORT_TYPES;
+  },
+
+  // 지역 지원 허브: 왼쪽 대표 창구, 오른쪽 공식 확인된 바로가기(시·도교육청 홈페이지는 항상)
+  renderHub(R) {
+    const links = [
+      ...(R.links || []).slice().sort((a, b) => CHANNEL_ORDER.indexOf(a.type) - CHANNEL_ORDER.indexOf(b.type)),
+      { type: 'office', label: R.office, url: R.officeUrl }
+    ];
+    const linkHtml = links.map(l => `
+      <li><a class="hub-link" href="${l.url}" target="_blank" rel="noopener">
+        <span class="hub-link-type">${HUB_TYPE_LABEL[l.type]}</span><span class="hub-link-label">${l.label}</span><span aria-hidden="true">↗</span>
+      </a></li>
+    `).join('');
+    return `
+      <div class="hub">
+        <div class="hub-main">
+          <p class="hub-region">${R.short} 교육활동 보호 지원</p>
+          <p class="panel-hot-label">${R.hotName}</p>
+          <a href="{TEL}" class="panel-hot">{HOT}</a>
+          ${R.menu
+            ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
+            : `<p class="muted small">${R.hotSummary || R.menuNote || ''}</p>`}
+          <a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화 상담 {HOT}</a>
+        </div>
+        <div class="hub-links">
+          <p class="hub-links-title">바로 이용하기</p>
+          <ul>
+            ${linkHtml}
+            <li><button class="hub-link" onclick="App.goHome('finder')"><span class="hub-link-type">찾기</span><span class="hub-link-label">내 교육지원청 찾기</span><span aria-hidden="true">→</span></button></li>
+          </ul>
+        </div>
+      </div>
+    `;
   },
 
   renderSupport() {
@@ -551,9 +601,11 @@ const App = {
     }
     const types = this.availableTypes();
     const cur = types.find(t => t.id === S.supportType);
-    const chips = [{ id: 'all', label: '전체' }, ...types].map(t =>
-      `<button class="chip ${(cur ? cur.id : 'all') === t.id ? 'active' : ''}" aria-pressed="${(cur ? cur.id : 'all') === t.id}" onclick="App.setState({ supportType: '${t.id}' })">${t.label}</button>`
-    ).join('');
+    const chips = [{ id: 'all', label: '전체' }, ...types].map(t => {
+      const on = (cur ? cur.id : 'all') === t.id;
+      const n = t.id === 'all' ? R.programs.length : R.programs.filter(p => t.areas.includes(p.area)).length;
+      return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" onclick="App.setState({ supportType: '${t.id}' })">${t.label} <span class="chip-count">${n}</span></button>`;
+    }).join('');
     const programs = R.programs.filter(p => !cur || cur.areas.includes(p.area));
     const items = programs.map(p => `
       <li class="support-item">
@@ -579,16 +631,16 @@ const App = {
       <section class="section page">
         ${this.eyebrow('연결')}
         <h1 class="page-title">지원 찾기</h1>
-        <p class="muted">어떤 도움이 필요하신가요? ${R.name}에서 실제로 신청하거나 상담받는 방법을 보여 드려요.</p>
-        <div class="region-panel wide">
-          <p class="panel-hot-label">${R.hotName}</p>
-          <a href="{TEL}" class="panel-hot">{HOT}</a>
-          ${R.menu
-            ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
-            : `<p class="muted small">${R.hotSummary || R.menuNote || ''}</p>`}
-          <div class="panel-actions"><a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화하기</a></div>
+        <p class="muted">${R.name}에서 실제로 신청하거나 상담받는 방법을 보여 드려요.</p>
+        ${this.renderHub(R)}
+        <div class="tool-panel">
+          <p class="tool-title">어떤 도움이 필요하신가요?</p>
+          <div class="chip-row" role="group" aria-label="도움 유형">${chips}</div>
         </div>
-        <div class="chip-row support-chips" role="group" aria-label="도움 유형">${chips}</div>
+        <div class="result-head" aria-live="polite">
+          <p class="result-count">${R.short} ${cur ? cur.label + ' 지원' : '지원 전체'} ${programs.length}건</p>
+          ${cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
+        </div>
         <ul class="support-list">${items}</ul>
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
@@ -596,6 +648,7 @@ const App = {
           <li><span class="dir-name">담당 교육지원청</span><span class="dir-contact"><button class="link-btn" onclick="App.goHome('finder')">내 교육지원청 찾기</button></span></li>
           <li><span class="dir-name">경찰(긴급 상황)</span><span class="dir-contact"><a href="tel:112">112</a></span></li>
         </ul>
+        ${sourceBox(`${R.short} 공식 출처`, R.sources, R.verifiedAt)}
       </section>
     `;
   },
@@ -639,8 +692,10 @@ const App = {
 const UNKNOWN = '<span class="unknown">공식 안내 확인 필요</span>';
 
 // ── 신청·상담·안내 경로 ──
-// 우선순위: 실제 신청 → 실제 상담(카카오톡·전화) → 공식 안내. 한 카드에 최대 3개까지만 보여요
-const CHANNEL_ORDER = ['apply', 'kakao', 'phone', 'guide', 'office', 'officeGuide'];
+// 우선순위: 실제 신청 → 전화 → 카카오톡 → 공식 안내. 한 카드에 최대 3개까지만 보여요
+const CHANNEL_ORDER = ['apply', 'phone', 'kakao', 'guide', 'office', 'officeGuide'];
+// 지역 지원 허브의 링크 종류 표시
+const HUB_TYPE_LABEL = { apply: '신청', kakao: '상담', guide: '안내', office: '교육청' };
 const CHANNEL_LABEL = { apply: '온라인 신청', kakao: '카카오톡 상담', phone: '전화 문의', guide: '공식 안내', office: '교육지원청 홈페이지', officeGuide: '교육활동보호 안내' };
 
 // 지원 항목: 데이터의 channels + 전화 버튼. 용도별 번호(contacts)가 있으면 call이 붙은 번호로, 없으면 연락처의 첫 번호로 걸어요
@@ -657,7 +712,7 @@ function officeChannels(o) {
   const list = [];
   const phone = firstPhone(o.contact);
   if (phone) list.push({ type: 'phone', tel: phone });
-  if (o.url) list.push({ type: 'office', url: o.url, label: o.urlLabel });
+  if (o.url) list.push({ type: 'office', url: o.url, label: o.name });
   if (o.guideUrl) list.push({ type: 'officeGuide', url: o.guideUrl });
   return list;
 }
@@ -672,6 +727,16 @@ function actionButtons(channels) {
       ? `<a class="${cls}" href="${telHref(c.tel)}"><span aria-hidden="true">☎</span> ${label} <span class="btn-sub">${c.tel}</span></a>`
       : `<a class="${cls}" href="${c.url}" target="_blank" rel="noopener">${label} <span aria-hidden="true">↗</span></a>`;
   }).join('')}</div>`;
+}
+
+// 긴급성 배지(색만으로 구분하지 않도록 글자로 표시)
+function urgencyBadge(u) {
+  const cls = u === URGENCY_ORDER[0] ? 'tag tag-danger' : u === URGENCY_ORDER[1] ? 'badge badge-accent' : 'badge';
+  return `<span class="${cls}">${u}</span>`;
+}
+
+function isDesktop() {
+  try { return window.matchMedia('(min-width: 769px)').matches; } catch (e) { return true; }
 }
 
 function firstPhone(text) {

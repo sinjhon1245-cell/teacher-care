@@ -28,6 +28,11 @@ registerRegion({
   hot: '032-1395',
   hotName: '인천 교육활동보호 직통 번호',
   hotSummary: '평일 09:00~18:00. 원스톱 지원(법률·상담·치료)과 소속 교육지원청 신고·심의 문의를 한 번호로 연결해요.',
+  // 지원 찾기 '지역 지원 허브'의 바로 이용하기(시·도교육청 홈페이지는 officeUrl로 자동 추가)
+  links: [
+    { type: 'apply', label: '원스톱 지원 온라인 신청(로그인)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttList.do?mi=11825&bbsId=1712' },
+    { type: 'guide', label: '교육활동보호 원스톱 지원 이용 방법', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11820&cntntsId=856' }
+  ],
   menu: [
     '<strong>교육활동보호담당관 원스톱 지원</strong> — 컨설팅·심리상담·법률자문·의료지원',
     '<strong>소속 교육지원청</strong>(2-1 남부, 2-2 북부, 2-3 동부, 2-4 서부, 2-5 강화) — 침해 신고·지역교권보호위원회 문의'

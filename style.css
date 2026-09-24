@@ -199,7 +199,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
   background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
   box-shadow: var(--shadow-soft); padding: 20px 22px; border-top: 3px solid var(--primary);
 }
-.region-panel.wide { margin: 8px 0 4px; max-width: 640px; }
 .region-panel .region-picker { border: none; padding: 0; margin: 0; }
 .panel-label { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
 .panel-label strong { color: var(--text); font-size: 15px; margin-left: 4px; }
@@ -260,25 +259,74 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 .situ-sub + .situ-sub .sub-title { margin-top: 0; }
 .more-link { margin: 18px 0 0; }
 
-/* 상세 조건으로 찾기 */
-.filter-panel {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 0 16px; margin-bottom: 16px;
+
+/* ── 공통: 도구 패널 → 결과 머리 ── */
+.tool-panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow-soft); padding: 18px 22px; margin: 0 0 18px;
 }
-.filter-panel summary {
-  cursor: pointer; font-weight: 700; padding: 14px 0; min-height: 52px;
-  display: flex; align-items: center; gap: 10px; color: var(--primary);
+.tool-title { font-weight: 700; font-size: 16px; color: var(--text); margin: 0 0 12px; }
+.filter-panel { padding: 0 22px; }
+.filter-panel > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 0;
 }
-.filter-panel[open] summary { border-bottom: 1px solid var(--border); margin-bottom: 8px; }
-.filter-group { border: none; margin: 0; padding: 8px 0; min-width: 0; }
-.filter-group legend { font-size: 14px; font-weight: 700; color: var(--muted); padding: 0; margin-bottom: 6px; }
-.filter-group .chip-row { margin: 0; }
+.filter-panel > summary::-webkit-details-marker { display: none; }
+.filter-panel > summary .tool-title { margin: 0; }
+.filter-panel[open] > summary { border-bottom: 1px solid var(--border); }
+.filter-panel[open] > summary .chevron { transform: rotate(225deg); }
+.filter-rows { padding: 6px 0 14px; }
+.filter-row {
+  display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 12px; align-items: start;
+  padding: 10px 0; border-bottom: 1px dashed var(--border);
+}
+.filter-row:last-child { border-bottom: none; }
+.filter-label { font-size: 14px; font-weight: 700; color: var(--muted); padding-top: 7px; }
 .chip-count { font-size: 12.5px; font-weight: 500; opacity: .75; }
-.filter-footer {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  border-top: 1px solid var(--border); padding: 12px 0 14px; margin-top: 6px;
+.result-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 4px 2px 12px; margin-bottom: 4px; border-bottom: 2px solid var(--primary);
 }
-.filter-count { font-weight: 700; color: var(--primary); }
+.result-head .muted { margin: 2px 0 0; }
+.result-count { margin: 0; font-weight: 800; font-size: 18px; color: var(--primary); }
+.action-count {
+  flex: none; margin-left: auto; font-size: 13px; font-weight: 600; color: var(--muted);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 1px 9px;
+}
+.action-count + .chevron { margin-left: 4px; }
+.first-box {
+  margin: 12px 0 4px; padding: 12px 14px; border-radius: var(--radius-sm);
+  background: var(--primary-soft); border-left: 3px solid var(--primary);
+}
+.first-box p { margin: 0; font-weight: 600; max-width: var(--read); }
+.first-box .first-label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+.action.urgent .first-box { background: var(--danger-soft); border-left-color: var(--danger); }
+.action.urgent .first-box .first-label { color: var(--danger); }
+
+/* ── 지원 찾기: 지역 지원 허브(전체 폭) ── */
+.hub {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 0;
+  background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--primary);
+  border-radius: 14px; box-shadow: var(--shadow-soft); margin: 4px 0 18px; overflow: hidden;
+}
+.hub-main { padding: 20px 22px; }
+.hub-main .panel-hot { margin-bottom: 10px; }
+.hub-main .hotline-menu { margin: 0 0 14px 20px; }
+.hub-main .muted { margin-bottom: 14px; }
+.hub-region { margin: 0 0 10px; font-family: var(--font-head); font-size: 20px; color: var(--text); }
+.hub-links { background: var(--bg); border-left: 1px solid var(--border); padding: 18px 20px; }
+.hub-links-title { margin: 0 0 10px; font-weight: 700; font-size: 14.5px; color: var(--muted); }
+.hub-links ul { list-style: none; display: grid; gap: 6px; }
+.hub-link {
+  width: 100%; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 14px; text-align: left;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); text-decoration: none; font-weight: 600; cursor: pointer;
+}
+.hub-link:hover { border-color: var(--primary); color: var(--primary); }
+.hub-link-type {
+  flex: none; font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft);
+  border-radius: 6px; padding: 2px 7px;
+}
+.hub-link-label { flex: 1; min-width: 0; }
 
 /* ── 홈: 절차 요약 ── */
 .step-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -371,7 +419,6 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 
 /* ── 지원 찾기 ── */
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
-.support-chips { margin: 22px 0 16px; }
 .chip {
   cursor: pointer; font-size: 14.5px; font-weight: 600; padding: 7px 13px; min-height: 40px;
   border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--muted);
@@ -466,6 +513,14 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
   .panel-hot { font-size: 26px; }
 
   .step-list { grid-template-columns: 1fr; }
+  .tool-panel { padding: 14px 16px; }
+  .filter-panel { padding: 0 16px; }
+  .filter-row { grid-template-columns: 1fr; gap: 6px; }
+  .filter-label { padding-top: 0; }
+  .hub { grid-template-columns: 1fr; }
+  .hub-main { padding: 16px; }
+  .hub-links { border-left: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+  .result-count { font-size: 17px; }
   .stepper {
     display: flex; overflow-x: auto; gap: 8px; margin: 0 -16px 14px; padding: 0 16px 4px;
     scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;

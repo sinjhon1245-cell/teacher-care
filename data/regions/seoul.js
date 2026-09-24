@@ -28,6 +28,11 @@ registerRegion({
   hotName: '서울 SEM119 대표전화',
   hotSummary: '교육활동보호 긴급지원팀 SEM119가 교육활동 침해 대응, 법률·심리 지원, 갈등 조정을 연결해요. 운영 시간 09:00~18:00, 카카오톡 채널은 24시간이에요.',
   menuNote: '교육지원청별 SEM119 번호와 카카오톡 채널로도 신청할 수 있어요.',
+  // 지원 찾기 '지역 지원 허브'의 바로 이용하기(시·도교육청 홈페이지는 officeUrl로 자동 추가)
+  links: [
+    { type: 'kakao', label: 'SEM119 카카오톡 상담', url: 'https://pf.kakao.com/_akHxmG' },
+    { type: 'guide', label: '2026 교육활동보호 매뉴얼', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833' }
+  ],
 
   // SOS(학교민원 전담 지원 조직)는 서울 공식 명칭을 확인하지 못해 비워 두었어요 → 중립 문구로 표시
   terms: {

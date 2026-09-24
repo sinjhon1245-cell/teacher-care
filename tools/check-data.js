@@ -7,7 +7,7 @@
 //  5) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
 //  6) 지원제도(programs)의 area가 지원 찾기 유형(SUPPORT_TYPES)에 연결돼 있는지
 //  7) 상황별 도움의 세부 상황(SITUS)이 모두 큰 상황(SITU_GROUPS)에 속하는지
-//  8) 신청·상담·안내 링크(channels)와 교육지원청 링크가 https + 공식 도메인인지(접속 확인은 별도로 해요)
+//  8) 신청·상담·안내 링크(channels·links)와 교육청·교육지원청 링크가 https + 공식 도메인인지(접속 확인은 별도로 해요)
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -103,6 +103,12 @@ for (const id of REGION_ORDER) {
     if (!CHANNEL_TYPES.includes(c.type)) errors.push(`${tag} ${where} 알 수 없는 type: ${c.type}`);
     checkUrl(tag, where, c.url);
   }));
+  checkUrl(tag, 'officeUrl', r.officeUrl);
+  (r.links || []).forEach((c, j) => {
+    if (!CHANNEL_TYPES.includes(c.type)) errors.push(`${tag} links[${j}] 알 수 없는 type: ${c.type}`);
+    if (!c.label) errors.push(`${tag} links[${j}] label 없음`);
+    checkUrl(tag, `links[${j}] (${c.label})`, c.url);
+  });
   r.offices.forEach((o, i) => {
     if (o.url) checkUrl(tag, `offices[${i}].url (${o.name})`, o.url);
     if (o.guideUrl) checkUrl(tag, `offices[${i}].guideUrl (${o.name})`, o.guideUrl);
