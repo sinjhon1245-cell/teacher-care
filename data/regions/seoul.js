@@ -38,27 +38,27 @@ registerRegion({
 
   // 11개 교육지원청(종전 시행령 [별표 2]). 연락처는 교육지원청별 SEM119 번호(매뉴얼 p.93, 09:00~18:00)
   offices: [
-    { name: '동부교육지원청', areas: ['동대문구', '중랑구'], contact: 'SEM119 02-2210-0406' },
-    { name: '서부교육지원청', areas: ['은평구', '서대문구', '마포구'], contact: 'SEM119 02-390-2211' },
-    { name: '남부교육지원청', areas: ['구로구', '금천구', '영등포구'], contact: 'SEM119 02-2165-2182' },
-    { name: '북부교육지원청', areas: ['노원구', '도봉구'], contact: 'SEM119 02-3499-6899' },
-    { name: '중부교육지원청', areas: ['종로구', '중구', '용산구'], contact: 'SEM119 02-708-6683' },
-    { name: '강동송파교육지원청', areas: ['강동구', '송파구'], contact: 'SEM119 02-3434-4458' },
-    { name: '강서양천교육지원청', areas: ['강서구', '양천구'], contact: 'SEM119 02-2600-0897' },
-    { name: '강남서초교육지원청', areas: ['강남구', '서초구'], contact: 'SEM119 02-3015-3426' },
-    { name: '동작관악교육지원청', areas: ['동작구', '관악구'], contact: 'SEM119 02-810-1702' },
-    { name: '성동광진교육지원청', areas: ['성동구', '광진구'], contact: 'SEM119 02-2286-3754' },
-    { name: '성북강북교육지원청', areas: ['성북구', '강북구'], contact: 'SEM119 02-944-9395' }
+    { name: '동부교육지원청', areas: ['동대문구', '중랑구'], contact: 'SEM119 02-2210-0406', url: 'https://dbedu.sen.go.kr' },
+    { name: '서부교육지원청', areas: ['은평구', '서대문구', '마포구'], contact: 'SEM119 02-390-2211', url: 'https://sbedu.sen.go.kr' },
+    { name: '남부교육지원청', areas: ['구로구', '금천구', '영등포구'], contact: 'SEM119 02-2165-2182', url: 'https://nbedu.sen.go.kr' },
+    { name: '북부교육지원청', areas: ['노원구', '도봉구'], contact: 'SEM119 02-3499-6899', url: 'https://bbedu.sen.go.kr' },
+    { name: '중부교육지원청', areas: ['종로구', '중구', '용산구'], contact: 'SEM119 02-708-6683', url: 'https://jbedu.sen.go.kr' },
+    { name: '강동송파교육지원청', areas: ['강동구', '송파구'], contact: 'SEM119 02-3434-4458', url: 'https://gdspedu.sen.go.kr' },
+    { name: '강서양천교육지원청', areas: ['강서구', '양천구'], contact: 'SEM119 02-2600-0897', url: 'https://gsycedu.sen.go.kr' },
+    { name: '강남서초교육지원청', areas: ['강남구', '서초구'], contact: 'SEM119 02-3015-3426', url: 'https://gnscedu.sen.go.kr', guideUrl: 'https://gnscedu.sen.go.kr/CMS/openedu/openedu13/openedu131/openedu1312/index.html' },
+    { name: '동작관악교육지원청', areas: ['동작구', '관악구'], contact: 'SEM119 02-810-1702', url: 'https://dgedu.sen.go.kr' },
+    { name: '성동광진교육지원청', areas: ['성동구', '광진구'], contact: 'SEM119 02-2286-3754', url: 'https://sdgjedu.sen.go.kr', guideUrl: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/index.html' },
+    { name: '성북강북교육지원청', areas: ['성북구', '강북구'], contact: 'SEM119 02-944-9395', url: 'https://sbgbedu.sen.go.kr' }
   ].map(o => ({ ...o, hours: 'SEM119 09:00~18:00' })),
 
   // source: sources 배열의 번호
   programs: [
-    { area: '신고·심의', status: '현재 시행 중', t: '교육활동 침해 신고·지역교권보호위원회 심의', sum: '학교 보고를 거쳐 소속 교육지원청이 사안을 조사하고, 지역교권보호위원회가 침해 여부와 조치를 심의해요.', target: '교육활동 침해 피해 교원', org: '소속 교육지원청', apply: '학교 보고 → 교육지원청 보고', docs: '침해 신고서, 사안 발생보고서, 증거', deadline: '사안 접수 후 24시간 이내 보고, 사안 보고 후 5일 이내 발생보고서(주말·공휴일 제외)', contact: '02-1395', source: 0 },
-    { area: '긴급 지원', status: '현재 시행 중', t: 'SEM119 교육활동보호 긴급지원팀', sum: '교육지원청 학교생활교육과에서 운영해요. 조정·법률·상담·든든·안심 SEM이 갈등 조정, 법률 자문, 심리 상담, 교실 안정화 인력 지원 등을 맡아요.', target: '교육활동 침해 또는 아동학대 신고 관련 도움이 필요한 교원·학교', org: '소속 교육지원청 학교생활교육과', apply: '02-1395, 교육지원청별 SEM119, <a href="https://pf.kakao.com/_akHxmG" target="_blank" rel="noopener">카카오톡 채널</a>(24시간)', deadline: '전화 09:00~18:00', contact: '02-1395', source: 0 },
-    { area: '법률 상담·자문', status: '현재 시행 중', t: '교육활동보호 전담변호사·법률지원단', sum: '교육지원청별 교육활동보호 전담변호사, 1교 1변호사제(우리학교변호사), 서울교육활동보호법률지원단, ‘선생님 동행 100인의 변호인단’이 법률 상담과 대응을 지원해요.', target: '법률 지원이 필요한 교원', org: '서울특별시교육청·소속 교육지원청', apply: '02-1395(SEM119) 또는 소속 교육지원청', contact: '02-1395', source: 0 },
-    { area: '심리상담·치료', status: '현재 시행 중', t: '교원 심리상담(마음선·마음생·마음동·마음행)', sum: '개인 심리상담 마음선(8회)·마음생(13회)·마음동(20회), 마음행(추가 5회, 필요 시 3회 연장)과 교원 마음돌봄 집단상담을 운영해요.', target: '심리 지원이 필요한 교원', org: '서울특별시교육청 교육활동보호센터', contact: '02-399-9707, 02-399-9709, 02-399-9710', source: 0 },
-    { area: '교원보호공제', status: '현재 시행 중', t: '교원보호(안심)공제', sum: '교육청이 비용을 전액 부담하는 교원보호공제예요. 보장 범위와 청구 방법은 공제회 안내를 확인하세요.', target: '서울 교원', org: '서울특별시학교안전공제회', contact: '1670-4972', source: 0 },
-    { area: '갈등 중재', status: '현재 시행 중', t: '서울SEM119 갈등조정단 ‘봄’', sum: '교원과 학생·보호자 사이 갈등의 조정을 지원해요. 2026. 2. 20.부터 2027. 2. 28.까지 운영해요.', target: '갈등 조정이 필요한 교원·학교', org: '서울특별시교육청(SEM119)', apply: 'SEM119(02-1395)로 신청', contact: '02-1395', source: 3 },
+    { area: '신고·심의', status: '현재 시행 중', t: '교육활동 침해 신고·지역교권보호위원회 심의', sum: '학교 보고를 거쳐 소속 교육지원청이 사안을 조사하고, 지역교권보호위원회가 침해 여부와 조치를 심의해요.', target: '교육활동 침해 피해 교원', org: '소속 교육지원청', apply: '학교 보고 → 교육지원청 보고', docs: '침해 신고서, 사안 발생보고서, 증거', deadline: '사안 접수 후 24시간 이내 보고, 사안 보고 후 5일 이내 발생보고서(주말·공휴일 제외)', contact: '02-1395', source: 0, channels: [{ type: 'guide', label: '교육활동보호 매뉴얼', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833' }] },
+    { area: '긴급 지원', status: '현재 시행 중', t: 'SEM119 교육활동보호 긴급지원팀', sum: '교육지원청 학교생활교육과에서 운영해요. 조정·법률·상담·든든·안심 SEM이 갈등 조정, 법률 자문, 심리 상담, 교실 안정화 인력 지원 등을 맡아요.', target: '교육활동 침해 또는 아동학대 신고 관련 도움이 필요한 교원·학교', org: '소속 교육지원청 학교생활교육과', apply: '02-1395, 교육지원청별 SEM119, <a href="https://pf.kakao.com/_akHxmG" target="_blank" rel="noopener">카카오톡 채널</a>(24시간)', deadline: '전화 09:00~18:00', contact: '02-1395', source: 0, channels: [{ type: 'kakao', url: 'https://pf.kakao.com/_akHxmG' }, { type: 'guide', label: '공식 안내(보도자료)', url: 'https://enews.sen.go.kr/news/view.do?bbsSn=184324&step1=3&step2=1' }] },
+    { area: '법률 상담·자문', status: '현재 시행 중', t: '교육활동보호 전담변호사·법률지원단', sum: '교육지원청별 교육활동보호 전담변호사, 1교 1변호사제(우리학교변호사), 서울교육활동보호법률지원단, ‘선생님 동행 100인의 변호인단’이 법률 상담과 대응을 지원해요.', target: '법률 지원이 필요한 교원', org: '서울특별시교육청·소속 교육지원청', apply: '02-1395(SEM119) 또는 소속 교육지원청', contact: '02-1395', source: 0, channels: [{ type: 'kakao', url: 'https://pf.kakao.com/_akHxmG' }, { type: 'guide', label: '법률지원 안내', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20250527150818109' }] },
+    { area: '심리상담·치료', status: '현재 시행 중', t: '교원 심리상담(마음선·마음생·마음동·마음행)', sum: '개인 심리상담 마음선(8회)·마음생(13회)·마음동(20회), 마음행(추가 5회, 필요 시 3회 연장)과 교원 마음돌봄 집단상담을 운영해요.', target: '심리 지원이 필요한 교원', org: '서울특별시교육청 교육활동보호센터', contact: '02-399-9707, 02-399-9709, 02-399-9710', source: 0, channels: [{ type: 'guide', label: '매뉴얼(상담 안내)', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833' }] },
+    { area: '교원보호공제', status: '현재 시행 중', t: '교원보호(안심)공제', sum: '교육청이 비용을 전액 부담하는 교원보호공제예요. 보장 범위와 청구 방법은 공제회 안내를 확인하세요.', target: '서울 교원', org: '서울특별시학교안전공제회', contact: '1670-4972', source: 0, channels: [{ type: 'kakao', url: 'https://pf.kakao.com/_akHxmG' }, { type: 'guide', label: '교원안심공제 안내', url: 'https://www.ssia.or.kr/teacher/page1.php' }] },
+    { area: '갈등 중재', status: '현재 시행 중', t: '서울SEM119 갈등조정단 ‘봄’', sum: '교원과 학생·보호자 사이 갈등의 조정을 지원해요. 2026. 2. 20.부터 2027. 2. 28.까지 운영해요.', target: '갈등 조정이 필요한 교원·학교', org: '서울특별시교육청(SEM119)', apply: 'SEM119(02-1395)로 신청', contact: '02-1395', source: 3, channels: [{ type: 'guide', label: '공식 안내(보도자료)', url: 'https://enews.sen.go.kr/news/view.do?bbsSn=190744&step1=3&step2=1' }] },
     { area: '학교민원·특이민원 지원', status: '현재 시행 중', t: '학교민원 공식 창구 단일화', sum: '학교민원은 학교 대표번호와 학교가 지정한 온라인 창구로 받고, 교원이 원하지 않는 개인 연락처·SNS는 노출하지 않아요.', target: '민원 응대 부담이 있는 교원', org: '소속 학교', source: 1 }
   ],
 

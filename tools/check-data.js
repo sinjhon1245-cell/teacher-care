@@ -7,6 +7,7 @@
 //  5) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
 //  6) 지원제도(programs)의 area가 지원 찾기 유형(SUPPORT_TYPES)에 연결돼 있는지
 //  7) 상황별 도움의 세부 상황(SITUS)이 모두 큰 상황(SITU_GROUPS)에 속하는지
+//  8) 신청·상담·안내 링크(channels)와 교육지원청 링크가 https + 공식 도메인인지(접속 확인은 별도로 해요)
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -49,15 +50,33 @@ function contactTexts(r) {
   return out;
 }
 
+// 신청·상담·안내 링크: 공식 기관 도메인만 허용(새 기관을 넣을 땐 공식 출처를 확인한 뒤 여기에 추가)
+const CHANNEL_TYPES = ['apply', 'kakao', 'guide'];
+const OFFICIAL_HOSTS = [
+  /(^|\.)go\.kr$/,                     // 교육부·시도교육청·교육지원청(sen.go.kr, ice.go.kr, goe.go.kr 등)
+  /^www\.(goe[a-z]+|gpoe)\.kr$/,       // 경기 교육지원청 홈페이지(경기도교육청 공식 목록)
+  /^incheon\.ssif\.or\.kr$/,           // 인천광역시학교안전공제회
+  /^www\.gessia\.or\.kr$/,             // 경기도학교안전공제회
+  /^www\.ssia\.or\.kr$/,               // 서울특별시학교안전공제회
+  /^forteacher\.kedi\.re\.kr$/,        // 한국교육개발원 교원 지원 포털
+  /^pf\.kakao\.com$/                   // 공식 자료가 안내한 카카오톡 채널
+];
+function checkUrl(tag, where, url) {
+  let u;
+  try { u = new URL(url); } catch (e) { errors.push(`${tag} ${where} URL 형식 오류: ${url}`); return; }
+  if (u.protocol !== 'https:') errors.push(`${tag} ${where} https가 아니에요: ${url}`);
+  if (!OFFICIAL_HOSTS.some(re => re.test(u.hostname))) errors.push(`${tag} ${where} 공식 도메인 목록에 없어요: ${u.hostname}`);
+}
+
 // 공통 데이터: 전국 공통 긴급번호(112) 외의 번호 금지
 const common = fs.readFileSync(path.join(root, 'data/common.js'), 'utf8');
 for (const n of phonesIn(common)) if (isValidPhone(n) || /^0\d/.test(n)) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
 
-// 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
 // 상황별 도움: 그룹이 없는 세부 상황은 화면에서 사라지므로 오류, 빈 그룹도 오류
 SITUS.forEach((st, i) => { if (!SITU_GROUPS.some(g => g.id === st.g)) errors.push(`SITUS[${i}] 큰 상황(g) 없음: ${st.t}`); });
 SITU_GROUPS.forEach(g => { if (!SITUS.some(st => st.g === g.id)) errors.push(`SITU_GROUPS ${g.id}: 세부 상황이 없어요`); });
 
+// 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
 const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
 let total = 0;
 
@@ -75,6 +94,17 @@ for (const id of REGION_ORDER) {
     if (p.source !== undefined && !r.sources[p.source]) errors.push(`${tag} programs[${i}] source 번호가 없어요: ${p.source}`);
     // 지원 찾기에 보이려면 area가 SUPPORT_TYPES 중 하나에 속해야 해요
     if (!SUPPORT_TYPES.some(t => t.areas.includes(p.area))) errors.push(`${tag} programs[${i}] area가 SUPPORT_TYPES에 없어요: ${p.area}`);
+  });
+
+  // 신청·상담·안내 링크(channels)와 교육지원청 링크: https + 공식 도메인만
+  r.programs.forEach((p, i) => (p.channels || []).forEach((c, j) => {
+    const where = `programs[${i}].channels[${j}] (${p.t})`;
+    if (!CHANNEL_TYPES.includes(c.type)) errors.push(`${tag} ${where} 알 수 없는 type: ${c.type}`);
+    checkUrl(tag, where, c.url);
+  }));
+  r.offices.forEach((o, i) => {
+    if (o.url) checkUrl(tag, `offices[${i}].url (${o.name})`, o.url);
+    if (o.guideUrl) checkUrl(tag, `offices[${i}].guideUrl (${o.name})`, o.guideUrl);
   });
 
   // 관할 중복·누락

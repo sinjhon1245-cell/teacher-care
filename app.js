@@ -1,8 +1,12 @@
 // 선생님 곁에 — 교육활동 보호·대응 가이드
 // 화면 렌더링 및 상태 관리 (바닐라 JS, 빌드 도구 없이 동작)
 // 지역별 내용은 data/regions/*.js 에서만 가져와요. 이 파일에는 특정 시·도 이름이나 번호를 두지 않아요.
+// 화면 역할: 홈 = 시작 · 상황별 도움 = 판단 · 대응 절차 = 실행(체크) · 지원 찾기 = 연결(신청·상담·안내)
 
 const STORAGE_REGION = 'teacher-care-region';
+const STORAGE_CHECKS = 'teacher-care-procedure-checks-v1'; // { '단계번호.항목id': true }
+// 예전 체크리스트 키. 삭제된 목록의 순번으로 저장돼 새 항목과 맞지 않아 옮기지 않고 지워요
+const LEGACY_CHECK_KEYS = ['teacher-care-checks', 'icn-gyeote-checks'];
 
 const App = {
   state: {
@@ -10,14 +14,18 @@ const App = {
     regionId: null,     // 선택한 시·도 id(REGIONS의 key). 없으면 전국 공통 안내만 보여요
     area: '',           // '내 교육지원청 찾기'에서 고른 시·군·구
     quick: null,        // 홈에서 펼친 상황
-    step: null,         // 대응 절차에서 펼친 단계
-    situ: null,         // 상황별 도움에서 펼친 상황
+    step: 0,            // 대응 절차에서 선택한 단계
+    situ: null,         // 상황별 도움에서 펼친 큰 상황(그룹 id) 또는 세부 상황('s' + 번호)
+    filters: {},        // 상세 조건 { 그룹명: [선택값] }
+    filterOpen: false,
     supportType: 'all', // 지원 찾기에서 고른 도움 유형
-    faqOpen: null
+    faqOpen: null,
+    checks: {}
   },
 
   init() {
     this.state.regionId = initialRegionId();
+    this.state.checks = loadChecks();
     this.render();
   },
 
@@ -58,6 +66,38 @@ const App = {
     });
   },
 
+  // ── 대응 절차 체크 ──
+  toggleCheck(step, id) {
+    const key = step + '.' + id;
+    const checks = { ...this.state.checks };
+    if (checks[key]) delete checks[key]; else checks[key] = true;
+    storeSet(STORAGE_CHECKS, JSON.stringify(checks));
+    this.setState({ checks });
+  },
+
+  resetChecks(step) {
+    const checks = { ...this.state.checks };
+    Object.keys(checks).filter(k => k.startsWith(step + '.')).forEach(k => delete checks[k]);
+    storeSet(STORAGE_CHECKS, Object.keys(checks).length ? JSON.stringify(checks) : null);
+    this.setState({ checks });
+  },
+
+  progress(step) {
+    const items = STEP_DETAIL[step].checks;
+    return { done: items.filter(c => this.state.checks[step + '.' + c.id]).length, total: items.length };
+  },
+
+  // ── 상황별 도움 상세 조건 ──
+  toggleFilter(group, opt) {
+    const f = { ...this.state.filters };
+    const set = new Set(f[group] || []);
+    set.has(opt) ? set.delete(opt) : set.add(opt);
+    if (set.size) f[group] = [...set]; else delete f[group];
+    this.setState({ filters: f, situ: null });
+  },
+
+  clearFilters() { this.setState({ filters: {}, situ: null }); },
+
   showToast(msg) {
     const el = document.getElementById('toast');
     if (!el) return;
@@ -88,13 +128,13 @@ const App = {
   },
 
   // ══════════════ 공통 부품 ══════════════
-  renderRegionSelect() {
+  renderRegionSelect(cls) {
     const cur = this.state.regionId;
     const opts = REGION_ORDER.map(id =>
       `<option value="${id}" ${cur === id ? 'selected' : ''}>${REGIONS[id].short}</option>`
     ).join('');
     return `
-      <label class="region-select ${cur ? '' : 'empty'}">
+      <label class="region-select ${cls || ''} ${cur ? '' : 'empty'}">
         <span class="sr-only">근무 지역</span>
         <select onchange="App.setRegion(this.value)" aria-label="근무 지역 선택">
           ${cur ? '' : '<option value="" selected>지역 선택</option>'}
@@ -104,7 +144,7 @@ const App = {
     `;
   },
 
-  // 지역이 아직 없을 때 보여 주는 선택 버튼. 긴급 신고(112)는 지역과 상관없이 함께 안내해요
+  // 지역이 아직 없을 때 보여 주는 선택 버튼
   renderRegionPicker(title) {
     const btns = REGION_ORDER.map(id =>
       `<button class="region-pick" onclick="App.setRegion('${id}')">${REGIONS[id].short}</button>`
@@ -125,6 +165,10 @@ const App = {
 
   emergencyNote() {
     return `<p class="emergency-note"><span class="emergency-icon" aria-hidden="true">!</span><span>폭행·협박·난입 등 지금 위험하다면 현장을 벗어나 <a href="tel:112">112</a>에 먼저 신고하세요.</span></p>`;
+  },
+
+  eyebrow(text) {
+    return `<p class="eyebrow">${text}</p>`;
   },
 
   // 라벨 · 내용 목록(빈 값은 건너뜀)
@@ -152,7 +196,7 @@ const App = {
     `;
   },
 
-  // ══════════════ 홈 ══════════════
+  // ══════════════ 홈 = 시작 ══════════════
   renderHome() {
     return `
       ${this.renderHero()}
@@ -166,24 +210,33 @@ const App = {
   renderHero() {
     const R = this.R;
     const regionNames = REGION_ORDER.map(id => REGIONS[id].short).join('·');
+    // 오른쪽 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
+    const panel = R ? `
+      <aside class="region-panel" aria-label="현재 지역 연락처">
+        <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
+        <p class="panel-hot-label">${R.hotName}</p>
+        <a href="{TEL}" class="panel-hot">{HOT}</a>
+        <div class="panel-actions">
+          <a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화하기</a>
+          <button class="btn btn-secondary" onclick="App.nav('support')">지원 방법 보기</button>
+        </div>
+      </aside>
+    ` : `<aside class="region-panel">${this.renderRegionPicker('근무 지역을 고르면 연락할 곳을 알려 드려요')}</aside>`;
     return `
       <section class="hero">
-        <h1>교육활동 중 어려움이 생겼다면,<br>지금 해야 할 일을 바로 확인하세요.</h1>
-        <p class="hero-sub">${regionNames} 공식 자료를 바탕으로 신고·대응·법률·심리 지원 절차를 안내해요.</p>
-        ${R ? `
-          <div class="hotline">
-            <div class="hotline-text">
-              <span class="hotline-label">${R.hotName}</span>
-              <a href="{TEL}" class="hotline-num">{HOT}</a>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            ${this.eyebrow('교육활동 보호·대응 가이드')}
+            <h1>교육활동 중 어려움이 생겼다면,<br>지금 해야 할 일을 바로 확인하세요.</h1>
+            <p class="hero-sub">${regionNames} 공식 자료를 바탕으로 신고·대응·법률·심리 지원 절차를 안내해요.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" onclick="App.nav('proc')">지금 대응 절차 확인</button>
+              <button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기</button>
             </div>
-            <a href="{TEL}" class="btn btn-primary hotline-btn"><span aria-hidden="true">☎</span> 전화 걸기</a>
+            ${this.emergencyNote()}
           </div>
-        ` : this.renderRegionPicker('근무 지역을 고르면 연락할 곳을 알려 드려요')}
-        <div class="hero-actions">
-          <button class="btn btn-primary" onclick="App.nav('proc')">지금 대응 절차 확인</button>
-          <button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기</button>
+          ${panel}
         </div>
-        ${this.emergencyNote()}
       </section>
     `;
   },
@@ -214,6 +267,7 @@ const App = {
     }).join('');
     return `
       <section class="section" id="quick">
+        ${this.eyebrow('시작')}
         <h2 class="h2">지금 어떤 도움이 필요하신가요?</h2>
         <ul class="action-list">${rows}</ul>
       </section>
@@ -221,31 +275,30 @@ const App = {
   },
 
   renderStepsSummary() {
-    const rows = STEPS.map((s, i) => `
-      <li>
-        <button class="step-row" onclick="App.nav('proc', { step: ${i} })">
-          <span class="step-num">${s.n}</span>
-          <span class="step-text"><span class="step-title">${s.title}</span><span class="step-meta">${s.org}${s.deadline ? ` · ${s.deadline}` : ''}</span></span>
-          <span class="chevron right" aria-hidden="true"></span>
-        </button>
-      </li>
-    `).join('');
+    const rows = STEPS.map((s, i) => {
+      const p = this.progress(i);
+      return `
+        <li>
+          <button class="step-row" onclick="App.nav('proc', { step: ${i} })">
+            <span class="step-num">${s.n}</span>
+            <span class="step-text"><span class="step-title">${s.title}</span><span class="step-meta">${s.org}${s.deadline ? ` · ${s.deadline}` : ''}</span></span>
+            ${p.done ? `<span class="badge">${p.done}/${p.total} 완료</span>` : ''}
+            <span class="chevron right" aria-hidden="true"></span>
+          </button>
+        </li>
+      `;
+    }).join('');
     return `
-      <section class="section">
-        <div class="section-head">
-          <h2 class="h2">대응 절차</h2>
-          <button class="link-btn" onclick="App.nav('proc')">자세히 보기</button>
+      <section class="band warm">
+        <div class="section">
+          <div class="section-head">
+            <div>${this.eyebrow('실행')}<h2 class="h2">대응 절차 4단계</h2></div>
+            <button class="link-btn" onclick="App.nav('proc')">단계별로 체크하기</button>
+          </div>
+          <ol class="step-list">${rows}</ol>
         </div>
-        <ol class="step-list">${rows}</ol>
       </section>
     `;
-  },
-
-  // 현재 지역에서 실제로 지원이 있는 유형만(지역 미선택이면 전체 유형)
-  availableTypes() {
-    const R = this.R;
-    if (!R) return SUPPORT_TYPES;
-    return SUPPORT_TYPES.filter(t => R.programs.some(p => t.areas.includes(p.area)));
   },
 
   // 시·군·구 → 담당 교육지원청. 지역 수와 상관없이 select 하나로 표현해요(경기 31개 시·군도 한 화면)
@@ -254,6 +307,7 @@ const App = {
     if (!R) {
       return `
         <section class="section" id="finder">
+          ${this.eyebrow('연결')}
           <h2 class="h2">내 교육지원청 찾기</h2>
           <p class="muted">교육활동 침해 신고와 지역교권보호위원회 심의는 소속 교육지원청이 담당해요. 먼저 근무 지역을 골라 주세요.</p>
           ${this.renderRegionPicker('근무 지역')}
@@ -266,6 +320,7 @@ const App = {
     const office = hit ? hit.office : null;
     return `
       <section class="section" id="finder">
+        ${this.eyebrow('연결')}
         <h2 class="h2">내 교육지원청 찾기</h2>
         <p class="muted">교육활동 침해 신고와 지역교권보호위원회 심의는 소속 교육지원청이 담당해요.</p>
         ${R.areaNote ? `<p class="note">${R.areaNote}</p>` : ''}
@@ -278,14 +333,14 @@ const App = {
         </label>
         ${office ? `
           <div class="result" aria-live="polite">
-            <p class="result-title">${officeTitle(office)}</p>
-            <p class="muted small">관할 · ${office.areas.join('·')}</p>
+            <p class="result-title">${office.name}</p>
+            <p class="muted small">${office.dept ? `담당 · ${office.dept} · ` : ''}관할 · ${office.areas.join('·')}</p>
             ${this.facts([
               ['연락처', office.contact && /\d/.test(office.contact) ? linkifyPhone(office.contact) : ''],
               ['신고·심의', '소속 교육지원청 또는 {HOT2}'],
-              ['법률·심리·치료', '{HOT1}'],
-              ['홈페이지', office.url ? `<a href="${office.url}" target="_blank" rel="noopener">교육지원청 안내</a>` : '']
+              ['법률·심리·치료', '{HOT1}']
             ])}
+            ${actionButtons(officeChannels(office))}
           </div>
         ` : ''}
       </section>
@@ -314,76 +369,115 @@ const App = {
     `;
   },
 
-  // ══════════════ 대응 절차 ══════════════
+  // ══════════════ 대응 절차 = 실행 ══════════════
   renderProc() {
     const S = this.state;
+    const i = S.step;
+    const s = STEPS[i];
+    const d = STEP_DETAIL[i];
+    const p = this.progress(i);
+    const stepper = STEPS.map((st, j) => {
+      const pj = this.progress(j);
+      return `
+        <li><button class="stepper-btn ${j === i ? 'active' : ''} ${pj.done === pj.total ? 'complete' : ''}" ${j === i ? 'aria-current="step"' : ''} onclick="App.setState({ step: ${j} })">
+          <span class="step-num">${pj.done === pj.total ? '✓' : st.n}</span>
+          <span class="stepper-text"><span class="stepper-title">${st.title}</span><span class="stepper-meta">${pj.done}/${pj.total}</span></span>
+        </button></li>
+      `;
+    }).join('');
+    const checks = d.checks.map(c => {
+      const done = !!S.checks[i + '.' + c.id];
+      return `
+        <li><label class="check ${done ? 'done' : ''}">
+          <input type="checkbox" ${done ? 'checked' : ''} onchange="App.toggleCheck(${i}, '${c.id}')">
+          <span>${c.t}</span>
+        </label></li>
+      `;
+    }).join('');
     const list = (title, arr) => `
       <div class="duty">
         <h3 class="duty-title">${title}</h3>
         <ul>${arr.map(x => `<li>${x}</li>`).join('')}</ul>
       </div>
     `;
-    const protections = `
-      <div class="duty wide">
-        <h3 class="duty-title">학교에 요청할 수 있는 보호조치</h3>
-        <ul>${PROTECTIONS.map(p => `<li><strong>${p.t}</strong> — ${p.d}</li>`).join('')}</ul>
-      </div>
-    `;
-    const rows = STEPS.map((s, i) => {
-      const open = S.step === i;
-      const d = STEP_DETAIL[i];
-      return `
-        <li class="proc-step ${open ? 'open' : ''}">
-          <button class="proc-head" aria-expanded="${open}" onclick="App.toggle('step', ${i})">
-            <span class="step-num">${s.n}</span>
-            <span class="step-text"><span class="step-title">${s.title}</span><span class="step-meta">${s.org}${s.deadline ? ` · ${s.deadline}` : ''}</span></span>
-            <span class="chevron" aria-hidden="true"></span>
-          </button>
-          ${open ? `
-            <div class="proc-body">
-              <p>${s.sum}</p>
-              <div class="duty-grid">
-                ${list('내가 할 일', d.teacher)}
-                ${list('학교가 할 일', d.school)}
-                ${list('교육지원청이 할 일', d.office)}
-                ${list('기록·준비할 것', d.docs)}
-              </div>
-              <p class="caution"><strong>주의</strong> ${d.caution.join(' · ')}</p>
-              <p class="muted small">${d.next}</p>
-              ${i === 0 ? protections : ''}
-            </div>
-          ` : ''}
-        </li>
-      `;
-    }).join('');
     return `
       <section class="section page">
+        ${this.eyebrow('실행')}
         <h1 class="page-title">대응 절차</h1>
-        <p class="muted">단계를 누르면 역할별로 할 일이 보여요.</p>
+        <p class="muted">지금 단계를 고르고, 한 일을 체크하며 따라가세요.</p>
         ${this.emergencyNote()}
-        <ol class="proc-list">${rows}</ol>
+        <ol class="stepper" aria-label="대응 단계">${stepper}</ol>
+        <div class="proc-panel">
+          <div class="proc-title-row">
+            <h2 class="h2">${s.n}. ${s.title}</h2>
+            <span class="badge">${s.org}</span>
+            ${s.deadline ? `<span class="badge badge-accent">⏱ ${s.deadline}</span>` : ''}
+          </div>
+          <p>${s.sum}</p>
+          <div class="progress-row">
+            <span class="progress-label">진행 ${p.done} / ${p.total}</span>
+            <span class="progress" aria-hidden="true"><span style="width:${Math.round(p.done / p.total * 100)}%"></span></span>
+          </div>
+          <ul class="check-list" aria-label="${s.title} 진행 체크">${checks}</ul>
+          <p class="muted small check-note">체크 상태는 이 기기에만 저장돼요.${p.done ? ` <button class="link-btn small" onclick="App.resetChecks(${i})">이 단계 체크 지우기</button>` : ''}</p>
+          <div class="duty-grid">
+            ${list('내가 할 일', d.teacher)}
+            ${list('학교가 할 일', d.school)}
+            ${list('교육지원청이 할 일', d.office)}
+            ${list('준비·기록할 것', d.docs)}
+          </div>
+          <p class="caution"><strong>주의할 점</strong> ${d.caution.join(' · ')}</p>
+          <p class="next-step"><strong>다음 단계</strong> ${d.next}</p>
+          ${i === 0 ? `
+            <details class="more">
+              <summary>학교에 요청할 수 있는 보호조치</summary>
+              <ul class="plain-list">${PROTECTIONS.map(x => `<li><strong>${x.t}</strong> — ${x.d}</li>`).join('')}</ul>
+            </details>
+          ` : ''}
+          <div class="btn-row">
+            ${i > 0 ? `<button class="btn btn-secondary" onclick="App.setState({ step: ${i - 1} })">← 이전 단계</button>` : ''}
+            ${i < STEPS.length - 1 ? `<button class="btn btn-primary" onclick="App.setState({ step: ${i + 1} }); document.querySelector('.stepper').scrollIntoView({ behavior: 'smooth' })">다음 단계 →</button>` : ''}
+          </div>
+        </div>
         <p class="muted small">기한은 법률이 아닌 교육활동 보호 매뉴얼 기준이에요(법률은 '지체 없이' 보고). 실제 적용 기한과 제출 방식은 소속 교육지원청 안내를 확인하세요.</p>
         ${sourceBox('절차 근거', COMMON_SOURCES, latestDate(COMMON_SOURCES))}
       </section>
     `;
   },
 
-  // ══════════════ 상황별 도움 ══════════════
+  // ══════════════ 상황별 도움 = 판단 ══════════════
+  situDetail(s, withTitle) {
+    return `
+      <div class="situ-sub">
+        ${withTitle ? `<h3 class="sub-title">${s.t}</h3>` : ''}
+        <p class="muted small">${s.urgency} · 예: ${s.ex}</p>
+        <p class="action-first">${s.act}</p>
+        ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+      </div>
+    `;
+  },
+
   renderGuide() {
     const S = this.state;
-    // 큰 상황(SITU_GROUPS)을 누르면 그 안의 세부 상황 안내를 위험한 순서로 모두 보여요
-    const rows = SITU_GROUPS.map(g => {
+    const active = Object.keys(S.filters).length > 0;
+    const matches = SITUS.map((s, i) => ({ ...s, i })).filter(s => FILTER_DEFS.every(d => {
+      const sel = S.filters[d.g] || [];
+      return sel.length === 0 || sel.some(o => d.test(s, o));
+    })).sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
+
+    // 선택지는 실제로 해당하는 상황이 있는 것만(개수와 함께) 보여 줘요
+    const filterGroups = FILTER_DEFS.map(d => {
+      const chips = d.opts.map(o => ({ o, n: SITUS.filter(s => d.test(s, o)).length })).filter(x => x.n).map(({ o, n }) => {
+        const on = (S.filters[d.g] || []).includes(o);
+        return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" onclick="App.toggleFilter('${d.g}','${o}')">${o} <span class="chip-count">${n}</span></button>`;
+      }).join('');
+      return `<fieldset class="filter-group"><legend>${d.g}</legend><div class="chip-row">${chips}</div></fieldset>`;
+    }).join('');
+
+    const groupRows = SITU_GROUPS.map(g => {
       const subs = SITUS.filter(s => s.g === g.id)
         .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
       const open = S.situ === g.id;
-      const detail = s => `
-        <div class="situ-sub">
-          ${subs.length > 1 ? `<h3 class="support-title">${s.t}</h3>` : ''}
-          <p class="muted small">${s.urgency} · 예: ${s.ex}</p>
-          <p class="action-first">${s.act}</p>
-          ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
-        </div>
-      `;
       return `
         <li class="action ${g.urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
           <button class="action-head" aria-expanded="${open}" onclick="App.toggle('situ', '${g.id}')">
@@ -391,28 +485,64 @@ const App = {
             <span class="action-label">${g.t}</span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          ${open ? `<div class="action-body">${subs.map(detail).join('')}</div>` : ''}
+          ${open ? `<div class="action-body">${subs.map(s => this.situDetail(s, subs.length > 1)).join('')}</div>` : ''}
         </li>
       `;
     }).join('');
+
+    const resultRows = matches.map(s => {
+      const key = 's' + s.i;
+      const open = S.situ === key;
+      const urgent = s.urgency === URGENCY_ORDER[0];
+      return `
+        <li class="action ${urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
+          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('situ', '${key}')">
+            ${urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
+            <span class="action-label">${s.t}</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          ${open ? `<div class="action-body">${this.situDetail(s, false)}</div>` : ''}
+        </li>
+      `;
+    }).join('');
+
+    const activeCount = Object.values(S.filters).reduce((n, a) => n + a.length, 0);
     return `
       <section class="section page">
+        ${this.eyebrow('판단')}
         <h1 class="page-title">상황별 도움</h1>
-        <p class="muted">지금 상황과 가장 가까운 항목을 누르세요.</p>
+        <p class="muted">지금 상황과 가장 가까운 항목을 누르세요. 더 좁혀 찾으려면 상세 조건을 쓰세요.</p>
         ${this.emergencyNote()}
-        <ul class="action-list">${rows}</ul>
+        <details class="filter-panel" ${S.filterOpen || active ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
+          <summary>상세 조건으로 찾기${activeCount ? ` <span class="badge badge-accent">${activeCount}개 선택</span>` : ''}</summary>
+          ${filterGroups}
+          <div class="filter-footer">
+            <span class="filter-count" aria-live="polite">${matches.length}개 상황 찾음</span>
+            ${active ? '<button class="link-btn" onclick="App.clearFilters()">필터 초기화</button>' : ''}
+          </div>
+        </details>
+        ${active
+          ? (matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">조건에 맞는 상황이 없어요. 조건을 줄여 보세요.</p>')
+          : `<ul class="action-list">${groupRows}</ul>`}
         <p class="muted small">구체적인 사안의 교육활동 침해 해당 여부는 사실관계 조사와 지역교권보호위원회 심의로 판단돼요.</p>
       </section>
     `;
   },
 
-  // ══════════════ 지원 찾기(지원제도 + 지원기관) ══════════════
+  // ══════════════ 지원 찾기 = 연결 ══════════════
+  // 현재 지역에서 실제로 지원이 있는 유형만
+  availableTypes() {
+    const R = this.R;
+    return R ? SUPPORT_TYPES.filter(t => R.programs.some(p => t.areas.includes(p.area))) : SUPPORT_TYPES;
+  },
+
   renderSupport() {
     const S = this.state;
     const R = this.R;
     if (!R) {
       return `
         <section class="section page">
+          ${this.eyebrow('연결')}
           <h1 class="page-title">지원 찾기</h1>
           <p class="muted">지원 이름·신청 방법·연락처는 시·도교육청마다 달라요.</p>
           ${this.renderRegionPicker('근무 지역을 선택해 주세요')}
@@ -428,11 +558,12 @@ const App = {
     const items = programs.map(p => `
       <li class="support-item">
         <div class="support-head">
-          <h3 class="support-title">${p.t}</h3>
-          ${p.status && p.status !== '현재 시행 중' ? `<span class="tag">${p.status}</span>` : ''}
+          <h3 class="sub-title">${p.t}</h3>
+          ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : ''}
         </div>
         <p>${p.sum}</p>
-        ${this.facts([['담당', p.org || UNKNOWN], ['연락처', p.contact ? linkifyPhone(p.contact) : UNKNOWN], ['신청', p.apply || UNKNOWN], ['대상', p.target]])}
+        ${this.facts([['담당', p.org || UNKNOWN], ['신청 방법', p.apply || UNKNOWN], ['연락처', p.contact ? linkifyPhone(p.contact) : UNKNOWN], ['대상', p.target]])}
+        ${actionButtons(programChannels(p))}
         <p class="muted small">${sourceLine(R, p)}</p>
       </li>
     `).join('');
@@ -441,19 +572,18 @@ const App = {
     `).join('');
     return `
       <section class="section page">
+        ${this.eyebrow('연결')}
         <h1 class="page-title">지원 찾기</h1>
-        <p class="muted">어떤 도움이 필요하신가요? ${R.name} 기준으로 지원 내용과 연락처를 함께 보여 드려요.</p>
-        <div class="hotline">
-          <div class="hotline-text">
-            <span class="hotline-label">${R.hotName}</span>
-            <a href="{TEL}" class="hotline-num">{HOT}</a>
-            ${R.menu
-              ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
-              : `<span class="hotline-desc">${R.hotSummary || R.menuNote || ''}</span>`}
-          </div>
-          <a href="{TEL}" class="btn btn-primary hotline-btn"><span aria-hidden="true">☎</span> 전화 걸기</a>
+        <p class="muted">어떤 도움이 필요하신가요? ${R.name}에서 실제로 신청하거나 상담받는 방법을 보여 드려요.</p>
+        <div class="region-panel wide">
+          <p class="panel-hot-label">${R.hotName}</p>
+          <a href="{TEL}" class="panel-hot">{HOT}</a>
+          ${R.menu
+            ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
+            : `<p class="muted small">${R.hotSummary || R.menuNote || ''}</p>`}
+          <div class="panel-actions"><a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화하기</a></div>
         </div>
-        <div class="chip-row" role="group" aria-label="도움 유형">${chips}</div>
+        <div class="chip-row support-chips" role="group" aria-label="도움 유형">${chips}</div>
         <ul class="support-list">${items}</ul>
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
@@ -474,7 +604,7 @@ const App = {
           <p class="footer-title">선생님 곁에 · 서비스 안내</p>
           <p>교사를 위한 교육활동 보호·대응 가이드예요. 공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.
           실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.
-          선택한 지역만 이 기기에 저장하고, 다른 정보는 저장하거나 보내지 않아요.</p>
+          선택한 지역과 대응 절차 체크 상태만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
           ${R ? sourceBox(`${R.short} 공식 출처`, R.sources, R.verifiedAt,
             `최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요.`) : ''}
         </div>
@@ -503,6 +633,46 @@ const App = {
 // 값이 없는 항목에 보여 줄 문구(확인되지 않은 내용을 다른 지역 값으로 채우지 않아요)
 const UNKNOWN = '<span class="unknown">공식 안내 확인 필요</span>';
 
+// ── 신청·상담·안내 경로 ──
+// 우선순위: 실제 신청 → 실제 상담(카카오톡·전화) → 공식 안내. 한 카드에 최대 3개까지만 보여요
+const CHANNEL_ORDER = ['apply', 'kakao', 'phone', 'guide', 'office', 'officeGuide'];
+const CHANNEL_LABEL = { apply: '온라인 신청', kakao: '카카오톡 상담', phone: '전화 문의', guide: '공식 안내', office: '교육지원청 홈페이지', officeGuide: '교육활동보호 안내' };
+
+// 지원 항목: 데이터의 channels + 연락처의 첫 번호(전화 문의)
+function programChannels(p) {
+  const list = (p.channels || []).slice();
+  const phone = firstPhone(p.contact);
+  if (phone && !list.some(c => c.type === 'phone')) list.push({ type: 'phone', tel: phone });
+  return list;
+}
+
+// 교육지원청: 대표번호 + 홈페이지 + 교육활동보호 안내 페이지(공식 확인된 것만 데이터에 있어요)
+function officeChannels(o) {
+  const list = [];
+  const phone = firstPhone(o.contact);
+  if (phone) list.push({ type: 'phone', tel: phone });
+  if (o.url) list.push({ type: 'office', url: o.url, label: o.urlLabel });
+  if (o.guideUrl) list.push({ type: 'officeGuide', url: o.guideUrl });
+  return list;
+}
+
+function actionButtons(channels) {
+  const sorted = channels.slice().sort((a, b) => CHANNEL_ORDER.indexOf(a.type) - CHANNEL_ORDER.indexOf(b.type)).slice(0, 3);
+  if (!sorted.length) return '';
+  return `<div class="channel-row">${sorted.map((c, i) => {
+    const label = c.label || CHANNEL_LABEL[c.type];
+    const cls = i === 0 ? 'btn btn-primary' : 'btn btn-secondary';
+    return c.type === 'phone'
+      ? `<a class="${cls}" href="${telHref(c.tel)}"><span aria-hidden="true">☎</span> ${label} <span class="btn-sub">${c.tel}</span></a>`
+      : `<a class="${cls}" href="${c.url}" target="_blank" rel="noopener">${label} <span aria-hidden="true">↗</span></a>`;
+  }).join('')}</div>`;
+}
+
+function firstPhone(text) {
+  const m = /(?<![\d-])(?:0\d{1,2}|1\d{3})-\d{3,4}(?:-\d{4})?(?![\d-])/.exec(text || '');
+  return m ? m[0] : null;
+}
+
 // ── 저장소(사생활 보호 모드 등에서 실패해도 동작하도록 모두 try/catch) ──
 function storeGet(key) {
   try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -513,6 +683,14 @@ function storeSet(key, value) {
     if (value === null || value === undefined) localStorage.removeItem(key);
     else localStorage.setItem(key, value);
   } catch (e) {}
+}
+
+function loadChecks() {
+  LEGACY_CHECK_KEYS.forEach(k => storeSet(k, null));
+  try {
+    const v = JSON.parse(storeGet(STORAGE_CHECKS) || '{}');
+    return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+  } catch (e) { return {}; }
 }
 
 // 주소의 ?region=seoul → 저장된 지역 → 미선택 순. 알 수 없는 값은 무시해요.
@@ -534,14 +712,10 @@ function regionAreas(R) {
     .sort((a, b) => a.area.localeCompare(b.area, 'ko'));
 }
 
-function officeTitle(o) {
-  return o.dept ? `${o.name} ${o.dept}` : o.name;
-}
-
 function sourceLine(R, item) {
   const src = item.source !== undefined ? R.sources[item.source] : null;
   const date = fmtDate((src && src.verifiedAt) || R.verifiedAt);
-  const link = src && src.url ? ` · <a href="${src.url}" target="_blank" rel="noopener">출처</a>` : '';
+  const link = src && src.url ? ` · <a href="${src.url}" target="_blank" rel="noopener">근거 자료</a>` : '';
   return `${date} 최종 확인${link}`;
 }
 
