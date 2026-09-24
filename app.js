@@ -425,7 +425,7 @@ const App = {
         <div class="section-alt-inner">
           <div class="eyebrow"><span class="eyebrow-dot"></span>피해 교원 보호조치</div>
           <h2 class="h2">선생님이 학교에 요청할 수 있는 보호조치</h2>
-          <p class="section-sub">보호조치는 피해 교원의 의사를 확인한 후 이루어져요. 필요한 조치를 학교 관리자와 교권보호책임관에게 요청하세요.</p>
+          <p class="section-sub">보호조치는 피해 교원의 의사를 확인한 후 이루어져요. 필요한 조치를 학교 관리자와 {OFFICER}에게 요청하세요.</p>
           <div class="grid-auto-250">${cards}</div>
         </div>
       </section>
@@ -475,6 +475,7 @@ const App = {
           <div class="eyebrow"><span class="eyebrow-dot"></span>내 교육지원청 찾기</div>
           <h2 class="h2">학교가 있는 시·군·구를 선택해 주세요</h2>
           <p class="section-sub">교육활동 침해 신고와 지역교권보호위원회 심의는 <strong>소속 교육지원청</strong>이 담당해요. ${R.name} 교육지원청 ${R.offices.length}곳 중에서 찾아 드려요.</p>
+          ${R.areaNote ? `<p class="area-note">ⓘ ${R.areaNote}</p>` : ''}
           <label class="area-select">
             <span class="area-select-label">${R.short} 시·군·구</span>
             <select onchange="App.setState({area: this.value})">
@@ -554,7 +555,8 @@ const App = {
             <div class="info-box next"><div class="info-box-title">다음 단계 기준</div><div style="font-size:13.5px;line-height:1.6">${detail.next}</div></div>
           </div>
         </div>
-        <p class="proc-note">※ 기한 정보는 참고용이에요. 실제 적용 기한과 제출 방식은 최신 매뉴얼과 소속 교육지원청 안내를 확인하세요.</p>
+        <p class="proc-note">※ 기한은 법률이 아닌 교육활동 보호 매뉴얼 기준이에요(법률은 '지체 없이' 보고). 실제 적용 기한과 제출 방식은 소속 교육지원청 안내를 확인하세요.</p>
+        ${sourceBox('절차 근거', COMMON_SOURCES, latestDate(COMMON_SOURCES))}
       </section>
     `;
   },
@@ -660,16 +662,8 @@ const App = {
 
   // 지역 데이터의 출처·최종 확인일 안내
   renderSources(R) {
-    const list = R.sources.map(s => `
-      <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>` : s.title}${s.verifiedAt ? ` <span class="source-date">· ${fmtDate(s.verifiedAt)} 확인</span>` : ''}</li>
-    `).join('');
-    return `
-      <details class="source-box">
-        <summary>공식 출처 · ${fmtDate(R.verifiedAt)} 최종 확인</summary>
-        <ul>${list}</ul>
-        <p>정책·연락처는 바뀔 수 있어요. 최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요.</p>
-      </details>
-    `;
+    return sourceBox('공식 출처', R.sources, R.verifiedAt,
+      `정책·연락처는 바뀔 수 있어요. 최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요.`);
   },
 
   // ══════════════ 지원제도 ══════════════
@@ -923,6 +917,24 @@ function sourceLine(R, item) {
   return `${date} 최종 확인${link}`;
 }
 
+// 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구)
+function sourceBox(label, sources, verifiedAt, note) {
+  const list = sources.map(s => `
+    <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>` : s.title}${s.verifiedAt ? ` <span class="source-date">· ${fmtDate(s.verifiedAt)} 확인</span>` : ''}</li>
+  `).join('');
+  return `
+    <details class="source-box">
+      <summary>${label} · ${fmtDate(verifiedAt)} 최종 확인</summary>
+      <ul>${list}</ul>
+      ${note ? `<p>${note}</p>` : ''}
+    </details>
+  `;
+}
+
+function latestDate(sources) {
+  return sources.map(s => s.verifiedAt).filter(Boolean).sort().pop();
+}
+
 function fmtDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
   return m ? `${+m[1]}. ${+m[2]}. ${+m[3]}.` : '확인일 미기재';
@@ -936,7 +948,7 @@ function telHref(num) {
 function T(str) {
   const R = REGIONS[App.state.regionId];
   const terms = R ? R.terms : NEUTRAL_TERMS;
-  return String(str).replace(/\{(HOT1|HOT2|HOT|TEL|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, (_, k) =>
+  return String(str).replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, (_, k) =>
     k === 'TEL' ? (R ? telHref(R.hot) : 'tel:112') : terms[k]);
 }
 

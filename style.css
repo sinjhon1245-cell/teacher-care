@@ -124,6 +124,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .region-picker-note { margin: 14px 0 0; font-size: 13px; color: var(--text-muted); }
 
 /* 내 교육지원청 찾기: 시·군·구 선택 */
+.area-note { margin: -4px 0 14px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; }
 .area-select { display: flex; flex-direction: column; gap: 6px; max-width: 420px; margin-bottom: 18px; }
 .area-select-label { font-size: 13px; font-weight: 700; color: var(--text-muted); }
 .area-select select {
