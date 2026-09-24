@@ -3,15 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>인천 선생님 곁에 — 인천 교육활동 보호·대응 가이드</title>
-<meta name="description" content="인천 교원의 교육활동 침해 대응, 신고·심의 절차, 법률·심리·치유 지원을 안내하는 사이트입니다. 032-1395 인천 원스톱 지원.">
+<title>선생님 곁에 — 교육활동 보호·대응 가이드</title>
+<meta name="description" content="교육활동 침해가 생겼을 때 지금 무엇을 해야 하는지 빠르게 안내하는 교원용 가이드입니다. 대응 절차, 상황별 가이드, 기록지와 지역별 신고·지원 창구를 안내합니다.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app"></div>
-<script src="data.js"></script>
+<!-- 1) 전국 공통 데이터 + 지역 등록 도구 -->
+<script src="data/common.js"></script>
+<!-- 2) 지역 데이터: 여기 적은 순서가 지역 선택 목록 순서예요. 새 시·도는 파일을 만들고 한 줄 추가하세요. -->
+<script src="data/regions/incheon.js"></script>
+<!-- 3) 화면 -->
 <script src="app.js"></script>
 </body>
 </html>
