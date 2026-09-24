@@ -5,6 +5,7 @@
 //  3) 전화번호 형식: 대표번호·연락처·신청 방법에 든 번호가 올바른 국내 형식인지(032-5606-600 같은 오기 방지)
 //  4) 지역 간 전화번호 혼입: 한 지역 파일에 다른 지역의 대표번호가 있으면 오류
 //  5) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
+//  6) 지원제도(programs)의 area가 지원 찾기 유형(SUPPORT_TYPES)에 연결돼 있는지
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -20,7 +21,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { REGIONS, REGION_ORDER } = vm.runInContext('({ REGIONS, REGION_ORDER })', ctx);
+const { REGIONS, REGION_ORDER, SUPPORT_TYPES } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -67,6 +68,8 @@ for (const id of REGION_ORDER) {
   });
   r.programs.forEach((p, i) => {
     if (p.source !== undefined && !r.sources[p.source]) errors.push(`${tag} programs[${i}] source 번호가 없어요: ${p.source}`);
+    // 지원 찾기에 보이려면 area가 SUPPORT_TYPES 중 하나에 속해야 해요
+    if (!SUPPORT_TYPES.some(t => t.areas.includes(p.area))) errors.push(`${tag} programs[${i}] area가 SUPPORT_TYPES에 없어요: ${p.area}`);
   });
 
   // 관할 중복·누락
