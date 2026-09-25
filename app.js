@@ -21,13 +21,28 @@ const App = {
     supportType: 'all', // 지원 찾기에서 고른 도움 유형('related'는 상황별 도움에서 넘어온 관련 지원 묶음)
     related: null,      // { i: 상황 번호, ids: [지원 유형 id] }
     faqOpen: null,
-    checks: {}
+    checks: {},
+    onboarding: false   // 첫 방문(저장된 지역·주소의 region 모두 없음)이면 지역 선택 첫 화면을 보여요
   },
 
   init() {
     this.state.regionId = initialRegionId();
+    this.state.onboarding = !this.state.regionId;
     this.state.checks = loadChecks();
     this.render();
+  },
+
+  // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요
+  chooseRegion(id) {
+    this.state.onboarding = false;
+    this.state.page = 'home';
+    this.setRegion(id);
+    window.scrollTo(0, 0);
+  },
+
+  // 지역 없이 공통 대응부터 보기. ‘미선택’은 저장하지 않아 다음 새 방문에는 다시 지역 선택 화면이 나와요
+  skipOnboarding() {
+    this.nav('home', { onboarding: false });
   },
 
   // 현재 선택된 지역 데이터(없으면 null)
@@ -112,6 +127,11 @@ const App = {
     const S = this.state;
     const R = this.R;
     document.title = R ? `선생님 곁에 — ${R.short} 교육활동 보호·대응 가이드` : '선생님 곁에 — 교육활동 보호·대응 가이드';
+    document.body.classList.toggle('is-landing', S.onboarding);
+    if (S.onboarding) {
+      document.getElementById('app').innerHTML = this.renderLanding();
+      return;
+    }
     // 공통 데이터의 {HOT}·{LEGAL} 등 지역 토큰을 현재 지역 값(미선택 시 중립 문구)으로 치환
     document.getElementById('app').innerHTML = T(`
       <a class="skip-link" href="#main">본문 바로가기</a>
@@ -194,6 +214,32 @@ const App = {
           ${R ? `<a href="{TEL}" class="header-call" aria-label="${R.short} 교육활동 보호 대표번호 {HOT} 전화 걸기"><span aria-hidden="true">☎</span> {HOT}</a>` : ''}
         </div>
       </header>
+    `;
+  },
+
+  // ══════════════ 첫 방문: 지역 선택 첫 화면 ══════════════
+  renderLanding() {
+    const cards = REGION_ORDER.map(id => `
+      <li><button class="region-card" onclick="App.chooseRegion('${id}')">
+        <span class="region-card-text"><span class="region-card-name">${REGIONS[id].short}</span><span class="region-card-office">${REGIONS[id].office}</span></span>
+        <span class="region-card-arrow" aria-hidden="true">→</span>
+      </button></li>
+    `).join('');
+    return `
+      <main id="main" class="landing">
+        <div class="landing-inner">
+          <p class="landing-brand"><span class="brand-mark" aria-hidden="true">곁</span><span class="brand-name">선생님 곁에</span></p>
+          <p class="eyebrow">교육활동 보호·대응 가이드</p>
+          <h1 class="landing-title">어느 지역에서 근무하시나요?</h1>
+          <p class="landing-sub">지역에 따라 교육활동 보호 담당 기관과 지원·신청 방법이 달라요.</p>
+          <ul class="region-cards" aria-label="근무 지역 선택">${cards}</ul>
+          <div class="landing-safety">
+            <p class="emergency-note"><span class="emergency-icon" aria-hidden="true">!</span><span>폭행·협박·난입 등 지금 신변이 위험하다면 지역 선택보다 현장 이탈·안전 확보·<a href="tel:112">112</a> 신고가 먼저예요.</span></p>
+            <button class="btn btn-secondary landing-skip" onclick="App.skipOnboarding()">지역을 고르지 않고 공통 대응 먼저 보기</button>
+          </div>
+          <p class="landing-note">선택한 지역은 이 기기에만 저장되고, 위쪽 지역 메뉴에서 언제든 바꿀 수 있어요.</p>
+        </div>
+      </main>
     `;
   },
 
