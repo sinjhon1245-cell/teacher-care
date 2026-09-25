@@ -246,7 +246,16 @@ const App = {
   },
 
   // ══════════════ 홈 = 시작 ══════════════
+  // 지역을 고르지 않은 ‘공통 모드’는 지역과 관계없이 먼저 확인할 기본 대응만 가볍게 보여 줘요
   renderHome() {
+    if (!this.R) {
+      return `
+        ${this.renderCommonHero()}
+        ${this.renderCommonFirst()}
+        ${this.renderStepsSummary()}
+        ${this.renderOutsideNote()}
+      `;
+    }
     return `
       ${this.renderHero()}
       ${this.renderQuick()}
@@ -260,7 +269,7 @@ const App = {
     const R = this.R;
     const regionNames = REGION_ORDER.map(id => REGIONS[id].short).join('·');
     // 오른쪽 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
-    const panel = R ? `
+    const panel = `
       <aside class="region-panel" aria-label="현재 지역 연락처">
         <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
         <p class="panel-hot-label">${R.hotName}</p>
@@ -270,7 +279,7 @@ const App = {
           <button class="btn btn-secondary" onclick="App.nav('support')">지원 방법 보기</button>
         </div>
       </aside>
-    ` : `<aside class="region-panel">${this.renderRegionPicker('근무 지역을 고르면 연락할 곳을 알려 드려요')}</aside>`;
+    `;
     return `
       <section class="hero">
         <div class="hero-inner">
@@ -288,6 +297,75 @@ const App = {
         </div>
       </section>
     `;
+  },
+
+  // 공통 모드 첫 화면: 특정 시·도 번호·기관·사업 없이 안내 기준(전국 공통)과 지역 선택만 보여 줘요
+  renderCommonHero() {
+    const btns = REGION_ORDER.map(id =>
+      `<button class="region-pick" onclick="App.setRegion('${id}')">${REGIONS[id].short}</button>`
+    ).join('');
+    return `
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-copy">
+            ${this.eyebrow('공통 대응 안내')}
+            <h1>지역과 관계없이<br>지금 먼저 해야 할 일을 확인하세요.</h1>
+            <p class="hero-sub">교육활동 중 어려움이 생겼을 때 우선 확인할 기본 대응을 안내해요.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" onclick="App.nav('proc')">공통 대응 절차 보기</button>
+              <button class="btn btn-secondary" onclick="App.openRegionMenu()">근무 지역 선택</button>
+            </div>
+            ${this.emergencyNote()}
+          </div>
+          <aside class="region-panel common-panel" aria-label="현재 안내 기준">
+            <p class="panel-label">현재 안내 기준</p>
+            <p class="common-basis">전국 공통 대응</p>
+            <p class="common-panel-text">지역별 연락처·지원·신청 방법을 보려면 근무 지역을 선택하세요.</p>
+            <div class="region-pick-row">${btns}</div>
+          </aside>
+        </div>
+      </section>
+    `;
+  },
+
+  // 공통 모드: 지금 먼저 할 일(각 1~2줄). 처리 기한 같은 세부 기준은 대응 절차 화면에서 근거와 함께 안내해요
+  renderCommonFirst() {
+    const rows = COMMON_FIRST.map((c, i) => `
+      <li class="first-card ${c.urgent ? 'urgent' : ''}">
+        <span class="step-num">${i + 1}</span>
+        <div><p class="first-card-title">${c.t}</p><p class="first-card-text">${c.d}</p></div>
+      </li>
+    `).join('');
+    return `
+      <section class="section" id="quick">
+        ${this.eyebrow('시작')}
+        <h2 class="h2">지금 먼저 할 일</h2>
+        <ol class="first-list">${rows}</ol>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="App.nav('guide')">상황별 도움 보기</button>
+          <button class="btn btn-secondary" onclick="App.openRegionMenu()">지역별 지원 보기</button>
+        </div>
+      </section>
+    `;
+  },
+
+  // 공통 모드: 서울·경기·인천 외 지역 교사를 위한 짧은 안내
+  renderOutsideNote() {
+    const names = REGION_ORDER.map(id => REGIONS[id].short).join('·');
+    return `
+      <section class="section">
+        <div class="outside-note">
+          <p class="outside-note-title">${names} 외 지역인가요?</p>
+          <p>공통 대응은 그대로 참고할 수 있어요. 세부 지원·신청 방법은 소속 시·도교육청의 최신 안내를 확인해 주세요.</p>
+        </div>
+      </section>
+    `;
+  },
+
+  // 헤더의 지역 선택 목록을 열어요(공통 모드의 ‘근무 지역 선택’·‘지역별 지원 보기’)
+  openRegionMenu() {
+    window.scrollTo(0, 0);
+    RegionMenu.open();
   },
 
   renderQuick() {
@@ -323,14 +401,18 @@ const App = {
     `;
   },
 
+  // 지역 모드는 단계 이름·담당·기한, 공통 모드는 기한 없이 공통 흐름만 보여 줘요
   renderStepsSummary() {
+    const common = !this.R;
     const rows = STEPS.map((s, i) => {
       const p = this.progress(i);
+      const title = common ? COMMON_FLOW[i].t : s.title;
+      const meta = common ? COMMON_FLOW[i].d : `${s.org}${s.deadline ? ` · ${s.deadline}` : ''}`;
       return `
         <li>
           <button class="step-row" onclick="App.nav('proc', { step: ${i} })">
             <span class="step-num">${s.n}</span>
-            <span class="step-text"><span class="step-title">${s.title}</span><span class="step-meta">${s.org}${s.deadline ? ` · ${s.deadline}` : ''}</span></span>
+            <span class="step-text"><span class="step-title">${title}</span><span class="step-meta">${meta}</span></span>
             ${p.done ? `<span class="badge">${p.done}/${p.total} 완료</span>` : ''}
             <span class="chevron right" aria-hidden="true"></span>
           </button>
@@ -341,10 +423,11 @@ const App = {
       <section class="band warm">
         <div class="section">
           <div class="section-head">
-            <div>${this.eyebrow('실행')}<h2 class="h2">대응 절차 4단계</h2></div>
+            <div>${this.eyebrow('실행')}<h2 class="h2">${common ? '공통 대응 흐름 4단계' : '대응 절차 4단계'}</h2></div>
             <button class="link-btn" onclick="App.nav('proc')">단계별로 체크하기</button>
           </div>
           <ol class="step-list">${rows}</ol>
+          ${common ? '<p class="muted small flow-note">공통적으로 참고할 수 있는 흐름이에요. 세부 절차와 기한은 소속 교육(지원)청 안내를 확인하세요.</p>' : ''}
         </div>
       </section>
     `;
@@ -775,6 +858,22 @@ const App = {
 
 // 값이 없는 항목에 보여 줄 문구(확인되지 않은 내용을 다른 지역 값으로 채우지 않아요)
 const UNKNOWN = '<span class="unknown">공식 안내 확인 필요</span>';
+
+// ── 공통 모드(지역 미선택) 안내 문구 ──
+// 특정 시·도의 번호·기관·사업·처리 기한을 넣지 않아요. 지역과 관계없이 먼저 확인할 기본 대응만 담아요
+const COMMON_FIRST = [
+  { t: '안전 확보', d: '폭행·협박·난입 등 즉각적인 위험이 있으면 현장을 벗어나고, 긴급하면 <a href="tel:112">112</a>에 신고하세요.', urgent: true },
+  { t: '학교에 알리기', d: '관리자 또는 학교 교육활동 보호 담당자에게 상황을 공유하세요.' },
+  { t: '사실관계 기록', d: '언제·어디서·어떤 일이 있었는지 시간순으로 적고, 문자·게시물·사진·영상 등은 원본을 보존하세요.' },
+  { t: '필요한 지원 확인', d: '법률·심리·치료 지원이 필요하면 소속 학교나 교육(지원)청의 교육활동 보호 창구를 확인하세요.' }
+];
+// 대응 절차 4단계(STEPS)를 공통 수준으로 요약한 이름·설명(순서는 STEPS와 같아요)
+const COMMON_FLOW = [
+  { t: '학교 초기 대응', d: '안전 확보, 학교 보고, 보호조치 요청' },
+  { t: '교육(지원)청 보고·조사', d: '학교 보고 후 사실관계 조사' },
+  { t: '필요한 경우 심의', d: '침해 여부와 조치를 위원회에서 심의' },
+  { t: '보호·회복 지원', d: '조치 이행, 심리상담·치료 등 회복 지원' }
+];
 
 // ── 신청·상담·안내 경로 ──
 // 우선순위: 실제 신청 → 전화 → 카카오톡 → 공식 안내. 한 카드에 최대 3개까지만 보여요

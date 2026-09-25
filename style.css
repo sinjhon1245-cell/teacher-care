@@ -255,6 +255,11 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 }
 .page .emergency-note { margin-bottom: 20px; }
 
+/* 공통 모드(지역 미선택) 히어로 오른쪽: 현재 안내 기준 + 지역 선택 */
+.common-panel .panel-label { margin-bottom: 2px; }
+.common-basis { margin: 0 0 6px; font-size: 22px; line-height: 1.35; color: var(--text); }
+.common-panel-text { margin: 0 0 14px; font-size: 14.5px; color: var(--muted); }
+
 /* 지역 선택(첫 방문·지역이 필요한 화면) */
 .region-picker {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -391,6 +396,24 @@ body.is-landing { padding-bottom: 0; }
   border-radius: 6px; padding: 2px 7px;
 }
 .hub-link-label { flex: 1; min-width: 0; }
+
+/* ── 홈(공통 모드): 지금 먼저 할 일 · 수도권 외 지역 안내 ── */
+.first-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.first-card {
+  display: flex; align-items: flex-start; gap: 14px; height: 100%;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px;
+}
+.first-card.urgent { border-color: var(--danger-border); border-left: 4px solid var(--danger); }
+.first-card.urgent .step-num { background: var(--danger-soft); color: var(--danger); }
+.first-card-title { margin: 3px 0 2px; font-weight: 700; }
+.first-card-text { margin: 0; font-size: 15px; color: var(--muted); }
+.first-card-text a { color: var(--danger); font-weight: 700; }
+.flow-note { margin: 12px 0 0; }
+.outside-note {
+  max-width: 720px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px;
+}
+.outside-note-title { margin: 0 0 2px; font-weight: 700; }
+.outside-note p:last-child { margin: 0; font-size: 15px; color: var(--muted); }
 
 /* ── 홈: 절차 요약 ── */
 .step-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -578,7 +601,11 @@ body.is-landing { padding-bottom: 0; }
   .hero .region-pick { min-height: 44px; }
   .panel-hot { font-size: 26px; }
 
-  .step-list { grid-template-columns: 1fr; }
+  .step-list, .first-list { grid-template-columns: 1fr; }
+  /* 공통 모드 안내 기준 패널은 제목 뒤에 두고, 설명과 지역 버튼을 그대로 보여 줘요 */
+  .hero .common-panel { order: 0; display: block; }
+  .hero .common-panel .panel-label { display: block; }
+  .common-basis { font-size: 20px; }
   .tool-panel { padding: 14px 16px; }
   .filter-panel { padding: 0 16px; }
   .filter-row { grid-template-columns: 1fr; gap: 6px; }
