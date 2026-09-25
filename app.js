@@ -220,8 +220,8 @@ const App = {
   // ══════════════ 첫 방문: 지역 선택 첫 화면 ══════════════
   renderLanding() {
     const cards = REGION_ORDER.map(id => `
-      <li><button class="region-card" onclick="App.chooseRegion('${id}')">
-        <span class="region-card-text"><span class="region-card-name">${REGIONS[id].short}</span><span class="region-card-office">${REGIONS[id].office}</span></span>
+      <li><button class="region-card" onclick="App.chooseRegion('${id}')" aria-label="${REGIONS[id].short} 안내 보기">
+        <span class="region-card-name">${REGIONS[id].short}</span>
         <span class="region-card-arrow" aria-hidden="true">→</span>
       </button></li>
     `).join('');
@@ -229,15 +229,11 @@ const App = {
       <main id="main" class="landing">
         <div class="landing-inner">
           <p class="landing-brand"><span class="brand-mark" aria-hidden="true">곁</span><span class="brand-name">선생님 곁에</span></p>
-          <p class="eyebrow">교육활동 보호·대응 가이드</p>
-          <h1 class="landing-title">어느 지역에서 근무하시나요?</h1>
-          <p class="landing-sub">지역에 따라 교육활동 보호 담당 기관과 지원·신청 방법이 달라요.</p>
+          <h1 class="landing-title">어느 지역의 안내를 볼까요?</h1>
+          <p class="landing-sub">${REGION_ORDER.map(id => REGIONS[id].short).join('·')} 중 근무 지역을 선택하세요.</p>
           <ul class="region-cards" aria-label="근무 지역 선택">${cards}</ul>
-          <div class="landing-safety">
-            <p class="emergency-note"><span class="emergency-icon" aria-hidden="true">!</span><span>폭행·협박·난입 등 지금 신변이 위험하다면 지역 선택보다 현장 이탈·안전 확보·<a href="tel:112">112</a> 신고가 먼저예요.</span></p>
-            <button class="btn btn-secondary landing-skip" onclick="App.skipOnboarding()">지역을 고르지 않고 공통 대응 먼저 보기</button>
-          </div>
-          <p class="landing-note">선택한 지역은 이 기기에만 저장되고, 위쪽 지역 메뉴에서 언제든 바꿀 수 있어요.</p>
+          <button class="link-btn landing-skip" onclick="App.skipOnboarding()">공통 대응 먼저 보기</button>
+          <p class="landing-safety">지금 위험한 상황이라면 <a href="tel:112">112</a> 신고가 우선입니다.</p>
         </div>
       </main>
     `;
