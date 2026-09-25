@@ -18,7 +18,8 @@ const App = {
     situ: null,         // 상황별 도움에서 펼친 큰 상황(그룹 id) 또는 세부 상황('s' + 번호)
     filters: {},        // 상세 조건 { 그룹명: [선택값] }
     filterOpen: null,   // 상세 조건 영역을 연 상태(null이면 데스크톱은 펼침, 모바일은 접힘)
-    supportType: 'all', // 지원 찾기에서 고른 도움 유형
+    supportType: 'all', // 지원 찾기에서 고른 도움 유형('related'는 상황별 도움에서 넘어온 관련 지원 묶음)
+    related: null,      // { i: 상황 번호, ids: [지원 유형 id] }
     faqOpen: null,
     checks: {}
   },
@@ -36,7 +37,7 @@ const App = {
     const next = REGIONS[id] ? id : null;
     if (next === this.state.regionId) return;
     storeSet(STORAGE_REGION, next);
-    this.setState({ regionId: next, area: '', supportType: 'all' });
+    this.setState({ regionId: next, area: '', supportType: 'all', related: null });
     if (next) this.showToast(REGIONS[next].name + ' 기준으로 안내해요');
   },
 
@@ -447,18 +448,32 @@ const App = {
 
   // ══════════════ 상황별 도움 = 판단 → 선택 → 결과 ══════════════
   // 상황 하나의 안내. ‘관련 대응 절차’·‘관련 지원 보기’는 상황 데이터(stages·supports)로 둘러볼 곳만 안내해요
+  // 상황의 supports를 현재 지역에 실제로 있는 지원 유형으로 옮겨요(새 판단 없이 SUPPORT_TYPES.situ 매핑만 사용)
+  relatedTypes(s) {
+    return this.availableTypes().filter(t => s.supports.some(v => t.situ.includes(v)));
+  },
+
+  // 관련 지원이 여러 개면 지원 찾기에서 그 유형들만 한 번에 보여 줘요
+  showRelated(i) {
+    this.nav('support', { supportType: 'related', related: { i, ids: this.relatedTypes(SITUS[i]).map(t => t.id) } });
+  },
+
   situDetail(s, withTitle) {
+    const i = s.i !== undefined ? s.i : SITUS.indexOf(s);
     const step = STAGE_TO_STEP[s.stages[0]];
-    const type = this.R ? this.availableTypes().find(t => s.supports.some(v => t.situ.includes(v))) : null;
+    const types = this.relatedTypes(s);
+    const supportBtn = types.length > 1
+      ? `<button class="btn btn-secondary" onclick="App.showRelated(${i})">관련 지원 ${types.length}개 보기 →</button>`
+      : `<button class="btn btn-secondary" onclick="App.nav('support', { supportType: '${types.length ? types[0].id : 'all'}' })">${types.length ? `관련 지원 보기(${types[0].label})` : '지원 찾기'} →</button>`;
     return `
       <div class="situ-sub">
         ${withTitle ? `<h3 class="sub-title">${s.t} ${urgencyBadge(s.urgency)}</h3>` : ''}
         <p class="muted small">예: ${s.ex}</p>
         <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.act}</p></div>
-        ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+        ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs], ['관련 지원', types.map(t => t.label).join(' · ')]])}
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="App.nav('proc', { step: ${step === undefined ? 0 : step} })">관련 대응 절차 →</button>
-          <button class="btn btn-secondary" onclick="App.nav('support', { supportType: '${type ? type.id : 'all'}' })">관련 지원 보기${type ? `(${type.label})` : ''} →</button>
+          ${supportBtn}
         </div>
       </div>
     `;
@@ -473,11 +488,21 @@ const App = {
       return sel.length === 0 || sel.some(o => d.test(s, o));
     })).sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
 
-    // 조건 영역: 왼쪽 그룹 이름, 오른쪽 선택지(해당 상황이 있는 것만 개수와 함께)
+    // 조건 영역: 왼쪽 그룹 이름, 오른쪽 선택지.
+    // 숫자는 ‘다른 그룹의 선택 조건을 적용했을 때 이 선택지에 해당하는 상황 수’(같은 그룹 안은 OR라 자기 그룹은 제외).
+    // 0이면 비활성으로 두되, 이미 선택된 선택지는 해제할 수 있게 항상 눌러요. 데이터에 아예 없는 선택지는 숨겨요.
+    const passesOthers = (s, group) => FILTER_DEFS.every(d => {
+      if (d.g === group) return true;
+      const sel = S.filters[d.g] || [];
+      return sel.length === 0 || sel.some(o => d.test(s, o));
+    });
     const rows = FILTER_DEFS.map(d => {
-      const chips = d.opts.map(o => ({ o, n: SITUS.filter(s => d.test(s, o)).length })).filter(x => x.n).map(({ o, n }) => {
+      const pool = SITUS.filter(s => passesOthers(s, d.g));
+      const chips = d.opts.filter(o => SITUS.some(s => d.test(s, o))).map(o => {
+        const n = pool.filter(s => d.test(s, o)).length;
         const on = (S.filters[d.g] || []).includes(o);
-        return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" onclick="App.toggleFilter('${d.g}','${o}')">${o} <span class="chip-count">${n}</span></button>`;
+        const off = !on && n === 0;
+        return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" ${off ? 'disabled title="현재 조건에서는 해당 상황이 없어요"' : ''} onclick="App.toggleFilter('${d.g}','${o}')">${o} <span class="chip-count">${n}</span></button>`;
       }).join('');
       return `<div class="filter-row" role="group" aria-label="${d.g}"><span class="filter-label">${d.g}</span><div class="chip-row">${chips}</div></div>`;
     }).join('');
@@ -600,13 +625,22 @@ const App = {
       `;
     }
     const types = this.availableTypes();
-    const cur = types.find(t => t.id === S.supportType);
-    const chips = [{ id: 'all', label: '전체' }, ...types].map(t => {
-      const on = (cur ? cur.id : 'all') === t.id;
+    // 상황별 도움에서 넘어온 ‘관련 지원’ 묶음(여러 유형을 한 번에). 현재 지역에 있는 유형만 남겨요
+    const relTypes = S.related ? types.filter(t => S.related.ids.includes(t.id)) : [];
+    const relMode = S.supportType === 'related' && relTypes.length > 0;
+    const cur = relMode ? null : types.find(t => t.id === S.supportType);
+    const areasOf = list => list.flatMap(t => t.areas);
+    const chipDefs = [
+      ...(relTypes.length ? [{ id: 'related', label: '이 상황 관련', areas: areasOf(relTypes) }] : []),
+      { id: 'all', label: '전체' }, ...types
+    ];
+    const selectedId = relMode ? 'related' : (cur ? cur.id : 'all');
+    const chips = chipDefs.map(t => {
+      const on = selectedId === t.id;
       const n = t.id === 'all' ? R.programs.length : R.programs.filter(p => t.areas.includes(p.area)).length;
       return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" onclick="App.setState({ supportType: '${t.id}' })">${t.label} <span class="chip-count">${n}</span></button>`;
     }).join('');
-    const programs = R.programs.filter(p => !cur || cur.areas.includes(p.area));
+    const programs = R.programs.filter(p => relMode ? areasOf(relTypes).includes(p.area) : (!cur || cur.areas.includes(p.area)));
     const items = programs.map(p => `
       <li class="support-item">
         <div class="support-head">
@@ -638,8 +672,11 @@ const App = {
           <div class="chip-row" role="group" aria-label="도움 유형">${chips}</div>
         </div>
         <div class="result-head" aria-live="polite">
-          <p class="result-count">${R.short} ${cur ? cur.label + ' 지원' : '지원 전체'} ${programs.length}건</p>
-          ${cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
+          <div>
+            <p class="result-count">${relMode ? `이 상황과 관련된 지원: ${relTypes.map(t => t.label).join(' · ')}` : `${R.short} ${cur ? cur.label + ' 지원' : '지원 전체'} ${programs.length}건`}</p>
+            ${relMode ? `<p class="muted small">${SITUS[S.related.i].t} · ${R.short} 지원 ${programs.length}건</p>` : ''}
+          </div>
+          ${relMode || cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
         </div>
         <ul class="support-list">${items}</ul>
         <h2 class="h2">기관 연락처</h2>

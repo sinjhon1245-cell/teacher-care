@@ -426,6 +426,8 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 }
 .chip:hover { border-color: var(--primary); color: var(--primary); }
 .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip:disabled { opacity: .45; cursor: not-allowed; border-style: dashed; }
+.chip:disabled:hover { border-color: var(--border-strong); color: var(--muted); }
 .support-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 36px; }
 .support-item {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px;
@@ -517,6 +519,8 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
   .filter-panel { padding: 0 16px; }
   .filter-row { grid-template-columns: 1fr; gap: 6px; }
   .filter-label { padding-top: 0; }
+  .filter-row .chip { min-height: 44px; }
+  .situ-sub .btn-row .btn { flex: 1 1 100%; }
   .hub { grid-template-columns: 1fr; }
   .hub-main { padding: 16px; }
   .hub-links { border-left: none; border-top: 1px solid var(--border); padding: 14px 16px; }
