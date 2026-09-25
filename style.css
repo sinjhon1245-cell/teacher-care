@@ -105,18 +105,37 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 .nav-btn:hover { color: var(--text); background: rgba(243, 237, 227, .8); }
 .nav-btn.active { color: var(--primary); background: rgba(29, 92, 87, .07); }
 
-.region-select { position: relative; flex: none; margin-left: auto; }
-.region-select select {
-  appearance: none; -webkit-appearance: none; cursor: pointer;
-  font: inherit; font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--text);
+/* 헤더 지역 선택(custom listbox): 목록은 버튼 아래에 겹쳐 떠서 다른 헤더 요소를 밀지 않아요 */
+.region-dd { position: relative; flex: none; margin-left: auto; font-family: var(--font-ui); }
+.region-dd-btn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 8px 12px 8px 14px; cursor: pointer;
+  font-size: 15px; font-weight: 600; color: var(--text);
   background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  padding: 8px 32px 8px 12px; min-height: 40px;
 }
-.region-select::after {
-  content: ''; position: absolute; right: 13px; top: 50%; margin-top: -5px; pointer-events: none;
-  width: 6px; height: 6px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg);
+.region-dd-btn:hover, .region-dd-btn[aria-expanded="true"] { border-color: var(--primary); }
+.region-dd-caret {
+  width: 6px; height: 6px; margin-top: -3px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg); transition: transform .15s;
 }
-.region-select.empty select { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.region-dd-btn[aria-expanded="true"] .region-dd-caret { transform: rotate(225deg); margin-top: 3px; }
+.region-dd.empty .region-dd-btn { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.region-dd.empty .region-dd-caret { border-color: var(--accent); }
+.region-dd-list {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 70; min-width: 100%; width: max-content; margin: 0; padding: 6px;
+  list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-soft); outline: none;
+}
+.region-dd-list[hidden] { display: none; }
+.region-dd-list:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.region-dd-opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; min-width: 128px; min-height: 42px;
+  padding: 8px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 15px; font-weight: 500; color: var(--text);
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.region-dd-opt.focused, .region-dd-opt:hover { background: rgba(29, 92, 87, .07); }
+.region-dd-opt[aria-selected="true"] { color: var(--primary); font-weight: 700; }
+.region-dd-check { visibility: hidden; color: var(--primary); font-weight: 700; }
+.region-dd-opt[aria-selected="true"] .region-dd-check { visibility: visible; }
 .header-call {
   flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 40px;
   padding: 8px 13px; border-radius: var(--radius-sm); background: var(--surface); color: var(--primary);
@@ -271,6 +290,16 @@ body.is-landing { padding-bottom: 0; }
 .landing-skip { font-size: 15px; }
 .landing-safety { margin: 14px 0 0; font-family: var(--font-ui); font-size: 13.5px; color: var(--muted); }
 .landing-safety a { color: var(--danger); font-weight: 700; }
+@media (min-width: 1024px) {
+  /* 데스크톱: 가로가 조금 긴 카드(약 1.5:1). 지역명은 왼쪽 위, 화살표는 오른쪽 아래 */
+  .region-cards { gap: 16px; margin-bottom: 24px; }
+  .region-card { min-height: 160px; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 24px 20px 26px; }
+  .region-card-arrow {
+    align-self: flex-end; width: 34px; height: 34px; border-radius: 50%; background: var(--primary-soft);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .region-card:hover .region-card-arrow { background: var(--surface); }
+}
 
 /* ── 상황 목록(홈 빠른 안내·상황별 도움) ── */
 .action-list { list-style: none; display: grid; gap: 8px; }

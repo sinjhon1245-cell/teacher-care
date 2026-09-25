@@ -149,19 +149,25 @@ const App = {
   },
 
   // ══════════════ 공통 부품 ══════════════
-  renderRegionSelect(cls) {
+  // 헤더 지역 선택: 기본 select 대신 사이트 디자인에 맞춘 listbox(동작은 RegionMenu, 변경은 App.setRegion)
+  renderRegionSelect() {
     const cur = this.state.regionId;
-    const opts = REGION_ORDER.map(id =>
-      `<option value="${id}" ${cur === id ? 'selected' : ''}>${REGIONS[id].short}</option>`
-    ).join('');
+    const opts = REGION_ORDER.map(id => `
+      <li id="region-opt-${id}" class="region-dd-opt" role="option" aria-selected="${cur === id}" aria-label="${REGIONS[id].short}" data-id="${id}"
+        onclick="RegionMenu.pick('${id}')" onmousemove="RegionMenu.focusOpt('${id}')">
+        <span>${REGIONS[id].short}</span><span class="region-dd-check" aria-hidden="true">✓</span>
+      </li>
+    `).join('');
     return `
-      <label class="region-select ${cls || ''} ${cur ? '' : 'empty'}">
-        <span class="sr-only">근무 지역</span>
-        <select onchange="App.setRegion(this.value)" aria-label="근무 지역 선택">
-          ${cur ? '' : '<option value="" selected>지역 선택</option>'}
-          ${opts}
-        </select>
-      </label>
+      <div class="region-dd ${cur ? '' : 'empty'}" id="region-dd">
+        <button type="button" class="region-dd-btn" id="region-dd-btn" aria-haspopup="listbox" aria-expanded="false"
+          aria-controls="region-dd-list" aria-label="근무 지역: ${cur ? REGIONS[cur].short : '선택 안 함'}"
+          onclick="RegionMenu.toggle()" onkeydown="RegionMenu.buttonKey(event)">
+          <span>${cur ? REGIONS[cur].short : '지역 선택'}</span><span class="region-dd-caret" aria-hidden="true"></span>
+        </button>
+        <ul class="region-dd-list" id="region-dd-list" role="listbox" aria-label="근무 지역" tabindex="-1" hidden
+          onkeydown="RegionMenu.listKey(event)">${opts}</ul>
+      </div>
     `;
   },
 
@@ -910,5 +916,79 @@ function linkifyPhone(text) {
     return '<a href="' + telHref(m) + '" class="tel-link">' + m + '</a>';
   });
 }
+
+// ── 헤더 지역 선택 목록(listbox) ──
+// 열림 상태는 화면을 다시 그리지 않고 DOM에서만 바꿔요. 지역을 고르면 App.setRegion()이 저장·렌더링을 맡아요.
+// 키보드: 버튼에서 Enter·Space·↓·↑로 열기, 목록에서 ↑↓·Home·End로 이동, Enter·Space로 선택, Esc·Tab으로 닫기
+const RegionMenu = {
+  els() {
+    return { box: document.getElementById('region-dd'), btn: document.getElementById('region-dd-btn'), list: document.getElementById('region-dd-list') };
+  },
+  isOpen() {
+    const { list } = this.els();
+    return !!list && !list.hidden;
+  },
+  open(toEnd) {
+    const { btn, list } = this.els();
+    if (!list) return;
+    list.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    const start = App.state.regionId || REGION_ORDER[toEnd ? REGION_ORDER.length - 1 : 0];
+    this.focusOpt(start);
+    list.focus();
+  },
+  close(returnFocus) {
+    const { btn, list } = this.els();
+    if (!list || list.hidden) return;
+    list.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    if (returnFocus) btn.focus();
+  },
+  toggle() {
+    this.isOpen() ? this.close(true) : this.open();
+  },
+  // 키보드·마우스로 가리킨 항목(aria-activedescendant)
+  focusOpt(id) {
+    const { list } = this.els();
+    if (!list) return;
+    list.querySelectorAll('.region-dd-opt').forEach(li => li.classList.toggle('focused', li.dataset.id === id));
+    list.setAttribute('aria-activedescendant', 'region-opt-' + id);
+  },
+  current() {
+    const { list } = this.els();
+    const li = list && list.querySelector('.region-dd-opt.focused');
+    return li ? li.dataset.id : null;
+  },
+  pick(id) {
+    this.close(false);
+    App.setRegion(id);
+    // 다시 그려진 헤더의 버튼으로 초점을 돌려요(키보드 사용자가 위치를 잃지 않도록)
+    const { btn } = this.els();
+    if (btn) btn.focus();
+  },
+  buttonKey(e) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      this.open(e.key === 'ArrowUp');
+    }
+  },
+  listKey(e) {
+    const i = REGION_ORDER.indexOf(this.current());
+    const move = n => { e.preventDefault(); this.focusOpt(REGION_ORDER[(n + REGION_ORDER.length) % REGION_ORDER.length]); };
+    if (e.key === 'ArrowDown') move(i + 1);
+    else if (e.key === 'ArrowUp') move(i - 1);
+    else if (e.key === 'Home') move(0);
+    else if (e.key === 'End') move(REGION_ORDER.length - 1);
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (this.current()) this.pick(this.current()); }
+    else if (e.key === 'Escape') { e.preventDefault(); this.close(true); }
+    else if (e.key === 'Tab') this.close(false);
+  }
+};
+
+// 목록 바깥을 누르면 닫아요
+document.addEventListener('pointerdown', e => {
+  const { box } = RegionMenu.els();
+  if (RegionMenu.isOpen() && box && !box.contains(e.target)) RegionMenu.close(false);
+});
 
 document.addEventListener('DOMContentLoaded', () => App.init());
