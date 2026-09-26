@@ -102,25 +102,703 @@ const FAQS = [
 ];
 
 const SITUS = [
-  { g: 'verbal', t: '학생에 의한 폭언·욕설·모욕·명예훼손', subject: '학생', types: ['폭언·모욕'], urgency: '당일 학교 보고 필요', stages: ['발생 직후', '학교 초기 대응'], supports: ['행정 지원', '심리상담'], ex: '수업 중 학생이 교사에게 욕설과 모욕적인 발언을 반복함', act: '수업 안정화 후 상황을 기록하고 당일 관리자에게 보고', report: '발언 내용·일시·목격 학생 유무', evidence: '시간순 기록, 목격자 진술', dont: '감정적으로 맞대응하거나 단독 합의 시도', programs: '보호조치, 심리상담, 위원회 심의', orgs: '학교장·{OFFICER}, {HOT2}' },
-  { g: 'verbal', t: '학생의 반복적인 수업 및 교육활동 방해', subject: '학생', types: ['수업 방해'], urgency: '교육지원청 신고 검토', stages: ['학교 초기 대응'], supports: ['행정 지원', '갈등 중재'], ex: '지도에도 불구하고 수업 방해 행동이 반복됨', act: '생활지도 내용과 방해 행위를 날짜별로 기록', report: '반복된 방해 행위와 지도 내용', evidence: '생활지도 기록, 수업 방해 일지', dont: '기록 없이 구두 지도만 반복', programs: '침해 신고, 위원회 심의, 특별교육', orgs: '{OFFICER}, 소속 교육지원청' },
-  { g: 'verbal', t: '학생의 정당한 생활지도 불이행', subject: '학생', types: ['생활지도 불이행'], urgency: '일반 상담 가능', stages: ['학교 초기 대응'], supports: ['행정 지원'], ex: '정당한 생활지도를 반복적으로 거부·불응함', act: '지도 근거와 불이행 상황을 기록', report: '지도 내용과 불이행 경과', evidence: '생활지도 기록부, 지도 근거 규정', dont: '규정 근거 없는 임의 제재', programs: '침해 신고 검토, 갈등 중재', orgs: '{OFFICER}, {HOT}' },
-  { g: 'danger', t: '학생 또는 보호자에 의한 상해·폭행·위협', subject: '학생', types: ['상해·폭행', '협박'], urgency: '즉시 안전 확보 필요', stages: ['발생 직후'], supports: ['법률 지원', '치료 지원', '경호 지원'], ex: '신체적 폭행이나 상해, 심각한 위협이 발생함', act: '즉시 현장을 벗어나 안전 확보, 경찰(112) 신고', report: '폭행·위협 경위와 부상 여부', evidence: '진단서, 현장 사진, 목격자 진술', dont: '물리적으로 맞대응하거나 치료를 미루기', programs: '치료비 지원, 법률 지원, 경호 지원, 특별휴가', orgs: '경찰 112, 학교장, {HOT}' },
-  { g: 'complaint', t: '보호자의 반복적인 민원과 과도한 연락', subject: '보호자', types: ['반복 민원'], urgency: '교육지원청 신고 검토', stages: ['학교 초기 대응'], supports: ['행정 지원', '갈등 중재'], ex: '늦은 밤·주말에도 반복적으로 연락하고 같은 민원을 제기함', act: '연락 일시와 내용을 기록하고 민원 창구를 학교로 단일화', report: '민원 빈도·내용·연락 시간대', evidence: '통화·문자 기록', dont: '개인 연락처로 계속 응대', programs: '민원대응팀 이관, {SOS}, 갈등 중재', orgs: '학교민원대응팀, {HOT}' },
-  { g: 'complaint', t: '보호자의 폭언·협박 및 특이민원', subject: '보호자', types: ['폭언·모욕', '협박', '특이민원'], urgency: '당일 학교 보고 필요', stages: ['발생 직후', '학교 초기 대응'], supports: ['법률 지원', '심리상담'], ex: '전화·면담 중 폭언과 협박, 무리한 요구가 이어짐', act: '응대를 중단하고 관리자에게 즉시 보고', report: '폭언·협박 내용과 요구 사항', evidence: '통화 녹음(적법 범위), 문자·메일 원본', dont: '단독 면담 계속, 개인적 요구 수용', programs: '특이민원 공동 대응, 법률 지원, 침해 신고', orgs: '학교장, {SOS}, {HOT}' },
-  { g: 'online', t: '온라인 게시물, 허위사실 유포 및 명예훼손', subject: '보호자', types: ['온라인 유포'], urgency: '교육지원청 신고 검토', stages: ['학교 초기 대응', '교육지원청 조사'], supports: ['법률 지원'], ex: '온라인 커뮤니티·SNS에 허위사실이나 비방 게시물이 올라옴', act: '게시물을 캡처(주소 포함)하고 학교에 보고', report: '게시물 위치·내용·확산 정도', evidence: 'URL 포함 화면 캡처', dont: '댓글로 직접 반박하거나 단독 삭제 요구', programs: '법률 상담·자문, 삭제 요청 지원', orgs: '{LEGAL}, {HOT1}' },
-  { g: 'online', t: '무단 녹음·촬영·게시·유포', subject: '학생', types: ['무단 촬영'], urgency: '당일 학교 보고 필요', stages: ['발생 직후', '학교 초기 대응'], supports: ['법률 지원'], ex: '수업 장면을 무단 촬영·녹음하여 온라인에 게시함', act: '유포 경로를 확인하고 학교에 즉시 보고', report: '촬영·유포 경위와 게시 위치', evidence: '게시물 캡처, 원본 확인 기록', dont: '학생 기기를 강제로 확인·압수', programs: '법률 지원, 삭제·차단 요청 지원', orgs: '{OFFICER}, {LEGAL}' },
-  { g: 'danger', t: '학교 또는 수업 공간에 무단으로 찾아온 상황', subject: '외부인', types: ['특이민원', '협박'], urgency: '즉시 안전 확보 필요', stages: ['발생 직후'], supports: ['행정 지원', '경호 지원'], ex: '보호자나 외부인이 예고 없이 교실·교무실에 들어와 항의함', act: '학생과 자신의 안전을 확보하고 관리자·경찰에 알림', report: '방문자·경위·위협 여부 즉시 보고', evidence: '출입 시각, 목격자, CCTV 확인 요청', dont: '단독으로 장시간 대면 응대', programs: '출입 관리 강화, 경호 지원, 침해 신고', orgs: '학교장, 경찰 112, {HOT}' },
-  { g: 'abuse', t: '교원이 아동학대 신고를 받은 상황', subject: '기타', types: ['아동학대 신고'], urgency: '교육지원청 신고 검토', stages: ['교육지원청 조사'], supports: ['법률 지원', '심리상담'], ex: '정당한 생활지도에 대해 아동학대로 신고를 당함', act: '즉시 관리자에게 알리고 {HOT1}로 지원 요청', report: '신고 통지 내용과 해당 교육활동 경위', evidence: '지도 근거 규정, 생활지도 기록', dont: '지원 없이 단독으로 진술', programs: '아동학대 피신고 교원 지원, 법률 지원, 심리상담', orgs: '{HOT1}, {LEGAL}' },
-  { g: 'legal', t: '경찰 조사 또는 수사기관 출석이 필요한 상황', subject: '기타', types: ['소송·수사'], urgency: '일반 상담 가능', stages: ['교육지원청 조사', '후속 지원'], supports: ['법률 지원'], ex: '수사기관에서 출석 요구를 받음', act: '출석 전 {HOT1}로 법률 상담을 먼저 받기', report: '출석요구 사실을 학교에 공유(필요 시)', evidence: '출석요구서, 사건 관련 기록', dont: '준비 없이 출석하거나 임의 진술서 작성', programs: '{LEGAL} 상담, 자문 지원', orgs: '{LEGAL}' },
-  { g: 'legal', t: '교육활동과 관련된 민사·형사상 분쟁', subject: '기타', types: ['소송·수사'], urgency: '일반 상담 가능', stages: ['후속 지원'], supports: ['법률 지원', '교원보호공제'], ex: '교육활동과 관련해 소송을 당했거나 검토 중임', act: '소장·통지서를 받은 즉시 법률 상담 신청', report: '분쟁 경위와 진행 상황 공유', evidence: '소송 서류, 관련 증거', dont: '답변서 제출 등 기한을 놓치기', programs: '법률 지원, 교원보호공제', orgs: '{LEGAL}, {MUTUAL}' },
-  { g: 'complaint', t: '교원 개인이 감당하기 어려운 학교민원', subject: '보호자', types: ['반복 민원', '특이민원'], urgency: '교육지원청 신고 검토', stages: ['학교 초기 대응'], supports: ['행정 지원'], ex: '민원의 양과 강도가 개인이 대응할 수준을 넘어섬', act: '학교민원대응팀에 이관을 요청하고 개인 응대 중단', report: '민원 누적 현황과 업무 지장 정도', evidence: '민원 접수·응대 기록', dont: '모든 민원을 혼자 처리하려고 하기', programs: '학교민원대응팀, {SOS}', orgs: '학교민원대응팀, {HOT}' },
-  { g: 'mediate', t: '갈등 당사자 간 중재가 필요한 상황', subject: '보호자', types: ['기타'], urgency: '일반 상담 가능', stages: ['학교 초기 대응', '후속 지원'], supports: ['갈등 중재'], ex: '보호자와의 갈등이 장기화되어 관계 회복이 필요함', act: '{MEDIATE} 연계를 요청', report: '갈등 경위와 중재 희망 의사', evidence: '그간의 소통 기록', dont: '감정이 격한 상태에서 직접 담판 시도', programs: '{MEDIATE}, 관계 회복 프로그램', orgs: '{MEDIATE}, {HOT}' },
-  { g: 'danger', t: '신변 위협으로 경호·긴급 보호가 필요한 상황', subject: '외부인', types: ['협박'], urgency: '즉시 안전 확보 필요', stages: ['발생 직후', '후속 지원'], supports: ['경호 지원'], ex: '지속적인 위협으로 출퇴근·근무 중 신변 불안이 큼', act: '위험이 급박하면 경찰(112), 이후 경호 지원을 신청', report: '위협의 구체적 내용과 지속성', evidence: '위협 메시지·통화 기록 원본', dont: '위협을 축소하거나 혼자 견디기', programs: '경호·신변 보호 지원, 법률 지원', orgs: '경찰 112, {HOT}' },
-  { g: 'mind', t: '교육활동 침해 이후 심리적 소진·치료가 필요한 상황', subject: '기타', types: ['기타'], urgency: '일반 상담 가능', stages: ['후속 지원'], supports: ['심리상담', '치료 지원', '치유·회복'], ex: '사안 이후 불면·불안 등 심리적 어려움이 지속됨', act: '{HOT1}로 심리상담을 신청', report: '보호조치(특별휴가 등) 필요 여부를 학교와 상의', evidence: '치료비 지원 신청 시 진료 관련 서류', dont: '괜찮다고 넘기며 회복 시기를 놓치기', programs: '심리상담, 치료비 지원, 치유·회복', orgs: '교육활동보호센터, 전문 상담·치료기관' }
+  {
+    "id": "verbal-abuse",
+    "group": "verbal",
+    "title": "학생에 의한 폭언·욕설·모욕·명예훼손",
+    "subjects": [
+      "학생"
+    ],
+    "officialTypes": [
+      "폭언·모욕"
+    ],
+    "typeTags": [
+      "폭언·모욕"
+    ],
+    "contexts": [
+      "수업",
+      "생활지도"
+    ],
+    "keywords": [
+      "욕설",
+      "폭언",
+      "모욕",
+      "명예훼손",
+      "학생 욕설"
+    ],
+    "urgency": "당일 학교 보고 필요",
+    "stages": [
+      "발생 직후",
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "행정 지원",
+      "심리상담"
+    ],
+    "example": "수업 중 학생이 교사에게 욕설과 모욕적인 발언을 반복함",
+    "firstAction": "수업 안정화 후 상황을 기록하고 당일 관리자에게 보고",
+    "report": "발언 내용·일시·목격 학생 유무",
+    "evidence": "시간순 기록, 목격자 진술",
+    "dont": "감정적으로 맞대응하거나 단독 합의 시도",
+    "programs": "보호조치, 심리상담, 위원회 심의",
+    "orgs": "학교장·{OFFICER}, {HOT2}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "repeated-class-disruption",
+    "group": "verbal",
+    "title": "학생의 반복적인 수업 및 교육활동 방해",
+    "subjects": [
+      "학생"
+    ],
+    "officialTypes": [
+      "수업 방해"
+    ],
+    "typeTags": [
+      "수업 방해"
+    ],
+    "contexts": [
+      "수업",
+      "생활지도"
+    ],
+    "keywords": [
+      "수업 방해",
+      "교육활동 방해",
+      "반복 행동",
+      "수업 진행 어려움"
+    ],
+    "urgency": "교육지원청 신고 검토",
+    "stages": [
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "행정 지원",
+      "갈등 중재"
+    ],
+    "example": "지도에도 불구하고 수업 방해 행동이 반복됨",
+    "firstAction": "생활지도 내용과 방해 행위를 날짜별로 기록",
+    "report": "반복된 방해 행위와 지도 내용",
+    "evidence": "생활지도 기록, 수업 방해 일지",
+    "dont": "기록 없이 구두 지도만 반복",
+    "programs": "침해 신고, 위원회 심의, 특별교육",
+    "orgs": "{OFFICER}, 소속 교육지원청",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "guidance-noncompliance-disruption",
+    "group": "verbal",
+    "title": "학생의 정당한 생활지도 불이행",
+    "subjects": [
+      "학생"
+    ],
+    "officialTypes": [
+      "생활지도 불이행"
+    ],
+    "typeTags": [
+      "생활지도 불이행"
+    ],
+    "contexts": [
+      "생활지도",
+      "수업"
+    ],
+    "keywords": [
+      "생활지도",
+      "지도 불응",
+      "지시 불이행",
+      "교육활동 방해"
+    ],
+    "urgency": "일반 상담 가능",
+    "stages": [
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "행정 지원"
+    ],
+    "example": "정당한 생활지도를 반복적으로 거부·불응함",
+    "firstAction": "지도 근거와 불이행 상황을 기록",
+    "report": "지도 내용과 불이행 경과",
+    "evidence": "생활지도 기록부, 지도 근거 규정",
+    "dont": "규정 근거 없는 임의 제재",
+    "programs": "침해 신고 검토, 갈등 중재",
+    "orgs": "{OFFICER}, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "physical-assault",
+    "group": "danger",
+    "title": "학생 또는 보호자에 의한 상해·폭행·위협",
+    "subjects": [
+      "학생",
+      "보호자"
+    ],
+    "officialTypes": [
+      "상해·폭행",
+      "협박"
+    ],
+    "typeTags": [
+      "상해·폭행",
+      "협박"
+    ],
+    "contexts": [
+      "수업",
+      "상담",
+      "학교"
+    ],
+    "keywords": [
+      "폭행",
+      "상해",
+      "위협",
+      "때림",
+      "밀침"
+    ],
+    "urgency": "즉시 안전 확보 필요",
+    "stages": [
+      "발생 직후"
+    ],
+    "supports": [
+      "법률 지원",
+      "치료 지원",
+      "경호 지원"
+    ],
+    "example": "신체적 폭행이나 상해, 심각한 위협이 발생함",
+    "firstAction": "즉시 현장을 벗어나 안전 확보, 경찰(112) 신고",
+    "report": "폭행·위협 경위와 부상 여부",
+    "evidence": "진단서, 현장 사진, 목격자 진술",
+    "dont": "물리적으로 맞대응하거나 치료를 미루기",
+    "programs": "치료비 지원, 법률 지원, 경호 지원, 특별휴가",
+    "orgs": "경찰 112, 학교장, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "repeated-complaint",
+    "group": "complaint",
+    "title": "보호자의 반복적인 민원과 과도한 연락",
+    "subjects": [
+      "보호자"
+    ],
+    "officialTypes": [
+      "반복 민원"
+    ],
+    "typeTags": [
+      "반복 민원"
+    ],
+    "contexts": [
+      "학부모 상담",
+      "민원",
+      "개인 연락"
+    ],
+    "keywords": [
+      "반복 민원",
+      "과도한 연락",
+      "밤에 전화",
+      "주말 연락",
+      "개인 연락처"
+    ],
+    "urgency": "교육지원청 신고 검토",
+    "stages": [
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "행정 지원",
+      "갈등 중재"
+    ],
+    "example": "늦은 밤·주말에도 반복적으로 연락하고 같은 민원을 제기함",
+    "firstAction": "연락 일시와 내용을 기록하고 민원 창구를 학교로 단일화",
+    "report": "민원 빈도·내용·연락 시간대",
+    "evidence": "통화·문자 기록",
+    "dont": "개인 연락처로 계속 응대",
+    "programs": "민원대응팀 이관, {SOS}, 갈등 중재",
+    "orgs": "학교민원대응팀, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "parent-verbal-threat-complaint",
+    "group": "complaint",
+    "title": "보호자의 폭언·협박 및 특이민원",
+    "subjects": [
+      "보호자"
+    ],
+    "officialTypes": [
+      "폭언·모욕",
+      "협박",
+      "특이민원"
+    ],
+    "typeTags": [
+      "폭언·모욕",
+      "협박",
+      "특이민원"
+    ],
+    "contexts": [
+      "학부모 상담",
+      "민원",
+      "전화",
+      "면담"
+    ],
+    "keywords": [
+      "보호자 폭언",
+      "보호자 협박",
+      "특이민원",
+      "무리한 요구"
+    ],
+    "urgency": "당일 학교 보고 필요",
+    "stages": [
+      "발생 직후",
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "법률 지원",
+      "심리상담"
+    ],
+    "example": "전화·면담 중 폭언과 협박, 무리한 요구가 이어짐",
+    "firstAction": "응대를 중단하고 관리자에게 즉시 보고",
+    "report": "폭언·협박 내용과 요구 사항",
+    "evidence": "통화 녹음(적법 범위), 문자·메일 원본",
+    "dont": "단독 면담 계속, 개인적 요구 수용",
+    "programs": "특이민원 공동 대응, 법률 지원, 침해 신고",
+    "orgs": "학교장, {SOS}, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "online-defamation-doxxing",
+    "group": "online",
+    "title": "온라인 게시물, 허위사실 유포 및 명예훼손",
+    "subjects": [
+      "보호자"
+    ],
+    "officialTypes": [
+      "온라인 유포"
+    ],
+    "typeTags": [
+      "온라인 유포"
+    ],
+    "contexts": [
+      "온라인",
+      "SNS",
+      "커뮤니티"
+    ],
+    "keywords": [
+      "허위사실",
+      "비방",
+      "명예훼손",
+      "온라인 게시물",
+      "SNS"
+    ],
+    "urgency": "교육지원청 신고 검토",
+    "stages": [
+      "학교 초기 대응",
+      "교육지원청 조사"
+    ],
+    "supports": [
+      "법률 지원"
+    ],
+    "example": "온라인 커뮤니티·SNS에 허위사실이나 비방 게시물이 올라옴",
+    "firstAction": "게시물을 캡처(주소 포함)하고 학교에 보고",
+    "report": "게시물 위치·내용·확산 정도",
+    "evidence": "URL 포함 화면 캡처",
+    "dont": "댓글로 직접 반박하거나 단독 삭제 요구",
+    "programs": "법률 상담·자문, 삭제 요청 지원",
+    "orgs": "{LEGAL}, {HOT1}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "class-recording-filming",
+    "group": "online",
+    "title": "무단 녹음·촬영·게시·유포",
+    "subjects": [
+      "학생"
+    ],
+    "officialTypes": [
+      "무단 촬영"
+    ],
+    "typeTags": [
+      "무단 촬영"
+    ],
+    "contexts": [
+      "수업",
+      "녹음",
+      "촬영",
+      "온라인"
+    ],
+    "keywords": [
+      "녹음",
+      "촬영",
+      "무단 촬영",
+      "게시",
+      "유포"
+    ],
+    "urgency": "당일 학교 보고 필요",
+    "stages": [
+      "발생 직후",
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "법률 지원"
+    ],
+    "example": "수업 장면을 무단 촬영·녹음하여 온라인에 게시함",
+    "firstAction": "유포 경로를 확인하고 학교에 즉시 보고",
+    "report": "촬영·유포 경위와 게시 위치",
+    "evidence": "게시물 캡처, 원본 확인 기록",
+    "dont": "학생 기기를 강제로 확인·압수",
+    "programs": "법률 지원, 삭제·차단 요청 지원",
+    "orgs": "{OFFICER}, {LEGAL}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "unauthorized-entry",
+    "group": "danger",
+    "title": "학교 또는 수업 공간에 무단으로 찾아온 상황",
+    "subjects": [
+      "보호자",
+      "외부인"
+    ],
+    "officialTypes": [
+      "특이민원",
+      "협박"
+    ],
+    "typeTags": [
+      "특이민원",
+      "협박"
+    ],
+    "contexts": [
+      "학교 방문",
+      "교실",
+      "교무실"
+    ],
+    "keywords": [
+      "무단 방문",
+      "무단 출입",
+      "교실 난입",
+      "교무실 항의"
+    ],
+    "urgency": "즉시 안전 확보 필요",
+    "stages": [
+      "발생 직후"
+    ],
+    "supports": [
+      "행정 지원",
+      "경호 지원"
+    ],
+    "example": "보호자나 외부인이 예고 없이 교실·교무실에 들어와 항의함",
+    "firstAction": "학생과 자신의 안전을 확보하고 관리자·경찰에 알림",
+    "report": "방문자·경위·위협 여부 즉시 보고",
+    "evidence": "출입 시각, 목격자, CCTV 확인 요청",
+    "dont": "단독으로 장시간 대면 응대",
+    "programs": "출입 관리 강화, 경호 지원, 침해 신고",
+    "orgs": "학교장, 경찰 112, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "child-abuse-report",
+    "group": "abuse",
+    "title": "교원이 아동학대 신고를 받은 상황",
+    "subjects": [
+      "기타"
+    ],
+    "officialTypes": [
+      "아동학대 신고"
+    ],
+    "typeTags": [
+      "아동학대 신고"
+    ],
+    "contexts": [
+      "생활지도",
+      "아동학대 신고",
+      "조사"
+    ],
+    "keywords": [
+      "아동학대",
+      "신고",
+      "피신고",
+      "생활지도"
+    ],
+    "urgency": "교육지원청 신고 검토",
+    "stages": [
+      "교육지원청 조사"
+    ],
+    "supports": [
+      "법률 지원",
+      "심리상담"
+    ],
+    "example": "정당한 생활지도에 대해 아동학대로 신고를 당함",
+    "firstAction": "즉시 관리자에게 알리고 {HOT1}로 지원 요청",
+    "report": "신고 통지 내용과 해당 교육활동 경위",
+    "evidence": "지도 근거 규정, 생활지도 기록",
+    "dont": "지원 없이 단독으로 진술",
+    "programs": "아동학대 피신고 교원 지원, 법률 지원, 심리상담",
+    "orgs": "{HOT1}, {LEGAL}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "investigator-summons",
+    "group": "legal",
+    "title": "경찰 조사 또는 수사기관 출석이 필요한 상황",
+    "subjects": [
+      "기타"
+    ],
+    "officialTypes": [
+      "소송·수사"
+    ],
+    "typeTags": [
+      "소송·수사"
+    ],
+    "contexts": [
+      "수사기관",
+      "경찰 조사",
+      "출석"
+    ],
+    "keywords": [
+      "경찰",
+      "검찰",
+      "수사기관",
+      "출석요구",
+      "조사"
+    ],
+    "urgency": "일반 상담 가능",
+    "stages": [
+      "교육지원청 조사",
+      "후속 지원"
+    ],
+    "supports": [
+      "법률 지원"
+    ],
+    "example": "수사기관에서 출석 요구를 받음",
+    "firstAction": "출석 전 {HOT1}로 법률 상담을 먼저 받기",
+    "report": "출석요구 사실을 학교에 공유(필요 시)",
+    "evidence": "출석요구서, 사건 관련 기록",
+    "dont": "준비 없이 출석하거나 임의 진술서 작성",
+    "programs": "{LEGAL} 상담, 자문 지원",
+    "orgs": "{LEGAL}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "legal-dispute",
+    "group": "legal",
+    "title": "교육활동과 관련된 민사·형사상 분쟁",
+    "subjects": [
+      "기타"
+    ],
+    "officialTypes": [
+      "소송·수사"
+    ],
+    "typeTags": [
+      "소송·수사"
+    ],
+    "contexts": [
+      "소송",
+      "수사",
+      "법률"
+    ],
+    "keywords": [
+      "민사",
+      "형사",
+      "소송",
+      "손해배상",
+      "법적 대응"
+    ],
+    "urgency": "일반 상담 가능",
+    "stages": [
+      "후속 지원"
+    ],
+    "supports": [
+      "법률 지원",
+      "교원보호공제"
+    ],
+    "example": "교육활동과 관련해 소송을 당했거나 검토 중임",
+    "firstAction": "소장·통지서를 받은 즉시 법률 상담 신청",
+    "report": "분쟁 경위와 진행 상황 공유",
+    "evidence": "소송 서류, 관련 증거",
+    "dont": "답변서 제출 등 기한을 놓치기",
+    "programs": "법률 지원, 교원보호공제",
+    "orgs": "{LEGAL}, {MUTUAL}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "overwhelming-school-complaint",
+    "group": "complaint",
+    "title": "교원 개인이 감당하기 어려운 학교민원",
+    "subjects": [
+      "보호자"
+    ],
+    "officialTypes": [
+      "반복 민원",
+      "특이민원"
+    ],
+    "typeTags": [
+      "반복 민원",
+      "특이민원"
+    ],
+    "contexts": [
+      "민원",
+      "학교민원대응팀"
+    ],
+    "keywords": [
+      "학교민원",
+      "민원 폭주",
+      "감당하기 어려운 민원",
+      "민원대응팀"
+    ],
+    "urgency": "교육지원청 신고 검토",
+    "stages": [
+      "학교 초기 대응"
+    ],
+    "supports": [
+      "행정 지원"
+    ],
+    "example": "민원의 양과 강도가 개인이 대응할 수준을 넘어섬",
+    "firstAction": "학교민원대응팀에 이관을 요청하고 개인 응대 중단",
+    "report": "민원 누적 현황과 업무 지장 정도",
+    "evidence": "민원 접수·응대 기록",
+    "dont": "모든 민원을 혼자 처리하려고 하기",
+    "programs": "학교민원대응팀, {SOS}",
+    "orgs": "학교민원대응팀, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "pre-litigation-mediation",
+    "group": "mediate",
+    "title": "갈등 당사자 간 중재가 필요한 상황",
+    "subjects": [
+      "보호자"
+    ],
+    "officialTypes": [
+      "기타"
+    ],
+    "typeTags": [
+      "기타"
+    ],
+    "contexts": [
+      "학부모 상담",
+      "갈등",
+      "중재"
+    ],
+    "keywords": [
+      "갈등",
+      "중재",
+      "관계 회복",
+      "분쟁 조정"
+    ],
+    "urgency": "일반 상담 가능",
+    "stages": [
+      "학교 초기 대응",
+      "후속 지원"
+    ],
+    "supports": [
+      "갈등 중재"
+    ],
+    "example": "보호자와의 갈등이 장기화되어 관계 회복이 필요함",
+    "firstAction": "{MEDIATE} 연계를 요청",
+    "report": "갈등 경위와 중재 희망 의사",
+    "evidence": "그간의 소통 기록",
+    "dont": "감정이 격한 상태에서 직접 담판 시도",
+    "programs": "{MEDIATE}, 관계 회복 프로그램",
+    "orgs": "{MEDIATE}, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "stalking-approach",
+    "group": "danger",
+    "title": "신변 위협으로 경호·긴급 보호가 필요한 상황",
+    "subjects": [
+      "외부인"
+    ],
+    "officialTypes": [
+      "협박"
+    ],
+    "typeTags": [
+      "협박"
+    ],
+    "contexts": [
+      "출퇴근",
+      "학교",
+      "신변 위협"
+    ],
+    "keywords": [
+      "신변 위협",
+      "경호",
+      "출퇴근",
+      "따라옴",
+      "접근"
+    ],
+    "urgency": "즉시 안전 확보 필요",
+    "stages": [
+      "발생 직후",
+      "후속 지원"
+    ],
+    "supports": [
+      "경호 지원"
+    ],
+    "example": "지속적인 위협으로 출퇴근·근무 중 신변 불안이 큼",
+    "firstAction": "위험이 급박하면 경찰(112), 이후 경호 지원을 신청",
+    "report": "위협의 구체적 내용과 지속성",
+    "evidence": "위협 메시지·통화 기록 원본",
+    "dont": "위협을 축소하거나 혼자 견디기",
+    "programs": "경호·신변 보호 지원, 법률 지원",
+    "orgs": "경찰 112, {HOT}",
+    "legalCaution": "",
+    "regionVariants": {}
+  },
+  {
+    "id": "post-incident-burnout",
+    "group": "mind",
+    "title": "교육활동 침해 이후 심리적 소진·치료가 필요한 상황",
+    "subjects": [
+      "기타"
+    ],
+    "officialTypes": [
+      "기타"
+    ],
+    "typeTags": [
+      "기타"
+    ],
+    "contexts": [
+      "회복",
+      "심리상담",
+      "치료"
+    ],
+    "keywords": [
+      "불면",
+      "불안",
+      "소진",
+      "상담",
+      "치료",
+      "출근"
+    ],
+    "urgency": "일반 상담 가능",
+    "stages": [
+      "후속 지원"
+    ],
+    "supports": [
+      "심리상담",
+      "치료 지원",
+      "치유·회복"
+    ],
+    "example": "사안 이후 불면·불안 등 심리적 어려움이 지속됨",
+    "firstAction": "{HOT1}로 심리상담을 신청",
+    "report": "보호조치(특별휴가 등) 필요 여부를 학교와 상의",
+    "evidence": "치료비 지원 신청 시 진료 관련 서류",
+    "dont": "괜찮다고 넘기며 회복 시기를 놓치기",
+    "programs": "심리상담, 치료비 지원, 치유·회복",
+    "orgs": "교육활동보호센터, 전문 상담·치료기관",
+    "legalCaution": "",
+    "regionVariants": {}
+  }
 ];
 
-// 상황별 도움의 큰 상황. SITUS[].g로 묶이고, 펼치면 그 안의 세부 상황 안내가 모두 보여요
+// 상황별 도움의 큰 상황. SITUS[].group으로 묶이고, 펼치면 그 안의 세부 상황 안내가 모두 보여요
 const SITU_GROUPS = [
   { id: 'danger', t: '폭행·협박·신변 위협', urgent: true },
   { id: 'verbal', t: '폭언·모욕·수업 방해' },
@@ -134,8 +812,8 @@ const SITU_GROUPS = [
 
 // 상황별 도움 '상세 조건으로 찾기'. SITUS의 속성을 그대로 써요(같은 그룹 안은 OR, 그룹끼리는 AND)
 const FILTER_DEFS = [
-  { g: '침해 주체', opts: ['학생', '보호자', '외부인', '기타'], test: (s, o) => s.subject === o },
-  { g: '상황 유형', opts: ['폭언·모욕', '협박', '상해·폭행', '생활지도 불이행', '수업 방해', '반복 민원', '특이민원', '온라인 유포', '무단 촬영', '아동학대 신고', '소송·수사', '기타'], test: (s, o) => s.types.includes(o) },
+  { g: '침해 주체', opts: ['학생', '보호자', '외부인', '기타'], test: (s, o) => s.subjects.includes(o) },
+  { g: '상황 유형', opts: ['폭언·모욕', '협박', '상해·폭행', '생활지도 불이행', '수업 방해', '반복 민원', '특이민원', '온라인 유포', '무단 촬영', '아동학대 신고', '소송·수사', '기타'], test: (s, o) => s.typeTags.includes(o) },
   { g: '긴급성', opts: ['즉시 안전 확보 필요', '당일 학교 보고 필요', '교육지원청 신고 검토', '일반 상담 가능'], test: (s, o) => s.urgency === o },
   { g: '처리 단계', opts: ['발생 직후', '학교 초기 대응', '교육지원청 조사', '지역교권보호위원회 심의', '후속 지원'], test: (s, o) => s.stages.includes(o) },
   { g: '지원 유형', opts: ['행정 지원', '법률 지원', '심리상담', '치료 지원', '갈등 중재', '교원보호공제', '경호 지원', '치유·회복'], test: (s, o) => s.supports.includes(o) }
