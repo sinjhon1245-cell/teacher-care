@@ -6,7 +6,7 @@
 //  4) 지역 간 전화번호 혼입: 한 지역 파일에 다른 지역의 대표번호가 있으면 오류
 //  5) 공통 데이터(common.js)에 112 외의 전화번호가 직접 들어가 있으면 오류
 //  6) 지원제도(programs)의 area가 지원 찾기 유형(SUPPORT_TYPES)에 연결돼 있는지
-//  7) 상황별 도움의 세부 상황(SITUS)이 모두 큰 상황(SITU_GROUPS)에 속하는지
+//  7) 상황별 도움 V2의 stable id·필수 배열·그룹 연결이 올바른지
 //  8) 신청·상담·안내 링크(channels·links)와 교육청·교육지원청 링크가 https + 공식 도메인인지(접속 확인은 별도로 해요)
 //  9) 지역 출처(sources)마다 쓰이는 화면(uses)이 적혀 있는지, 공통 화면 근거에 특정 시·도 자료가 섞이지 않았는지
 // 문제가 있으면 종료 코드 1로 끝나요.
@@ -24,7 +24,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, COMMON_PUBLIC_SOURCES, SOURCE_USES } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, COMMON_PUBLIC_SOURCES, SOURCE_USES })', ctx);
+const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, COMMON_PUBLIC_SOURCES, SOURCE_USES } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, COMMON_PUBLIC_SOURCES, SOURCE_USES })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -83,9 +83,57 @@ COMMON_PUBLIC_SOURCES.forEach((s, i) => {
   }
 });
 
-// 상황별 도움: 그룹이 없는 세부 상황은 화면에서 사라지므로 오류, 빈 그룹도 오류
-SITUS.forEach((st, i) => { if (!SITU_GROUPS.some(g => g.id === st.g)) errors.push(`SITUS[${i}] 큰 상황(g) 없음: ${st.t}`); });
-SITU_GROUPS.forEach(g => { if (!SITUS.some(st => st.g === g.id)) errors.push(`SITU_GROUPS ${g.id}: 세부 상황이 없어요`); });
+// 상황별 도움 V2 Phase 1: 16개 기존 상황을 stable id 기반 새 모델로 옮긴 상태인지 확인
+const EXPECTED_SITU_COUNT = 16;
+if (SITUS.length !== EXPECTED_SITU_COUNT) errors.push(`SITUS 개수 오류(Phase 1): ${SITUS.length}개, 기대 ${EXPECTED_SITU_COUNT}개`);
+
+const situIds = new Set();
+const subjectOpts = new Set(FILTER_DEFS.find(d => d.g === '침해 주체').opts);
+const typeOpts = new Set(FILTER_DEFS.find(d => d.g === '상황 유형').opts);
+const urgencyOpts = new Set(FILTER_DEFS.find(d => d.g === '긴급성').opts);
+const stageOpts = new Set(Object.keys(STAGE_TO_STEP));
+const supportOpts = new Set(SUPPORT_TYPES.flatMap(t => t.situ));
+
+SITUS.forEach((st, i) => {
+  const label = st.title || `SITUS[${i}]`;
+  if (!st.id || !/^[a-z0-9-]+$/.test(st.id)) errors.push(`SITUS[${i}] stable id 형식 오류: ${st.id}`);
+  else if (situIds.has(st.id)) errors.push(`SITUS stable id 중복: ${st.id}`);
+  else situIds.add(st.id);
+
+  if (!st.group || !SITU_GROUPS.some(g => g.id === st.group)) errors.push(`SITUS[${i}] 큰 상황(group) 없음: ${label}`);
+  if (!st.title) errors.push(`SITUS[${i}] title 없음`);
+
+  for (const [field, arr] of [
+    ['subjects', st.subjects],
+    ['officialTypes', st.officialTypes],
+    ['typeTags', st.typeTags],
+    ['contexts', st.contexts],
+    ['keywords', st.keywords],
+    ['stages', st.stages],
+    ['supports', st.supports]
+  ]) {
+    if (!Array.isArray(arr) || !arr.length) errors.push(`SITUS[${i}] ${field}가 비어 있어요: ${label}`);
+  }
+
+  (st.subjects || []).filter(v => !subjectOpts.has(v)).forEach(v => errors.push(`SITUS[${i}] 알 수 없는 subject: ${v} — ${label}`));
+  (st.typeTags || []).filter(v => !typeOpts.has(v)).forEach(v => errors.push(`SITUS[${i}] 알 수 없는 typeTag: ${v} — ${label}`));
+  if (!urgencyOpts.has(st.urgency)) errors.push(`SITUS[${i}] 알 수 없는 urgency: ${st.urgency} — ${label}`);
+  (st.stages || []).filter(v => !stageOpts.has(v)).forEach(v => errors.push(`SITUS[${i}] 알 수 없는 stage: ${v} — ${label}`));
+  (st.supports || []).filter(v => !supportOpts.has(v)).forEach(v => errors.push(`SITUS[${i}] 알 수 없는 support: ${v} — ${label}`));
+
+  for (const field of ['example', 'firstAction', 'report', 'evidence', 'dont']) {
+    if (!st[field]) errors.push(`SITUS[${i}] ${field} 없음: ${label}`);
+  }
+
+  if (st.regionVariants !== undefined) {
+    if (!st.regionVariants || typeof st.regionVariants !== 'object' || Array.isArray(st.regionVariants)) {
+      errors.push(`SITUS[${i}] regionVariants 형식 오류: ${label}`);
+    } else {
+      Object.keys(st.regionVariants).filter(id => !REGION_ORDER.includes(id)).forEach(id => errors.push(`SITUS[${i}] 알 수 없는 regionVariant: ${id} — ${label}`));
+    }
+  }
+});
+SITU_GROUPS.forEach(g => { if (!SITUS.some(st => st.group === g.id)) errors.push(`SITU_GROUPS ${g.id}: 세부 상황이 없어요`); });
 
 // 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
 const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
