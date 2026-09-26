@@ -540,6 +540,8 @@ body.is-landing { padding-bottom: 0; }
 .source-box ul { margin: 8px 0; padding-left: 18px; display: grid; gap: 4px; }
 .source-box a { overflow-wrap: anywhere; }
 .source-box p { margin: 6px 0 4px; }
+.source-box .source-sub { margin: 10px 0 2px; font-size: 13px; font-weight: 600; color: var(--faint); }
+.source-box .source-common { margin-top: 2px; font-size: 13px; }
 
 /* ── 푸터 ── */
 .site-footer { border-top: 1px solid var(--border); background: var(--warm); margin-top: 20px; }

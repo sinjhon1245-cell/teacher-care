@@ -13,14 +13,14 @@ registerRegion({
   // 서울특별시 자치구 수
   expectedAreas: 25,
   sources: [
-    { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 초등교육과 게시(2026. 3. 6.)', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-09-24' },
-    { title: '교육활동보호 매뉴얼(2026 개정판)·2026 서울 교육활동보호 시행계획(안내용) — 성동광진교육지원청 게시', url: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/1354617_6010.html', verifiedAt: '2026-09-24' },
-    { title: '시·도 교육활동보호센터 연락처 — 한국교육개발원 교원 지원 포털', url: 'https://forteacher.kedi.re.kr/web/mapBoard/list.do?mId=40', verifiedAt: '2026-09-24' },
-    { title: '서울SEM119 갈등조정단 ‘봄’ 출범 — 서울특별시교육청 보도자료', url: 'https://enews.sen.go.kr/news/view.do?bbsSn=190744&step1=3&step2=1', verifiedAt: '2026-09-24' },
-    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24' },
-    { title: '종전 [별표 2] 교육지원청의 명칭·위치 및 관할구역(2023. 6. 27. 개정)', url: 'https://www.law.go.kr/LSW/flDownload.do?flSeq=129700305&bylClsCd=110201', verifiedAt: '2026-09-24' },
-    { title: '서울특별시학교안전공제회 — 교육활동 침해 피해교원 보호조치 비용 지원(심리상담 신청 문의)', url: 'https://www.ssia.or.kr/teacher/page4.php', verifiedAt: '2026-09-25' },
-    { title: '서울특별시학교안전공제회 — 소진교원 심리상담 비용 지원(상담 신청·비용 청구 문의)', url: 'https://www.ssia.or.kr/teacher/page7.php', verifiedAt: '2026-09-25' }
+    { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 초등교육과 게시(2026. 3. 6.)', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-09-24', uses: ['guide', 'procedure', 'support'] },
+    { title: '교육활동보호 매뉴얼(2026 개정판)·2026 서울 교육활동보호 시행계획(안내용) — 성동광진교육지원청 게시', url: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/1354617_6010.html', verifiedAt: '2026-09-24', uses: ['guide', 'support'] },
+    { title: '시·도 교육활동보호센터 연락처 — 한국교육개발원 교원 지원 포털', url: 'https://forteacher.kedi.re.kr/web/mapBoard/list.do?mId=40', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '서울SEM119 갈등조정단 ‘봄’ 출범 — 서울특별시교육청 보도자료', url: 'https://enews.sen.go.kr/news/view.do?bbsSn=190744&step1=3&step2=1', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '종전 [별표 2] 교육지원청의 명칭·위치 및 관할구역(2023. 6. 27. 개정)', url: 'https://www.law.go.kr/LSW/flDownload.do?flSeq=129700305&bylClsCd=110201', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '서울특별시학교안전공제회 — 교육활동 침해 피해교원 보호조치 비용 지원(심리상담 신청 문의)', url: 'https://www.ssia.or.kr/teacher/page4.php', verifiedAt: '2026-09-25', uses: ['support'] },
+    { title: '서울특별시학교안전공제회 — 소진교원 심리상담 비용 지원(상담 신청·비용 청구 문의)', url: 'https://www.ssia.or.kr/teacher/page7.php', verifiedAt: '2026-09-25', uses: ['support'] }
   ],
 
   // 02-1395: SEM119 대표전화(매뉴얼 p.93). ARS 세부 메뉴는 공식 자료에 없어 menu를 두지 않아요.

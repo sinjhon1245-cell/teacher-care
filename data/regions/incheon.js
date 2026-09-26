@@ -13,15 +13,16 @@ registerRegion({
   // 2026. 7. 1. 행정체제 개편 후 2군 9구(인천광역시 행정구역 안내)
   expectedAreas: 11,
   sources: [
-    { title: '인천광역시교육청 「2026 교육활동보호 매뉴얼」', url: 'https://www.ice.go.kr/upload/ice/na/bbs_1711/2026/04/0ecf770cd5d1443260ec865a554c116b.pdf', verifiedAt: '2026-09-24' },
-    { title: '「2026년 인천 교육활동 보호 시행계획」(2026. 2. 13. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3360999', verifiedAt: '2026-09-24' },
-    { title: '인천광역시교육청 부서안내 — 교육활동보호담당관', url: 'https://www.ice.go.kr/ice/ad/ofcrk/ofcrkDeptInfo.do?mi=12097&deptSn=1120', verifiedAt: '2026-09-24' },
-    { title: '인천광역시 행정구역(2026. 7. 1. 2군 9구)', url: 'https://www.incheon.go.kr/IC040102', verifiedAt: '2026-09-24' },
-    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24' },
-    { title: '교육지원청 관할 조례 개정 입법예고(교육청공고 제2026-385호, 2027. 3. 1. 시행 예정)', url: 'https://www.ice.go.kr/law/na/ntt/selectNttInfo.do?nttSn=3385048&mi=12782', verifiedAt: '2026-09-24' },
-    { title: '인천광역시교육청 교육활동보호담당관 안내', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11819&cntntsId=855', verifiedAt: '2026-09-24' },
-    { title: '인천광역시교육청 기관별 조직도 — 교육지원청 대표전화', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=12059&cntntsId=1034', verifiedAt: '2026-09-25' },
-    { title: '인천광역시학교안전공제회 — 교원 위협대처 경호서비스', url: 'https://incheon.ssif.or.kr/sub/sub03_05_02.php', verifiedAt: '2026-09-25' }
+    { title: '인천광역시교육청 「2026 교육활동보호 매뉴얼」', url: 'https://www.ice.go.kr/upload/ice/na/bbs_1711/2026/04/0ecf770cd5d1443260ec865a554c116b.pdf', verifiedAt: '2026-09-24', uses: ['guide', 'procedure', 'support'] },
+    { title: '「2026년 인천 교육활동 보호 시행계획」(2026. 2. 13. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3360999', verifiedAt: '2026-09-24', uses: ['guide', 'support'] },
+    { title: '인천광역시교육청 부서안내 — 교육활동보호담당관', url: 'https://www.ice.go.kr/ice/ad/ofcrk/ofcrkDeptInfo.do?mi=12097&deptSn=1120', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '인천광역시 행정구역(2026. 7. 1. 2군 9구)', url: 'https://www.incheon.go.kr/IC040102', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '교육지원청 관할 조례 개정 입법예고(교육청공고 제2026-385호, 2027. 3. 1. 시행 예정)', url: 'https://www.ice.go.kr/law/na/ntt/selectNttInfo.do?nttSn=3385048&mi=12782', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '인천광역시교육청 교육활동보호담당관 안내', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11819&cntntsId=855', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '인천광역시교육청 기관별 조직도 — 교육지원청 대표전화', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=12059&cntntsId=1034', verifiedAt: '2026-09-25', uses: ['finder'] },
+    { title: '인천광역시학교안전공제회 — 교원 위협대처 경호서비스', url: 'https://incheon.ssif.or.kr/sub/sub03_05_02.php', verifiedAt: '2026-09-25', uses: ['support'] },
+    { title: '인천광역시교육청 「2026학년도 학교민원 처리 매뉴얼」(붙임1 학교민원 처리 매뉴얼(인천), 2026. 3. 16. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3364320', verifiedAt: '2026-09-26', uses: ['guide', 'support'] }
   ],
 
   // 대표번호와 ARS 안내(2026 교육활동보호 매뉴얼)

@@ -475,6 +475,7 @@ const App = {
             ${actionButtons(officeChannels(office))}
           </div>
         ` : ''}
+        ${this.renderSources('finder')}
       </section>
     `;
   },
@@ -572,7 +573,7 @@ const App = {
           </div>
         </div>
         <p class="muted small">기한은 법률이 아닌 교육활동 보호 매뉴얼 기준이에요(법률은 '지체 없이' 보고). 실제 적용 기한과 제출 방식은 소속 교육지원청 안내를 확인하세요.</p>
-        ${sourceBox('절차 근거', COMMON_SOURCES, latestDate(COMMON_SOURCES))}
+        ${this.renderSources('procedure')}
       </section>
     `;
   },
@@ -697,7 +698,7 @@ const App = {
           <ul class="action-list">${groupRows}</ul>
         `}
         <p class="muted small">구체적인 사안의 교육활동 침해 해당 여부는 사실관계 조사와 지역교권보호위원회 심의로 판단돼요.</p>
-        ${sourceBox('안내 근거', COMMON_SOURCES, latestDate(COMMON_SOURCES))}
+        ${this.renderSources('guide')}
       </section>
     `;
   },
@@ -816,12 +817,28 @@ const App = {
           <li><span class="dir-name">담당 교육지원청</span><span class="dir-contact"><button class="link-btn" onclick="App.goHome('finder')">내 교육지원청 찾기</button></span></li>
           <li><span class="dir-name">경찰(긴급 상황)</span><span class="dir-contact"><a href="tel:112">112</a></span></li>
         </ul>
-        ${sourceBox(`${R.short} 공식 출처`, R.sources, R.verifiedAt)}
+        ${this.renderSources('support')}
       </section>
     `;
   },
 
-  // ══════════════ 푸터(서비스 안내·출처) ══════════════
+  // ══════════════ 화면별 출처 ══════════════
+  // 지역을 고르면 그 지역 sources 중 이 화면 용도(uses)에 맞는 자료만 ‘안내 근거 · 지역’으로 보여 주고,
+  // 전국 공통 법적·정책 근거(COMMON_PUBLIC_SOURCES)는 그 아래 작게 붙여요(교육지원청 찾기 제외). 다른 시·도 자료나 내부 검증 자료는 보이지 않아요.
+  // 지역 자료가 없는 화면(또는 공통 모드)은 ‘공통 안내 근거’만 보여 줘요.
+  renderSources(use) {
+    const R = this.R;
+    const own = R ? R.sources.filter(s => (s.uses || []).includes(use)) : [];
+    if (own.length) {
+      // 교육지원청 찾기는 관할 자료만(공통 법적·정책 근거는 관할과 무관해 붙이지 않아요)
+      return sourceBox(`안내 근거 · ${R.short}`, own, latestDate(own), '', use === 'finder' ? [] : COMMON_PUBLIC_SOURCES);
+    }
+    if (use === 'finder') return '';
+    const note = R ? `${R.office}의 세부 기준은 소속 교육(지원)청 안내를 확인해 주세요.` : '';
+    return sourceBox('공통 안내 근거', COMMON_PUBLIC_SOURCES, latestDate(COMMON_PUBLIC_SOURCES), note);
+  },
+
+  // ══════════════ 푸터(서비스 안내) ══════════════
   renderFooter() {
     const R = this.R;
     return `
@@ -831,8 +848,7 @@ const App = {
           <p>교사를 위한 교육활동 보호·대응 가이드예요. 공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.
           실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.
           선택한 지역과 대응 절차 체크 상태만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
-          ${R ? sourceBox(`${R.short} 공식 출처`, R.sources, R.verifiedAt,
-            `최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요.`) : ''}
+          ${R ? `<p>최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요. 화면마다 아래쪽 ‘안내 근거’에 그 화면에 쓴 공식 자료를 적어 두었어요.</p>` : ''}
         </div>
       </footer>
     `;
@@ -974,16 +990,17 @@ function sourceLine(R, item) {
   return `${date} 최종 확인${link}`;
 }
 
-// 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구)
-function sourceBox(label, sources, verifiedAt, note) {
-  const list = sources.map(s => `
+// 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구, + 공통 법적·정책 근거를 작게)
+function sourceBox(label, sources, verifiedAt, note, common) {
+  const list = arr => arr.map(s => `
     <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>` : s.title}${s.verifiedAt ? ` <span class="muted">· ${fmtDate(s.verifiedAt)} 확인</span>` : ''}</li>
   `).join('');
   return `
     <details class="source-box">
       <summary>${label} · ${fmtDate(verifiedAt)} 최종 확인</summary>
-      <ul>${list}</ul>
+      <ul>${list(sources)}</ul>
       ${note ? `<p>${note}</p>` : ''}
+      ${common && common.length ? `<p class="source-sub">공통 법적·정책 근거</p><ul class="source-common">${list(common)}</ul>` : ''}
     </details>
   `;
 }

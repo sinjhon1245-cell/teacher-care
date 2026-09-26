@@ -163,11 +163,20 @@ const SUPPORT_TYPES = [
 // 절차·기한(사안 접수 후 24시간 이내 보고, 사안 보고 후 5일 이내 발생보고서)은 법률이 아니라 매뉴얼 기준이에요.
 // 교원지위법 제20조는 '지체 없이' 보고하도록 하고, 구체적인 기한은 교육부·시도교육청 매뉴얼이 정해요.
 // 새 지역을 추가할 때 그 지역 매뉴얼의 기한이 같은지 확인하고, 다르면 공통에서 빼 지역 데이터로 옮기세요.
-const COMMON_SOURCES = [
+// 화면에 보이는 공통 근거는 전국 공통 공식 자료(교육부·법령)만이에요. 특정 시·도 자료는 넣지 않아요.
+// 지역을 고르면 그 지역 sources 중 화면 용도(uses)에 맞는 자료가 먼저 보이고, 이 목록은 ‘공통 법적·정책 근거’로 작게 붙어요.
+const COMMON_PUBLIC_SOURCES = [
   { title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.cbe.go.kr/upload/dept-26/na/bbs_2019/2026/03/90383C36-8078-4E7F-FA24-E3768E73892E.pdf', verifiedAt: '2026-09-24' },
-  { title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-09-24' },
-  { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 24시간·5일 기준 확인', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-09-24' }
+  { title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-09-24' }
 ];
+
+// 내부 교차검증에 쓴 자료(화면에 출력하지 않아요). 공통 기준이 여러 시·도 자료에서도 같은지 확인한 기록이에요.
+const VALIDATION_SOURCES = [
+  { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 24시간·5일 기준 교차 확인', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-09-24' }
+];
+
+// 지역 sources[].uses: 그 자료를 근거로 보여 줄 화면. guide(상황별 도움)·procedure(대응 절차)·support(지원 찾기)·finder(교육지원청 찾기)
+const SOURCE_USES = ['guide', 'procedure', 'support', 'finder'];
 
 // ══════════════ 지역 미선택 시 표시 ══════════════
 // 지역을 아직 고르지 않았을 때 토큰을 채우는 중립 문구. 특정 지역 번호를 절대 넣지 않아요.

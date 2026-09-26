@@ -14,14 +14,15 @@ registerRegion({
   // 경기도 시·군 수
   expectedAreas: 31,
   sources: [
-    { title: '경기도교육청 2026년도 교육활동 보호 종합대책(요약)', url: 'https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/03/e75532f7-cc69-48b8-abb7-ea9143081ff9.pdf', verifiedAt: '2026-09-24' },
-    { title: '경기교육모아 — 교권보호119 콜센터(1600-8787)', url: 'https://more.goe.go.kr/eapc/subList/30300001942', verifiedAt: '2026-09-24' },
-    { title: '경기도학교안전공제회 — 교권보호119 콜센터 안내', url: 'https://www.gessia.or.kr/compe/tac.php', verifiedAt: '2026-09-24' },
-    { title: '경기도학교안전공제회 — 교원보호공제 분쟁조정 서비스', url: 'https://www.gessia.or.kr/compe/safe.php', verifiedAt: '2026-09-24' },
-    { title: '경기교육모아 — 경기교권보호지원센터 안내', url: 'https://more.goe.go.kr/eapc/subList/30300002114', verifiedAt: '2026-09-24' },
-    { title: '경기도교육청 보도자료(2026. 9. 23.) — 교육활동 침해에 신속 대응(교권보호전담관)', url: 'https://www.goe.go.kr/goe/na/ntt/selectNttInfo.do?mi=10102&nttSn=2375398', verifiedAt: '2026-09-25' },
-    { title: '「경기도교육청 행정기구 설치 조례」 제3조의2·[별표 9] 교육지원청 관할구역', url: 'https://www.law.go.kr/자치법규/경기도교육청행정기구설치조례', verifiedAt: '2026-09-24' },
-    { title: '경기도교육청 교육지원청 안내(대표번호·주소)', url: 'https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?mi=10311&cntntsId=1132', verifiedAt: '2026-09-24' }
+    { title: '경기도교육청 2026년도 교육활동 보호 종합대책(요약)', url: 'https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/03/e75532f7-cc69-48b8-abb7-ea9143081ff9.pdf', verifiedAt: '2026-09-24', uses: ['guide', 'support'] },
+    { title: '경기교육모아 — 교권보호119 콜센터(1600-8787)', url: 'https://more.goe.go.kr/eapc/subList/30300001942', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '경기도학교안전공제회 — 교권보호119 콜센터 안내', url: 'https://www.gessia.or.kr/compe/tac.php', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '경기도학교안전공제회 — 교원보호공제 분쟁조정 서비스', url: 'https://www.gessia.or.kr/compe/safe.php', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '경기교육모아 — 경기교권보호지원센터 안내', url: 'https://more.goe.go.kr/eapc/subList/30300002114', verifiedAt: '2026-09-24', uses: ['support'] },
+    { title: '경기도교육청 보도자료(2026. 9. 23.) — 교육활동 침해에 신속 대응(교권보호전담관)', url: 'https://www.goe.go.kr/goe/na/ntt/selectNttInfo.do?mi=10102&nttSn=2375398', verifiedAt: '2026-09-25', uses: ['support'] },
+    { title: '「경기도교육청 행정기구 설치 조례」 제3조의2·[별표 9] 교육지원청 관할구역', url: 'https://www.law.go.kr/자치법규/경기도교육청행정기구설치조례', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '경기도교육청 교육지원청 안내(대표번호·주소)', url: 'https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?mi=10311&cntntsId=1132', verifiedAt: '2026-09-24', uses: ['finder'] },
+    { title: '경기도교육청 「2026 경기형 교육활동 보호 길라잡이」(경기교권보호지원센터 업무 자료, 2026. 2. 25. 게시, PDF 첨부)', url: 'https://more.goe.go.kr/eapc/subList/20000000408?pmode=detail&nttSeq=1000000816', verifiedAt: '2026-09-26', uses: ['guide', 'procedure', 'support'] }
   ],
 
   // ARS 세부 메뉴는 2026년 공식 자료에서 확인되지 않아 menu를 두지 않아요.

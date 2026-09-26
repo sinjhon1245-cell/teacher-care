@@ -8,6 +8,7 @@
 //  6) 지원제도(programs)의 area가 지원 찾기 유형(SUPPORT_TYPES)에 연결돼 있는지
 //  7) 상황별 도움의 세부 상황(SITUS)이 모두 큰 상황(SITU_GROUPS)에 속하는지
 //  8) 신청·상담·안내 링크(channels·links)와 교육청·교육지원청 링크가 https + 공식 도메인인지(접속 확인은 별도로 해요)
+//  9) 지역 출처(sources)마다 쓰이는 화면(uses)이 적혀 있는지, 공통 화면 근거에 특정 시·도 자료가 섞이지 않았는지
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -23,7 +24,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS })', ctx);
+const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, COMMON_PUBLIC_SOURCES, SOURCE_USES } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, COMMON_PUBLIC_SOURCES, SOURCE_USES })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -73,6 +74,15 @@ function checkUrl(tag, where, url) {
 const common = fs.readFileSync(path.join(root, 'data/common.js'), 'utf8');
 for (const n of phonesIn(common)) if (isValidPhone(n) || /^0\d/.test(n)) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
 
+// 공통 화면 근거: 특정 시·도교육청 도메인 자료는 넣지 않아요(교차검증 자료는 VALIDATION_SOURCES에)
+COMMON_PUBLIC_SOURCES.forEach((s, i) => {
+  const host = new URL(s.url).hostname;
+  for (const id of REGION_ORDER) {
+    const own = new URL(REGIONS[id].officeUrl).hostname.replace(/^www\./, '');
+    if (host === own || host.endsWith('.' + own)) errors.push(`COMMON_PUBLIC_SOURCES[${i}]에 ${id} 교육청 자료가 있어요: ${s.title}`);
+  }
+});
+
 // 상황별 도움: 그룹이 없는 세부 상황은 화면에서 사라지므로 오류, 빈 그룹도 오류
 SITUS.forEach((st, i) => { if (!SITU_GROUPS.some(g => g.id === st.g)) errors.push(`SITUS[${i}] 큰 상황(g) 없음: ${st.t}`); });
 SITU_GROUPS.forEach(g => { if (!SITUS.some(st => st.g === g.id)) errors.push(`SITU_GROUPS ${g.id}: 세부 상황이 없어요`); });
@@ -91,8 +101,17 @@ for (const id of REGION_ORDER) {
     if (!s.url) warnings.push(`${tag} sources[${i}] URL 없음: ${s.title}`);
     else if (s.url.replace(/\/$/, '') === (r.officeUrl || '').replace(/\/$/, '')) warnings.push(`${tag} sources[${i}]가 교육청 메인 홈페이지예요: ${s.title}`);
   });
+  // 출처를 보여 줄 화면(uses): 비었거나 모르는 값이면 오류. 지원 항목이 가리키는 출처는 지원 찾기(support)에 쓰여야 해요
+  r.sources.forEach((s, i) => {
+    if (!Array.isArray(s.uses) || !s.uses.length) errors.push(`${tag} sources[${i}] uses가 없어요: ${s.title}`);
+    else s.uses.filter(u => !SOURCE_USES.includes(u)).forEach(u => errors.push(`${tag} sources[${i}] 알 수 없는 uses: ${u}`));
+  });
+  for (const use of SOURCE_USES) {
+    if (!r.sources.some(s => (s.uses || []).includes(use))) warnings.push(`${tag} ${use} 화면에 쓸 지역 출처가 없어요(공통 근거만 표시돼요)`);
+  }
   r.programs.forEach((p, i) => {
     if (p.source !== undefined && !r.sources[p.source]) errors.push(`${tag} programs[${i}] source 번호가 없어요: ${p.source}`);
+    else if (p.source !== undefined && !(r.sources[p.source].uses || []).includes('support')) errors.push(`${tag} programs[${i}] source ${p.source}의 uses에 support가 없어요`);
     // 지원 찾기에 보이려면 area가 SUPPORT_TYPES 중 하나에 속해야 해요
     if (!SUPPORT_TYPES.some(t => t.areas.includes(p.area))) errors.push(`${tag} programs[${i}] area가 SUPPORT_TYPES에 없어요: ${p.area}`);
   });
