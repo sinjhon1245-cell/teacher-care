@@ -484,6 +484,11 @@ body.is-landing { padding-bottom: 0; }
   font: inherit; font-family: var(--font-ui); padding: 10px 12px; min-height: 48px; border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); cursor: pointer;
 }
+/* 데스크톱: 선택 상자를 아래 결과 카드(최대 720px)와 같은 폭으로 */
+@media (min-width: 1024px) {
+  .field { max-width: 720px; }
+  .field select { width: 100%; }
+}
 .result {
   margin-top: 14px; background: var(--surface); border: 1px solid var(--border); max-width: 720px;
   border-left: 3px solid var(--primary); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-soft);
