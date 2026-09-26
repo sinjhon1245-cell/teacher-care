@@ -17,6 +17,7 @@ const App = {
     step: 0,            // 대응 절차에서 선택한 단계
     situ: null,         // 상황별 도움에서 펼친 항목('group:' + 그룹 id 또는 'situ:' + 상황 id)
     filters: {},        // 상세 조건 { 그룹명: [선택값] }
+    query: '',          // 상황별 도움 검색어(현재 세션에서만 유지)
     filterOpen: null,   // 상세 조건 영역을 연 상태(null이면 데스크톱은 펼침, 모바일은 접힘)
     supportType: 'all', // 지원 찾기에서 고른 도움 유형('related'는 상황별 도움에서 넘어온 관련 지원 묶음)
     related: null,      // { situId: 상황 stable id, ids: [지원 유형 id] }
@@ -113,6 +114,31 @@ const App = {
   },
 
   clearFilters() { this.setState({ filters: {}, situ: null }); },
+
+  setGuideQuery(value) {
+    const query = String(value || '');
+    if (query === this.state.query) return;
+    const pos = query.length;
+    this.setState({ query, situ: null });
+    requestAnimationFrame(() => {
+      const el = document.getElementById('guide-search');
+      if (!el) return;
+      el.focus({ preventScroll: true });
+      try { el.setSelectionRange(pos, pos); } catch (e) {}
+    });
+  },
+
+  clearGuideSearch() {
+    this.setState({ query: '', situ: null });
+    requestAnimationFrame(() => {
+      const el = document.getElementById('guide-search');
+      if (el) el.focus({ preventScroll: true });
+    });
+  },
+
+  clearGuideTools() {
+    this.setState({ query: '', filters: {}, situ: null });
+  },
 
   showToast(msg) {
     const el = document.getElementById('toast');
@@ -619,17 +645,21 @@ const App = {
 
   renderGuide() {
     const S = this.state;
-    const active = Object.keys(S.filters).length > 0;
+    const query = S.query || '';
+    const queryActive = guideSearchTerms(query).length > 0;
+    const filterActive = Object.keys(S.filters).length > 0;
+    const active = queryActive || filterActive;
     const selected = FILTER_DEFS.flatMap(d => S.filters[d.g] || []);
-    const matches = SITUS.filter(s => FILTER_DEFS.every(d => {
+    const searchMatch = s => matchesGuideSearch(s, query);
+
+    const matches = SITUS.filter(s => searchMatch(s) && FILTER_DEFS.every(d => {
       const sel = S.filters[d.g] || [];
       return sel.length === 0 || sel.some(o => d.test(s, o));
     })).sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
 
-    // 조건 영역: 왼쪽 그룹 이름, 오른쪽 선택지.
-    // 숫자는 ‘다른 그룹의 선택 조건을 적용했을 때 이 선택지에 해당하는 상황 수’(같은 그룹 안은 OR라 자기 그룹은 제외).
-    // 0이면 비활성으로 두되, 이미 선택된 선택지는 해제할 수 있게 항상 눌러요. 데이터에 아예 없는 선택지는 숨겨요.
-    const passesOthers = (s, group) => FILTER_DEFS.every(d => {
+    // 숫자는 현재 검색어 + 다른 필터 그룹을 적용한 뒤, 이 선택지를 더했을 때 남는 상황 수예요.
+    // 같은 필터 그룹 안은 OR라 해당 그룹의 현재 선택은 count 계산에서 제외해요.
+    const passesOthers = (s, group) => searchMatch(s) && FILTER_DEFS.every(d => {
       if (d.g === group) return true;
       const sel = S.filters[d.g] || [];
       return sel.length === 0 || sel.some(o => d.test(s, o));
@@ -640,11 +670,11 @@ const App = {
         const n = pool.filter(s => d.test(s, o)).length;
         const on = (S.filters[d.g] || []).includes(o);
         const off = !on && n === 0;
-        return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" ${off ? 'disabled title="현재 조건에서는 해당 상황이 없어요"' : ''} onclick="App.toggleFilter('${d.g}','${o}')">${o} <span class="chip-count">${n}</span></button>`;
+        return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" ${off ? 'disabled title="현재 검색·조건에서는 해당 상황이 없어요"' : ''} onclick="App.toggleFilter('${d.g}','${o}')">${o} <span class="chip-count">${n}</span></button>`;
       }).join('');
       return `<div class="filter-row" role="group" aria-label="${d.g}"><span class="filter-label">${d.g}</span><div class="chip-row">${chips}</div></div>`;
     }).join('');
-    const open = S.filterOpen === null ? isDesktop() || active : S.filterOpen;
+    const open = S.filterOpen === null ? isDesktop() || filterActive : S.filterOpen;
 
     const groupRows = SITU_GROUPS.map(g => {
       const subs = SITUS.filter(s => s.group === g.id)
@@ -680,25 +710,48 @@ const App = {
       `;
     }).join('');
 
+    const conditionParts = [
+      queryActive ? `검색 ‘${escapeAttr(query.trim())}’` : '',
+      selected.length ? selected.join(' · ') : ''
+    ].filter(Boolean);
+
     return `
       <section class="section page">
         ${this.eyebrow('판단')}
         <h1 class="page-title">상황별 도움</h1>
-        <p class="muted">조건을 고르면 맞는 상황과 지금 할 일을 보여 드려요. 큰 상황에서 바로 골라도 돼요.</p>
+        <p class="muted">떠오르는 단어로 검색하거나, 상세 조건과 큰 상황에서 바로 찾아보세요.</p>
         ${this.emergencyNote()}
+
+        <div class="tool-panel guide-search-panel">
+          <label class="guide-search-label" for="guide-search">어떤 일이 있었나요?</label>
+          <div class="guide-search-field">
+            <input id="guide-search" class="guide-search-input" type="search"
+              value="${escapeAttr(query)}"
+              placeholder="담임교체, 욕설, 녹음, 생기부, 아동학대..."
+              autocomplete="off" enterkeyhint="search"
+              oncompositionstart="App._guideComposing = true"
+              oncompositionend="App._guideComposing = false; App.setGuideQuery(this.value)"
+              oninput="if (!App._guideComposing) App.setGuideQuery(this.value)"
+              aria-describedby="guide-search-hint">
+            ${queryActive ? '<button type="button" class="guide-search-clear" onclick="App.clearGuideSearch()" aria-label="검색어 지우기">지우기</button>' : ''}
+          </div>
+          <p id="guide-search-hint" class="muted small guide-search-hint">예: 밤에 전화, 녹음기, 담임, 생기부, 손해배상처럼 평소 쓰는 말로 찾아보세요.</p>
+        </div>
+
         <details class="tool-panel filter-panel" ${open ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
           <summary><span class="tool-title">상세 조건으로 찾기</span>${selected.length ? `<span class="badge badge-accent">${selected.length}개 선택</span>` : ''}<span class="chevron" aria-hidden="true"></span></summary>
           <div class="filter-rows">${rows}</div>
         </details>
+
         ${active ? `
           <div class="result-head" aria-live="polite">
             <div>
               <p class="result-count">${matches.length}개 상황을 찾았어요</p>
-              <p class="muted small">선택 조건: ${selected.join(' · ')}</p>
+              <p class="muted small">현재 조건: ${conditionParts.join(' · ')}</p>
             </div>
-            <button class="btn btn-secondary" onclick="App.clearFilters()">필터 초기화</button>
+            <button class="btn btn-secondary" onclick="App.clearGuideTools()">검색·필터 초기화</button>
           </div>
-          ${matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">조건에 맞는 상황이 없어요. 조건을 줄여 보세요.</p>'}
+          ${matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">검색어와 조건에 맞는 상황이 없어요. 검색어를 짧게 하거나 조건을 줄여 보세요.</p>'}
         ` : `
           <div class="result-head"><p class="result-count">큰 상황으로 바로 찾기</p></div>
           <ul class="action-list">${groupRows}</ul>
@@ -1022,6 +1075,33 @@ function fmtDate(iso) {
 
 function telHref(num) {
   return 'tel:' + String(num).replace(/\(.*?\)/g, '').replace(/[^0-9]/g, '');
+}
+
+function escapeAttr(text) {
+  return String(text == null ? '' : text)
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function normalizeGuideSearch(text) {
+  return String(text == null ? '' : text).toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
+}
+
+function guideSearchTerms(query) {
+  return String(query || '').trim().toLocaleLowerCase('ko-KR').split(/\s+/).map(normalizeGuideSearch).filter(Boolean);
+}
+
+function matchesGuideSearch(situ, query) {
+  const terms = guideSearchTerms(query);
+  if (!terms.length) return true;
+  const corpus = normalizeGuideSearch([
+    situ.title,
+    ...(situ.keywords || []),
+    ...(situ.contexts || []),
+    ...(situ.officialTypes || []),
+    situ.example
+  ].filter(Boolean).join(' '));
+  return terms.every(term => corpus.includes(term));
 }
 
 // 공통 데이터 안의 지역 토큰을 현재 지역 값으로 바꿔요. 지역 미선택이면 중립 문구를 써요.
