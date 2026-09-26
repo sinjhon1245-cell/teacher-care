@@ -335,6 +335,29 @@ body.is-landing { padding-bottom: 0; }
   box-shadow: var(--shadow-soft); padding: 18px 22px; margin: 0 0 18px;
 }
 .tool-title { font-weight: 700; font-size: 16px; color: var(--text); margin: 0 0 12px; }
+
+.guide-search-panel { padding: 18px 22px; }
+.guide-search-label {
+  display: block; margin: 0 0 10px; font-family: var(--font-ui);
+  font-size: 15px; font-weight: 700; color: var(--text);
+}
+.guide-search-field { position: relative; display: flex; align-items: center; }
+.guide-search-input {
+  width: 100%; min-height: 50px; padding: 11px 78px 11px 14px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text); font-size: 16px;
+}
+.guide-search-input::placeholder { color: var(--faint); }
+.guide-search-input:focus { border-color: var(--primary); }
+.guide-search-input::-webkit-search-cancel-button { display: none; }
+.guide-search-clear {
+  position: absolute; right: 8px; min-height: 34px; padding: 5px 9px;
+  border: none; border-radius: 8px; background: var(--primary-soft);
+  color: var(--primary); cursor: pointer; font-family: var(--font-ui);
+  font-size: 13px; font-weight: 700;
+}
+.guide-search-clear:hover { background: var(--warm); }
+.guide-search-hint { margin: 8px 0 0; }
 .filter-panel { padding: 0 22px; }
 .filter-panel > summary {
   list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 0;
@@ -614,6 +637,9 @@ body.is-landing { padding-bottom: 0; }
   .hero .common-panel .panel-label { display: block; }
   .common-basis { font-size: 20px; }
   .tool-panel { padding: 14px 16px; }
+  .guide-search-panel { padding: 14px 16px; }
+  .guide-search-input { min-height: 48px; padding-left: 12px; font-size: 16px; }
+  .guide-search-hint { line-height: 1.45; }
   .filter-panel { padding: 0 16px; }
   .filter-row { grid-template-columns: 1fr; gap: 6px; }
   .filter-label { padding-top: 0; }
