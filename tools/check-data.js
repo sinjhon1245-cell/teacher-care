@@ -83,7 +83,7 @@ COMMON_PUBLIC_SOURCES.forEach((s, i) => {
   }
 });
 
-// 상황별 도움 V2 Phase 2: 확정된 38개 상황·11개 큰 분류를 확인
+// 상황별 도움 V2 Phase 3: 확정된 38개 상황·11개 분류와 faceted filter 연결을 확인
 const EXPECTED_SITU_COUNT = 38;
 const EXPECTED_GROUP_COUNT = 11;
 if (SITUS.length !== EXPECTED_SITU_COUNT) errors.push(`SITUS 개수 오류(Phase 2): ${SITUS.length}개, 기대 ${EXPECTED_SITU_COUNT}개`);
@@ -136,6 +136,49 @@ SITUS.forEach((st, i) => {
   }
 });
 SITU_GROUPS.forEach(g => { if (!SITUS.some(st => st.group === g.id)) errors.push(`SITU_GROUPS ${g.id}: 세부 상황이 없어요`); });
+
+// V2 필터는 모든 선택지가 실제 상황에 연결되어야 하고, 같은 그룹 OR / 그룹 간 AND로 동작해야 해요.
+FILTER_DEFS.forEach(d => {
+  d.opts.forEach(o => {
+    if (!SITUS.some(st => d.test(st, o))) errors.push(`FILTER_DEFS ${d.g} 선택지가 어떤 상황에도 연결되지 않아요: ${o}`);
+  });
+});
+
+function filterSituations(selected) {
+  return SITUS.filter(st => FILTER_DEFS.every(d => {
+    const values = selected[d.g] || [];
+    return values.length === 0 || values.some(o => d.test(st, o));
+  }));
+}
+function expectSituIds(label, selected, ids) {
+  const got = new Set(filterSituations(selected).map(st => st.id));
+  ids.filter(id => !got.has(id)).forEach(id => errors.push(`필터 조합 오류(${label}): ${id}가 결과에 없어요`));
+}
+
+expectSituIds('보호자 + 부당한 요구·간섭',
+  { '침해 주체': ['보호자'], '상황 유형': ['부당한 요구·간섭'] },
+  ['homeroom-change-demand', 'no-guidance-demand', 'attendance-record-change-demand', 'assessment-change-demand', 'unlawful-personal-demand']);
+
+expectSituIds('학생 + 수업·생활지도 방해',
+  { '침해 주체': ['학생'], '상황 유형': ['수업·생활지도 방해'] },
+  ['repeated-class-disruption', 'guidance-noncompliance-disruption']);
+
+expectSituIds('보호자 + 녹음·촬영',
+  { '침해 주체': ['보호자'], '상황 유형': ['녹음·촬영'] },
+  ['hidden-parent-recording', 'class-recording-filming', 'recording-distribution']);
+
+expectSituIds('외부인 + 방문·점거',
+  { '침해 주체': ['외부인'], '상황 유형': ['방문·점거'] },
+  ['unauthorized-entry', 'refusal-to-leave-occupation']);
+
+expectSituIds('즉시 안전 확보 + 법률 지원',
+  { '긴급성': ['즉시 안전 확보 필요'], '지원 유형': ['법률 지원'] },
+  ['physical-assault', 'object-threat', 'specific-threat', 'weapon-threat', 'sexual-contact', 'unauthorized-entry', 'refusal-to-leave-occupation']);
+
+// 같은 '상황 유형' 안에서 여러 값을 선택하면 OR가 되어 서로 다른 유형의 대표 상황이 함께 남아야 해요.
+expectSituIds('상황 유형 OR',
+  { '상황 유형': ['폭언·모욕', '성적 언동·접촉'] },
+  ['verbal-abuse', 'private-verbal-abuse', 'sexual-remarks-content', 'sexual-contact']);
 
 // 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
 const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
