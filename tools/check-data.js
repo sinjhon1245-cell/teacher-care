@@ -83,9 +83,11 @@ COMMON_PUBLIC_SOURCES.forEach((s, i) => {
   }
 });
 
-// 상황별 도움 V2 Phase 1: 16개 기존 상황을 stable id 기반 새 모델로 옮긴 상태인지 확인
-const EXPECTED_SITU_COUNT = 16;
-if (SITUS.length !== EXPECTED_SITU_COUNT) errors.push(`SITUS 개수 오류(Phase 1): ${SITUS.length}개, 기대 ${EXPECTED_SITU_COUNT}개`);
+// 상황별 도움 V2 Phase 2: 확정된 38개 상황·11개 큰 분류를 확인
+const EXPECTED_SITU_COUNT = 38;
+const EXPECTED_GROUP_COUNT = 11;
+if (SITUS.length !== EXPECTED_SITU_COUNT) errors.push(`SITUS 개수 오류(Phase 2): ${SITUS.length}개, 기대 ${EXPECTED_SITU_COUNT}개`);
+if (SITU_GROUPS.length !== EXPECTED_GROUP_COUNT) errors.push(`SITU_GROUPS 개수 오류(Phase 2): ${SITU_GROUPS.length}개, 기대 ${EXPECTED_GROUP_COUNT}개`);
 
 const situIds = new Set();
 const subjectOpts = new Set(FILTER_DEFS.find(d => d.g === '침해 주체').opts);
