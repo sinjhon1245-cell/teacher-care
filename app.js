@@ -15,11 +15,11 @@ const App = {
     area: '',           // '내 교육지원청 찾기'에서 고른 시·군·구
     quick: null,        // 홈에서 펼친 상황
     step: 0,            // 대응 절차에서 선택한 단계
-    situ: null,         // 상황별 도움에서 펼친 큰 상황(그룹 id) 또는 세부 상황('s' + 번호)
+    situ: null,         // 상황별 도움에서 펼친 항목('group:' + 그룹 id 또는 'situ:' + 상황 id)
     filters: {},        // 상세 조건 { 그룹명: [선택값] }
     filterOpen: null,   // 상세 조건 영역을 연 상태(null이면 데스크톱은 펼침, 모바일은 접힘)
     supportType: 'all', // 지원 찾기에서 고른 도움 유형('related'는 상황별 도움에서 넘어온 관련 지원 묶음)
-    related: null,      // { i: 상황 번호, ids: [지원 유형 id] }
+    related: null,      // { situId: 상황 stable id, ids: [지원 유형 id] }
     faqOpen: null,
     checks: {},
     onboarding: false   // 첫 방문(저장된 지역·주소의 region 모두 없음)이면 지역 선택 첫 화면을 보여요
@@ -585,24 +585,30 @@ const App = {
     return this.availableTypes().filter(t => s.supports.some(v => t.situ.includes(v)));
   },
 
+  situById(id) {
+    return SITUS.find(s => s.id === id) || null;
+  },
+
   // 관련 지원이 여러 개면 지원 찾기에서 그 유형들만 한 번에 보여 줘요
-  showRelated(i) {
-    this.nav('support', { supportType: 'related', related: { i, ids: this.relatedTypes(SITUS[i]).map(t => t.id) } });
+  showRelated(situId) {
+    const situ = this.situById(situId);
+    if (!situ) return;
+    this.nav('support', { supportType: 'related', related: { situId, ids: this.relatedTypes(situ).map(t => t.id) } });
   },
 
   situDetail(s, withTitle) {
-    const i = s.i !== undefined ? s.i : SITUS.indexOf(s);
     const step = STAGE_TO_STEP[s.stages[0]];
     const types = this.relatedTypes(s);
     const supportBtn = types.length > 1
-      ? `<button class="btn btn-secondary" onclick="App.showRelated(${i})">관련 지원 ${types.length}개 보기 →</button>`
+      ? `<button class="btn btn-secondary" onclick="App.showRelated('${s.id}')">관련 지원 ${types.length}개 보기 →</button>`
       : `<button class="btn btn-secondary" onclick="App.nav('support', { supportType: '${types.length ? types[0].id : 'all'}' })">${types.length ? `관련 지원 보기(${types[0].label})` : '지원 찾기'} →</button>`;
     return `
       <div class="situ-sub">
-        ${withTitle ? `<h3 class="sub-title">${s.t} ${urgencyBadge(s.urgency)}</h3>` : ''}
-        <p class="muted small">예: ${s.ex}</p>
-        <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.act}</p></div>
+        ${withTitle ? `<h3 class="sub-title">${s.title} ${urgencyBadge(s.urgency)}</h3>` : ''}
+        <p class="muted small">예: ${s.example}</p>
+        <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.firstAction}</p></div>
         ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs], ['관련 지원', types.map(t => t.label).join(' · ')]])}
+        ${s.legalCaution ? `<p class="note"><strong>판단 시 주의</strong> ${s.legalCaution}</p>` : ''}
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="App.nav('proc', { step: ${step === undefined ? 0 : step} })">관련 대응 절차 →</button>
           ${supportBtn}
@@ -615,7 +621,7 @@ const App = {
     const S = this.state;
     const active = Object.keys(S.filters).length > 0;
     const selected = FILTER_DEFS.flatMap(d => S.filters[d.g] || []);
-    const matches = SITUS.map((s, i) => ({ ...s, i })).filter(s => FILTER_DEFS.every(d => {
+    const matches = SITUS.filter(s => FILTER_DEFS.every(d => {
       const sel = S.filters[d.g] || [];
       return sel.length === 0 || sel.some(o => d.test(s, o));
     })).sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
@@ -638,16 +644,16 @@ const App = {
       }).join('');
       return `<div class="filter-row" role="group" aria-label="${d.g}"><span class="filter-label">${d.g}</span><div class="chip-row">${chips}</div></div>`;
     }).join('');
-    // 데스크톱은 기본으로 펼치고, 모바일은 접어서 시작해요(사용자가 연 상태는 유지)
     const open = S.filterOpen === null ? isDesktop() || active : S.filterOpen;
 
     const groupRows = SITU_GROUPS.map(g => {
-      const subs = SITUS.filter(s => s.g === g.id)
+      const subs = SITUS.filter(s => s.group === g.id)
         .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
-      const isOpen = S.situ === g.id;
+      const key = 'group:' + g.id;
+      const isOpen = S.situ === key;
       return `
         <li class="action ${g.urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
-          <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${g.id}')">
+          <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
             ${g.urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
             <span class="action-label">${g.t}</span>
             <span class="action-count">${subs.length}</span>
@@ -659,13 +665,13 @@ const App = {
     }).join('');
 
     const resultRows = matches.map(s => {
-      const key = 's' + s.i;
+      const key = 'situ:' + s.id;
       const isOpen = S.situ === key;
       const urgent = s.urgency === URGENCY_ORDER[0];
       return `
         <li class="action ${urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
           <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
-            <span class="action-label">${s.t}</span>
+            <span class="action-label">${s.title}</span>
             ${urgencyBadge(s.urgency)}
             <span class="chevron" aria-hidden="true"></span>
           </button>
@@ -806,7 +812,7 @@ const App = {
         <div class="result-head" aria-live="polite">
           <div>
             <p class="result-count">${relMode ? `이 상황과 관련된 지원: ${relTypes.map(t => t.label).join(' · ')}` : `${R.short} ${cur ? cur.label + ' 지원' : '지원 전체'} ${programs.length}건`}</p>
-            ${relMode ? `<p class="muted small">${SITUS[S.related.i].t} · ${R.short} 지원 ${programs.length}건</p>` : ''}
+            ${relMode ? `<p class="muted small">${(this.situById(S.related.situId) || { title: '선택한 상황' }).title} · ${R.short} 지원 ${programs.length}건</p>` : ''}
           </div>
           ${relMode || cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
         </div>
