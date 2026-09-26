@@ -83,7 +83,7 @@ COMMON_PUBLIC_SOURCES.forEach((s, i) => {
   }
 });
 
-// 상황별 도움 V2 Phase 3: 확정된 38개 상황·11개 분류와 faceted filter 연결을 확인
+// 상황별 도움 V2 Phase 4: 38개 상황·faceted filter·교사 언어 검색 연결을 확인
 const EXPECTED_SITU_COUNT = 38;
 const EXPECTED_GROUP_COUNT = 11;
 if (SITUS.length !== EXPECTED_SITU_COUNT) errors.push(`SITUS 개수 오류(Phase 2): ${SITUS.length}개, 기대 ${EXPECTED_SITU_COUNT}개`);
@@ -179,6 +179,42 @@ expectSituIds('즉시 안전 확보 + 법률 지원',
 expectSituIds('상황 유형 OR',
   { '상황 유형': ['폭언·모욕', '성적 언동·접촉'] },
   ['verbal-abuse', 'private-verbal-abuse', 'sexual-remarks-content', 'sexual-contact']);
+
+// Phase 4 검색: title + keywords + contexts + officialTypes + example, 공백을 나눈 검색어는 모두 포함(AND)해야 해요.
+function normalizeGuideSearch(text) {
+  return String(text == null ? '' : text).toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
+}
+function searchSituations(query) {
+  const terms = String(query || '').trim().toLocaleLowerCase('ko-KR').split(/\s+/).map(normalizeGuideSearch).filter(Boolean);
+  if (!terms.length) return SITUS;
+  return SITUS.filter(st => {
+    const corpus = normalizeGuideSearch([
+      st.title,
+      ...(st.keywords || []),
+      ...(st.contexts || []),
+      ...(st.officialTypes || []),
+      st.example
+    ].filter(Boolean).join(' '));
+    return terms.every(term => corpus.includes(term));
+  });
+}
+function expectSearch(label, query, ids) {
+  const got = new Set(searchSituations(query).map(st => st.id));
+  ids.filter(id => !got.has(id)).forEach(id => errors.push(`상황 검색 오류(${label} / "${query}"): ${id}가 결과에 없어요`));
+}
+
+expectSearch('담임', '담임', ['homeroom-change-demand']);
+expectSearch('생기부', '생기부', ['attendance-record-change-demand']);
+expectSearch('녹음', '녹음', ['hidden-parent-recording', 'class-recording-filming', 'recording-distribution']);
+expectSearch('녹음기', '녹음기', ['hidden-parent-recording']);
+expectSearch('욕설', '욕설', ['verbal-abuse', 'private-verbal-abuse']);
+expectSearch('밤에 전화', '밤에 전화', ['after-hours-contact']);
+expectSearch('아동학대', '아동학대', ['child-abuse-report']);
+expectSearch('성적인', '성적인', ['sexual-remarks-content']);
+expectSearch('폭행', '폭행', ['physical-assault']);
+expectSearch('손해배상', '손해배상', ['civil-damages-legal-response']);
+expectSearch('정보공개', '정보공개', ['repeated-info-disclosure-complaint']);
+expectSearch('출근', '출근', ['post-incident-burnout']);
 
 // 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
 const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
