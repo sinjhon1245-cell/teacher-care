@@ -115,25 +115,58 @@ const App = {
 
   clearFilters() { this.setState({ filters: {}, situ: null }); },
 
+  // ── 상황별 도움 검색 ──
+  // 입력창은 다시 그리지 않아요. 한글은 조합 중인 <input>이 바뀌면 자모가 흩어지므로
+  // 검색어가 바뀌면 필터 개수와 결과 영역만 새로 그려요(refreshGuideResults).
+  onGuideInput(e) {
+    if (e.isComposing || this._guideComposing) this.previewGuideQuery(e.target.value);
+    else this.setGuideQuery(e.target.value);
+  },
+
+  guideCompositionStart() { this._guideComposing = true; },
+
+  guideCompositionEnd(e) {
+    this._guideComposing = false;
+    this.setGuideQuery(e.target.value);
+  },
+
+  // 조합 중인 글자(예: '담임'을 치는 중의 '담이')는 결과가 있을 때만 미리 보여 주고,
+  // 0건이면 이전 결과를 그대로 둬요. 조합이 끝나면(compositionend) 확정된 검색어로 다시 그려요.
+  previewGuideQuery(value) {
+    if (!this.guideMatches(value).length) return;
+    this.setGuideQuery(value);
+  },
+
   setGuideQuery(value) {
     const query = String(value || '');
     if (query === this.state.query) return;
-    const pos = query.length;
-    this.setState({ query, situ: null });
-    requestAnimationFrame(() => {
-      const el = document.getElementById('guide-search');
-      if (!el) return;
-      el.focus({ preventScroll: true });
-      try { el.setSelectionRange(pos, pos); } catch (e) {}
-    });
+    this.state.query = query;
+    this.state.situ = null;
+    this.refreshGuideResults();
   },
 
   clearGuideSearch() {
-    this.setState({ query: '', situ: null });
-    requestAnimationFrame(() => {
-      const el = document.getElementById('guide-search');
-      if (el) el.focus({ preventScroll: true });
-    });
+    const el = document.getElementById('guide-search');
+    if (el) {
+      el.value = '';
+      el.focus({ preventScroll: true });
+    }
+    this._guideComposing = false;
+    this.setGuideQuery('');
+  },
+
+  // 검색창은 그대로 두고 필터 개수·결과·지우기 버튼만 갱신해요. 화면 구조가 다르면 전체를 다시 그려요.
+  refreshGuideResults() {
+    const rows = document.getElementById('guide-filter-rows');
+    const results = document.getElementById('guide-results');
+    const clear = document.getElementById('guide-search-clear');
+    if (this.state.page !== 'guide' || !rows || !results || !clear) {
+      this.render();
+      return;
+    }
+    rows.innerHTML = T(this.guideFilterRowsHtml());
+    results.innerHTML = T(this.guideResultsHtml());
+    clear.hidden = guideSearchTerms(this.state.query).length === 0;
   },
 
   clearGuideTools() {
@@ -643,29 +676,26 @@ const App = {
     `;
   },
 
-  renderGuide() {
-    const S = this.state;
-    const query = S.query || '';
-    const queryActive = guideSearchTerms(query).length > 0;
-    const filterActive = Object.keys(S.filters).length > 0;
-    const active = queryActive || filterActive;
-    const selected = FILTER_DEFS.flatMap(d => S.filters[d.g] || []);
-    const searchMatch = s => matchesGuideSearch(s, query);
-
-    const matches = SITUS.filter(s => searchMatch(s) && FILTER_DEFS.every(d => {
-      const sel = S.filters[d.g] || [];
-      return sel.length === 0 || sel.some(o => d.test(s, o));
-    })).sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
-
-    // 숫자는 현재 검색어 + 다른 필터 그룹을 적용한 뒤, 이 선택지를 더했을 때 남는 상황 수예요.
-    // 같은 필터 그룹 안은 OR라 해당 그룹의 현재 선택은 count 계산에서 제외해요.
-    const passesOthers = (s, group) => searchMatch(s) && FILTER_DEFS.every(d => {
-      if (d.g === group) return true;
-      const sel = S.filters[d.g] || [];
+  // 검색어 + 상세 조건(같은 그룹 OR, 다른 그룹 AND). except 그룹은 빼고 봐요(필터 개수 계산용)
+  guidePasses(s, query, except) {
+    return matchesGuideSearch(s, query) && FILTER_DEFS.every(d => {
+      if (d.g === except) return true;
+      const sel = this.state.filters[d.g] || [];
       return sel.length === 0 || sel.some(o => d.test(s, o));
     });
-    const rows = FILTER_DEFS.map(d => {
-      const pool = SITUS.filter(s => passesOthers(s, d.g));
+  },
+
+  guideMatches(query) {
+    return SITUS.filter(s => this.guidePasses(s, query))
+      .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
+  },
+
+  // 숫자는 현재 검색어 + 다른 필터 그룹을 적용한 뒤, 이 선택지를 더했을 때 남는 상황 수예요.
+  // 같은 필터 그룹 안은 OR라 해당 그룹의 현재 선택은 count 계산에서 제외해요.
+  guideFilterRowsHtml() {
+    const S = this.state;
+    return FILTER_DEFS.map(d => {
+      const pool = SITUS.filter(s => this.guidePasses(s, S.query, d.g));
       const chips = d.opts.filter(o => SITUS.some(s => d.test(s, o))).map(o => {
         const n = pool.filter(s => d.test(s, o)).length;
         const on = (S.filters[d.g] || []).includes(o);
@@ -674,26 +704,40 @@ const App = {
       }).join('');
       return `<div class="filter-row" role="group" aria-label="${d.g}"><span class="filter-label">${d.g}</span><div class="chip-row">${chips}</div></div>`;
     }).join('');
-    const open = S.filterOpen === null ? isDesktop() || filterActive : S.filterOpen;
+  },
 
-    const groupRows = SITU_GROUPS.map(g => {
-      const subs = SITUS.filter(s => s.group === g.id)
-        .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
-      const key = 'group:' + g.id;
-      const isOpen = S.situ === key;
+  // 검색어·조건이 없으면 큰 상황 목록, 있으면 결과 개수와 결과 목록(또는 결과 없음 안내)
+  guideResultsHtml() {
+    const S = this.state;
+    const query = S.query || '';
+    const queryActive = guideSearchTerms(query).length > 0;
+    const selected = FILTER_DEFS.flatMap(d => S.filters[d.g] || []);
+
+    if (!queryActive && !selected.length) {
+      const groupRows = SITU_GROUPS.map(g => {
+        const subs = SITUS.filter(s => s.group === g.id)
+          .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
+        const key = 'group:' + g.id;
+        const isOpen = S.situ === key;
+        return `
+          <li class="action ${g.urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
+            <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
+              ${g.urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
+              <span class="action-label">${g.t}</span>
+              <span class="action-count">${subs.length}</span>
+              <span class="chevron" aria-hidden="true"></span>
+            </button>
+            ${isOpen ? `<div class="action-body">${subs.map(s => this.situDetail(s, subs.length > 1)).join('')}</div>` : ''}
+          </li>
+        `;
+      }).join('');
       return `
-        <li class="action ${g.urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
-          <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
-            ${g.urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
-            <span class="action-label">${g.t}</span>
-            <span class="action-count">${subs.length}</span>
-            <span class="chevron" aria-hidden="true"></span>
-          </button>
-          ${isOpen ? `<div class="action-body">${subs.map(s => this.situDetail(s, subs.length > 1)).join('')}</div>` : ''}
-        </li>
+        <div class="result-head"><p class="result-count">큰 상황으로 바로 찾기</p></div>
+        <ul class="action-list">${groupRows}</ul>
       `;
-    }).join('');
+    }
 
+    const matches = this.guideMatches(query);
     const resultRows = matches.map(s => {
       const key = 'situ:' + s.id;
       const isOpen = S.situ === key;
@@ -716,6 +760,28 @@ const App = {
     ].filter(Boolean);
 
     return `
+      <div class="result-head" aria-live="polite">
+        <div>
+          <p class="result-count">${matches.length}개 상황을 찾았어요</p>
+          <p class="muted small">현재 조건: ${conditionParts.join(' · ')}</p>
+        </div>
+        <button class="btn btn-secondary" onclick="App.clearGuideTools()">검색·필터 초기화</button>
+      </div>
+      ${matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">검색어나 선택한 조건에 맞는 상황이 없어요. 검색어를 조금 짧게 입력하거나 조건을 줄여 다시 찾아보세요.</p>'}
+    `;
+  },
+
+  renderGuide() {
+    const S = this.state;
+    const query = S.query || '';
+    const queryActive = guideSearchTerms(query).length > 0;
+    const filterActive = Object.keys(S.filters).length > 0;
+    const selected = FILTER_DEFS.flatMap(d => S.filters[d.g] || []);
+    const open = S.filterOpen === null ? isDesktop() || filterActive : S.filterOpen;
+    // 화면 전체를 다시 그리면 입력창도 새로 만들어지므로 남아 있던 조합 상태는 버려요
+    this._guideComposing = false;
+
+    return `
       <section class="section page">
         ${this.eyebrow('판단')}
         <h1 class="page-title">상황별 도움</h1>
@@ -727,35 +793,21 @@ const App = {
           <div class="guide-search-field">
             <input id="guide-search" class="guide-search-input" type="search"
               value="${escapeAttr(query)}"
-              placeholder="담임교체, 욕설, 녹음, 생기부, 아동학대..."
+              placeholder="욕설, 담임교체, 녹음, 생기부, 아동학대 신고..."
               autocomplete="off" enterkeyhint="search"
-              oncompositionstart="App._guideComposing = true"
-              oncompositionend="App._guideComposing = false; App.setGuideQuery(this.value)"
-              oninput="if (!App._guideComposing) App.setGuideQuery(this.value)"
+              oninput="App.onGuideInput(event)"
               aria-describedby="guide-search-hint">
-            ${queryActive ? '<button type="button" class="guide-search-clear" onclick="App.clearGuideSearch()" aria-label="검색어 지우기">지우기</button>' : ''}
+            <button type="button" id="guide-search-clear" class="guide-search-clear" onclick="App.clearGuideSearch()" aria-label="검색어 지우기" ${queryActive ? '' : 'hidden'}>지우기</button>
           </div>
-          <p id="guide-search-hint" class="muted small guide-search-hint">예: 밤에 전화, 녹음기, 담임, 생기부, 손해배상처럼 평소 쓰는 말로 찾아보세요.</p>
+          <p id="guide-search-hint" class="muted small guide-search-hint">정확한 용어를 몰라도, 떠오르는 단어로 검색할 수 있어요.</p>
         </div>
 
         <details class="tool-panel filter-panel" ${open ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
           <summary><span class="tool-title">상세 조건으로 찾기</span>${selected.length ? `<span class="badge badge-accent">${selected.length}개 선택</span>` : ''}<span class="chevron" aria-hidden="true"></span></summary>
-          <div class="filter-rows">${rows}</div>
+          <div class="filter-rows" id="guide-filter-rows">${this.guideFilterRowsHtml()}</div>
         </details>
 
-        ${active ? `
-          <div class="result-head" aria-live="polite">
-            <div>
-              <p class="result-count">${matches.length}개 상황을 찾았어요</p>
-              <p class="muted small">현재 조건: ${conditionParts.join(' · ')}</p>
-            </div>
-            <button class="btn btn-secondary" onclick="App.clearGuideTools()">검색·필터 초기화</button>
-          </div>
-          ${matches.length ? `<ul class="action-list">${resultRows}</ul>` : '<p class="note">검색어와 조건에 맞는 상황이 없어요. 검색어를 짧게 하거나 조건을 줄여 보세요.</p>'}
-        ` : `
-          <div class="result-head"><p class="result-count">큰 상황으로 바로 찾기</p></div>
-          <ul class="action-list">${groupRows}</ul>
-        `}
+        <div id="guide-results" class="guide-results">${this.guideResultsHtml()}</div>
         <p class="muted small">구체적인 사안의 교육활동 침해 해당 여부는 사실관계 조사와 지역교권보호위원회 심의로 판단돼요.</p>
         ${this.renderSources('guide')}
       </section>
@@ -1191,6 +1243,14 @@ const RegionMenu = {
 document.addEventListener('pointerdown', e => {
   const { box } = RegionMenu.els();
   if (RegionMenu.isOpen() && box && !box.contains(e.target)) RegionMenu.close(false);
+});
+
+// 한글 조합 이벤트는 oncompositionstart 같은 HTML 속성이 없어(속성으로 적으면 실행되지 않아요) 문서에서 받아요
+document.addEventListener('compositionstart', e => {
+  if (e.target.id === 'guide-search') App.guideCompositionStart();
+});
+document.addEventListener('compositionend', e => {
+  if (e.target.id === 'guide-search') App.guideCompositionEnd(e);
 });
 
 document.addEventListener('DOMContentLoaded', () => App.init());

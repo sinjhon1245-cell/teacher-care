@@ -169,7 +169,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 .band.warm { background: var(--warm); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .band + .section { border-top: none; }
 .page { padding-top: 36px; }
-.page > p, .section > p { max-width: var(--read); }
+.page > p, .section > p, .guide-results > p { max-width: var(--read); }
 
 .eyebrow {
   display: flex; align-items: center; gap: 8px; margin: 0 0 6px;

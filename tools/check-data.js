@@ -205,6 +205,7 @@ function expectSearch(label, query, ids) {
 
 expectSearch('담임', '담임', ['homeroom-change-demand']);
 expectSearch('생기부', '생기부', ['attendance-record-change-demand']);
+expectSearch('생활기록부', '생활기록부', ['attendance-record-change-demand']);
 expectSearch('녹음', '녹음', ['hidden-parent-recording', 'class-recording-filming', 'recording-distribution']);
 expectSearch('녹음기', '녹음기', ['hidden-parent-recording']);
 expectSearch('욕설', '욕설', ['verbal-abuse', 'private-verbal-abuse']);
