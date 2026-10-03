@@ -32,6 +32,9 @@ const App = {
     this.state.onboarding = !this.state.regionId;
     this.state.checks = loadChecks();
     this.render();
+    // 최초 진입: 지금 화면을 기록만 하고(replace) 새 항목은 만들지 않아요. 스크롤은 우리가 직접 맞춰요
+    try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) { /* 무시 */ }
+    this.recordHistory('replace');
   },
 
   // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요
@@ -55,6 +58,7 @@ const App = {
     if (next === this.state.regionId) return;
     storeSet(STORAGE_REGION, next);
     this.setState({ regionId: next, area: '', supportType: 'all', related: null });
+    this.recordHistory('replace'); // 지역은 기록이 아니라 localStorage가 기억해요. 현재 기록의 지원 유형만 맞춰 둬요
     if (next) this.showToast(REGIONS[next].name + ' 기준으로 안내해요');
   },
 
@@ -63,9 +67,51 @@ const App = {
     this.render();
   },
 
+  // 메뉴 이동. 다른 메뉴로 가면 브라우저 기록을 하나 쌓고(push), 같은 메뉴 안의 이동은 현재 기록만 바꿔요(replace).
+  // 뒤로가기로 복원하는 중(_restoring)에는 기록을 건드리지 않아 기록이 꼬이지 않아요
   nav(page, patch) {
+    const changed = page !== this.state.page;
+    if (changed) this.saveScroll();
     this.setState({ page, ...patch });
     window.scrollTo(0, 0);
+    if (!this._restoring) this.recordHistory(changed ? 'push' : 'replace');
+  },
+
+  // ── 브라우저 뒤로가기·앞으로가기(History API) ──
+  // URL은 바꾸지 않아요(?region= 그대로). GitHub Pages에서 새로고침해도 404가 나지 않고, 지역은 지금처럼 localStorage가 기억해요.
+  // 기록에는 메뉴와 그 메뉴에서 펼친 것(대응 절차 단계, 회복·보호 제도, 지원 유형)만 담아요. 검색어·체크는 담지 않아요
+  historyState() {
+    const S = this.state;
+    return { tc: 1, page: S.page, step: S.step, benefit: S.benefit, supportType: S.supportType, related: S.related, scrollY: 0 };
+  },
+
+  recordHistory(mode) {
+    try {
+      if (mode === 'push') history.pushState(this.historyState(), '');
+      else history.replaceState({ ...this.historyState(), scrollY: (history.state && history.state.scrollY) || 0 }, '');
+    } catch (e) { /* 기록을 못 남겨도 화면 이동은 그대로 돼요 */ }
+  },
+
+  // 다른 메뉴로 떠나기 전에 지금 위치를 현재 기록에 남겨 두면, 돌아왔을 때 그 자리로 가요
+  saveScroll() {
+    try {
+      if (history.state && history.state.tc) history.replaceState({ ...history.state, scrollY: window.scrollY }, '');
+    } catch (e) { /* 무시 */ }
+  },
+
+  restoreHistory(st) {
+    if (!st || !st.tc) return; // 우리 기록이 아니면(본문 바로가기 #main 등) 그대로 둬요
+    const page = PAGES.some(([id]) => id === st.page) ? st.page : 'home';
+    const step = Number.isInteger(st.step) && st.step >= 0 && st.step < STEPS.length ? st.step : 0;
+    this._restoring = true;
+    this.setState({
+      page, step, onboarding: false,
+      benefit: st.benefit && benefitById(st.benefit) ? st.benefit : null,
+      supportType: typeof st.supportType === 'string' ? st.supportType : 'all',
+      related: st.related || null
+    });
+    this._restoring = false;
+    window.scrollTo(0, st.scrollY || 0);
   },
 
   toggle(key, value) {
@@ -1684,5 +1730,8 @@ document.addEventListener('compositionend', e => {
   if (e.target.id === 'care-search') App.filterCare(e.target.value);
   if (e.target.id === 'sup-search') App.filterSupport(e.target.value);
 });
+
+// 브라우저 뒤로가기·앞으로가기 → 기록에 담아 둔 메뉴로 복원(이때는 새 기록을 쌓지 않아요)
+window.addEventListener('popstate', e => App.restoreHistory(e.state));
 
 document.addEventListener('DOMContentLoaded', () => App.init());
