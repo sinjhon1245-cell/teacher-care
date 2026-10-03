@@ -4,6 +4,8 @@
 // 화면 역할: 홈 = 어디부터 · 대응 절차 = 지금 할 일(체크) · 상황별 도움 = 어떤 경우 · 회복·보호 = 내가 쓸 제도 · 지원 찾기 = 어디서 도움
 
 const STORAGE_REGION = 'teacher-care-region';
+// 공유 주소에서 ‘공통(지역 미선택)’을 뜻하는 region 값. 시·도 id로 쓰지 않아요
+const COMMON_REGION = 'common';
 const STORAGE_CHECKS = 'teacher-care-procedure-checks-v1'; // { '단계번호.항목id': true }
 // 회복·보호 ‘지금 확인해 볼 일’과 상황별 ‘지금 해볼 일’의 체크(이 기기에만). { 'benefit:제도id.항목id': true, 'situ:상황id.항목id': true }
 const STORAGE_ACTIONS = 'teacher-care-action-checks-v1';
@@ -33,7 +35,8 @@ const App = {
 
   init() {
     this.state.regionId = initialRegionId();
-    this.state.onboarding = !this.state.regionId;
+    // 지역 선택 첫 화면은 저장된 지역도 없고 주소에도 region이 없을 때만(region=common이면 공통 화면으로 바로 가요)
+    this.state.onboarding = !this.state.regionId && urlRegion() === undefined;
     this.state.checks = loadChecks();
     this.state.actionChecks = loadActionChecks();
     // 공유 주소: ?page=care&benefit=… 처럼 화면이 정해져 있으면 지역 선택 첫 화면 없이 그 화면으로 바로 가요(잘못된 값은 무시)
@@ -977,7 +980,7 @@ const App = {
           </div>` : (R ? `<p class="muted small prot-local-none">${R.short}에서 별도로 안내한 세부 기준은 현재 확인되지 않았어요. 공통 기준을 먼저 확인하고, 실제 적용은 소속 학교나 교육(지원)청에 확인하세요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
       </div>
       ${this.actionList('benefit', x.id, x.actions, '지금 확인해 볼 일')}
-      ${refsBox(x.refs, x.basis)}
+      ${refsBox(x.refs, x.basis, x.verifiedAt)}
       ${links.length ? `
         <div class="bf-cross">
           <p class="bf-cross-q">${x.supportLinks.q}</p>
@@ -1406,7 +1409,7 @@ const App = {
       </li>
     `).join('');
     const directory = R.orgs.map(o => `
-      <li><span class="dir-name">${o.name}</span><span class="dir-contact">${o.contact ? linkifyPhone(o.contact) : UNKNOWN}</span></li>
+      <li><span class="dir-name">${o.name}</span>${o.contact ? `<span class="dir-contact">${linkifyPhone(o.contact)}</span>` : ''}</li>
     `).join('');
     return `
       <section class="section page">
@@ -1516,8 +1519,9 @@ const App = {
           <p class="footer-title">선생님 곁에 · 서비스 안내</p>
           <p>교사를 위한 교육활동 보호·대응 가이드예요. 공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.
           실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.
-          선택한 지역과 대응 절차 체크 상태만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
+          선택한 지역과 체크 상태(대응 절차·행동 체크)만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
           ${R ? `<p>최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요. 화면마다 아래쪽 ‘안내 근거’에 그 화면에 쓴 공식 자료를 적어 두었어요.</p>` : ''}
+          ${feedbackBox()}
         </div>
       </footer>
     `;
@@ -1587,12 +1591,13 @@ function missedBox(list, title) {
 }
 
 // 공식 근거: 조문 요약 + COMMON_PUBLIC_SOURCES 링크(접힘)
-function refsBox(refs, basis) {
+// verifiedAt: 제도(BENEFITS)를 공식 근거와 마지막으로 대조한 날(없으면 근거 자료의 확인일)
+function refsBox(refs, basis, verifiedAt) {
   const srcs = (refs || []).map(id => COMMON_PUBLIC_SOURCES.find(s => s.id === id)).filter(Boolean);
   if (!basis && !srcs.length) return '';
   return `
     <details class="bf-refs">
-      <summary>공식 근거${srcs.length ? ` ${srcs.length}건 · ${fmtDate(latestDate(srcs))} 확인` : ''}</summary>
+      <summary>공식 근거${srcs.length ? ` ${srcs.length}건 · ${fmtDate(verifiedAt || latestDate(srcs))} 확인` : ''}</summary>
       ${basis ? `<p class="muted small">${basis}</p>` : ''}
       ${srcs.length ? `<ul class="source-common">${srcs.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}</a></li>`).join('')}</ul>` : ''}
     </details>`;
@@ -1612,9 +1617,6 @@ function matchBenefits(query) {
     return terms.every(t => corpus.includes(t));
   });
 }
-
-// 값이 없는 항목에 보여 줄 문구(확인되지 않은 내용을 다른 지역 값으로 채우지 않아요)
-const UNKNOWN = '<span class="unknown">공식 안내 확인 필요</span>';
 
 // ── 공통 모드(지역 미선택) 안내 문구 ──
 // 특정 시·도의 번호·기관·사업·처리 기한을 넣지 않아요. 지역과 관계없이 먼저 확인할 기본 대응만 담아요
@@ -1713,11 +1715,15 @@ function loadActionChecks() {
 }
 
 // ── 공유 주소 ──
-// ?region=incheon&page=care&benefit=special-leave · ?page=guide&situ=physical-assault · ?page=support&type=legal · ?page=proc&step=2 · ?page=care&compare=leave
-// 화면마다 그 화면의 항목 하나만 넣어요. 검색어·체크·스크롤·사소한 펼침 상태는 넣지 않아요
+// ?region=incheon&page=care&benefit=special-leave · ?region=seoul&page=guide&situ=physical-assault · ?region=gyeonggi&page=support&type=legal
+// ?region=common&page=proc&step=2 · ?region=common&page=care&compare=leave
+// 화면마다 그 화면의 항목 하나만 넣어요. 검색어·체크·스크롤·사소한 펼침 상태는 넣지 않아요.
+// 지역은 늘 적어요(공통이면 region=common). 그래야 받는 사람이 저장해 둔 지역과 관계없이 보낸 사람이 보던 지역 그대로 열려요.
+// 지역 선택 첫 화면(onboarding)에서만 지역을 적지 않아요
 function shareParamsOf(st) {
   const q = new URLSearchParams();
   if (st.regionId && REGIONS[st.regionId]) q.set('region', st.regionId);
+  else if (!st.onboarding) q.set('region', COMMON_REGION);
   const page = st.page || 'home';
   if (page !== 'home') q.set('page', page);
   // 회복·보호: 펼친 제도가 더 구체적이라 먼저, 없으면 비교표
@@ -1815,15 +1821,24 @@ window.addEventListener('beforeprint', () => {
 });
 window.addEventListener('afterprint', cleanupPrint);
 
-// 주소의 ?region=seoul → 저장된 지역 → 미선택 순. 알 수 없는 값은 무시해요.
-function initialRegionId() {
+// 주소의 region: 시·도 id면 그 지역, common이면 공통(null), 없거나 알 수 없는 값이면 undefined(무시하고 저장된 지역을 써요)
+function urlRegion() {
   let q = null;
   try { q = new URLSearchParams(location.search).get('region'); } catch (e) {}
-  if (q && REGIONS[q]) { storeSet(STORAGE_REGION, q); return q; }
-  const saved = storeGet(STORAGE_REGION);
-  if (saved && REGIONS[saved]) return saved;
-  if (saved) storeSet(STORAGE_REGION, null);
-  return null;
+  if (q === COMMON_REGION) return null;
+  return q && REGIONS[q] ? q : undefined;
+}
+
+// 주소의 region → 저장된 지역 → 미선택 순.
+// 공유 받은 주소의 지역은 이 탭의 화면에만 적용하고, 받는 사람이 저장해 둔 지역은 덮어쓰지 않아요
+// (저장된 지역이 없을 때만 그 시·도를 저장해 다음 방문에 이어 써요. 일반 진입은 지금처럼 저장된 지역으로 열려요)
+function initialRegionId() {
+  const fromUrl = urlRegion();
+  let saved = storeGet(STORAGE_REGION);
+  if (saved && !REGIONS[saved]) { storeSet(STORAGE_REGION, null); saved = null; }
+  if (fromUrl === undefined) return saved || null;
+  if (fromUrl && !saved) storeSet(STORAGE_REGION, fromUrl);
+  return fromUrl;
 }
 
 // ── 지역 데이터 도우미 ──
@@ -1838,10 +1853,13 @@ function regionAreas(R) {
 function sourceLine(R, item) {
   const ids = item.source === undefined ? [] : [].concat(item.source);
   const srcs = ids.map(i => R.sources[i]).filter(Boolean);
-  const date = fmtDate(latestDate(srcs.length ? srcs : [R]) || R.verifiedAt);
+  // 항목마다 적어 둔 확인일(verifiedAt)이 있으면 그 날짜, 없으면 근거 자료의 확인일
+  const date = fmtDate(item.verifiedAt || latestDate(srcs.length ? srcs : [R]) || R.verifiedAt);
   const links = srcs.filter(s => s.url).map((s, i, arr) =>
     `<a href="${s.url}" target="_blank" rel="noopener" title="${escapeAttr(s.title)}">근거 자료${arr.length > 1 ? ' ' + (i + 1) : ''}</a>`);
-  return `${date} 최종 확인${links.length ? ' · ' + links.join(' · ') : ''}`;
+  // 원문 게시물이 사라진 항목은 날짜 옆에 짧게 알려요(reviewStatus: source-unavailable)
+  const gone = item.reviewStatus === 'source-unavailable' ? ' · 원문 게시물을 다시 확인하고 있어요' : '';
+  return `${date} 최종 확인${gone}${links.length ? ' · ' + links.join(' · ') : ''}`;
 }
 
 // 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구, + 공통 법적·정책 근거를 작게)
@@ -1857,6 +1875,16 @@ function sourceBox(label, sources, verifiedAt, note, common) {
       ${common && common.length ? `<p class="source-sub">공통 법적·정책 근거</p><ul class="source-common">${list(common)}</ul>` : ''}
     </details>
   `;
+}
+
+// 의견 받기(정보 변경·오류 제보). 관리하는 양식 주소가 정해질 때까지(FEEDBACK_URL이 비어 있으면) 아무것도 보여 주지 않아요.
+// 사건 내용·개인정보는 받지 않아요
+function feedbackBox() {
+  if (typeof FEEDBACK_URL !== 'string' || !/^https:\/\//.test(FEEDBACK_URL)) return '';
+  return `
+    <p class="feedback">정보가 바뀌었거나 잘못된 내용을 발견하셨나요?
+      <a href="${FEEDBACK_URL}" target="_blank" rel="noopener">알려주기 <span aria-hidden="true">↗</span></a>
+      <span class="muted small">사건 내용이나 개인정보는 적지 말아 주세요.</span></p>`;
 }
 
 function latestDate(sources) {

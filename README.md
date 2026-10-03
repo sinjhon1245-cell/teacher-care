@@ -32,7 +32,10 @@ data/
     gyeonggi.js         경기도
     incheon.js          인천광역시
 tools/
-  check-data.js         지역 데이터 점검(배포 전 실행)
+  check-data.js         데이터 점검(배포 전 실행): 형식·출처·관할·번호·최신성·공유 주소
+  check-links.js        공식 링크 접속 점검(배포 전·정기 점검): 200·이동·404·403·시간 초과
+docs/
+  regional-gap-audit-2026.md  서울·경기·인천 정보 깊이 비교(내부 audit)
 ```
 
 ### 공통 데이터(`data/common.js`)
@@ -92,7 +95,10 @@ tools/
 | `id` | 내부 id(영문, 바꾸지 않기). 저장·주소(`?region=`)에 쓰여요 |
 | `short`, `name`, `office`, `officeUrl` | 표시 이름, 정식 이름, 시·도교육청, 홈페이지 |
 | `basis` | 기준 자료 이름(예: 「2026 … 시행계획」) |
-| `verifiedAt`, `sources` | 최종 확인일과 공식 출처 목록 `{ title, url, verifiedAt, uses }`. `uses`는 이 자료를 근거로 보여 줄 화면이에요: `guide`(상황별 도움), `procedure`(대응 절차), `care`(회복·보호), `support`(지원 찾기), `finder`(교육지원청 찾기) |
+| `verifiedAt`, `reviewStatus` | 지역 안내 전체의 최종 확인일과 상태(아래 ‘최신성’) |
+| `contactsVerifiedAt`, `areasVerifiedAt` | 대표번호·교육지원청·기관 연락처를 / 교육지원청 관할을 마지막으로 확인한 날(따로 관리해요) |
+| `reviewBy`, `areasReviewBy` | 바뀌는 날이 예고된 경우 다시 확인할 날(새 학년도 자료, 관할 개편 시행일) |
+| `sources` | 공식 출처 목록 `{ title, url, verifiedAt, sourceUpdatedAt?, uses }`. `uses`는 이 자료를 근거로 보여 줄 화면이에요: `guide`(상황별 도움), `procedure`(대응 절차), `care`(회복·보호), `support`(지원 찾기), `finder`(교육지원청 찾기) |
 | `hot`, `hotName`, `hotSummary` | 대표번호와 이름·한 줄 설명 |
 | `menu` 또는 `menuNote` | 확인된 ARS 메뉴 목록. 모르면 `menuNote` 한 줄만 |
 | `links` | 지원 찾기 상단 ‘지역 지원 허브’의 바로 이용하기 `{ type: 'apply' | 'kakao' | 'guide', label, url }`. 시·도교육청 홈페이지(`officeUrl`)는 자동으로 붙어요 |
@@ -101,14 +107,15 @@ tools/
 | `expectedAreas` | 공식 행정구역 수(점검 도구가 `areas` 합계와 비교해 누락을 찾아요) |
 | `areaNote` | 관할 변경 예고 등 ‘내 교육지원청 찾기’에 보여 줄 안내(선택) |
 | `highlights` | 홈 ‘놓치기 쉬운 제도’ 카드에 붙는 지역 한 줄 `{ [BENEFITS id]: 문장 }`(60자 이하, 숫자는 대상·조건과 함께) |
-| `benefits` | 회복·보호 제도의 지역 기준 `{ [BENEFITS id]: { program?, what?, who?, limit?, when?, apply?, prepare?, caution?, missed?(2개까지), source } }`. 공통 문장과 섞지 않고 ‘○○ 기준’ 상자로 따로 보여요. `source`의 출처는 `uses`에 `care`가 있어야 해요 |
+| `benefits` | 회복·보호 제도의 지역 기준 `{ [BENEFITS id]: { program?, what?, who?, limit?, when?, apply?, prepare?, caution?, missed?(2개까지), source, verifiedAt } }`. 공통 문장과 섞지 않고 ‘○○ 기준’ 상자로 따로 보여요. `source`의 출처는 `uses`에 `care`가 있어야 해요 |
 | `sources[].region` | 자료가 속한 지역 id(공통 근거는 `'common'`). 점검 도구가 파일의 지역과 같은지 확인해요 |
 | `programs` | 지원 찾기의 지원 항목. `area`(문자열 또는 배열)는 `SUPPORT_TYPES`의 `areas`에 연결돼야 하고, `source`에 `sources` 배열 번호(여럿이면 배열)를 적으면 ‘근거 자료’ 링크가 붙어요 |
 | `programs[]` 상세 | `amount`(지원 한도, 카드에 강조) · `eligibility`(지원 조건) · `timing`(신청 시기·기한) · `documents`(준비 서류) · `caution`(주의할 점)은 카드의 ‘자세히’(누가·언제·준비물·주의·담당)에 보여요. 예전 이름 `docs`·`deadline`은 쓰지 않아요 |
+| `programs[]` 최신성 | `verifiedAt`(이 항목을 공식 자료와 대조한 날) · `reviewStatus` · `sourceUpdatedAt`(근거 자료의 게시·시행일, 알 때만). 화면 ‘최종 확인’ 날짜가 `verifiedAt`으로 보여요 |
 | `programs[].channels` | 실제 행동 경로 `{ type: 'apply' | 'kakao' | 'guide', label?, url }`. 전화 버튼은 `contact`의 첫 번호로 자동으로 만들어져요 |
 | `orgs` | 지원 찾기 하단 ‘기관 연락처’ 목록 |
 
-값을 모르는 필드(`contact`, `apply` 등)는 비워 두세요. 화면에 **‘공식 안내 확인 필요’**로 표시돼요.
+값을 모르는 필드(`contact`, `apply` 등)는 비워 두세요. 화면에서 **그 칸을 숨겨요**(‘확인 필요’ 같은 대체 문구를 넣지 않아요). 한 지역에 자료가 없다고 다른 지역 값을 옮겨 적지 않아요.
 
 ### 근거 자료(source)와 행동 경로(channels)를 구분해요
 
@@ -158,15 +165,45 @@ tools/
   지역을 고르지 않으면 ‘공통 안내 근거’만 보여요. 다른 시·도 자료는 어느 지역 화면에도 섞이지 않아요.
 - 출처 URL은 교육청 메인 홈페이지보다 실제 근거 문서(매뉴얼 PDF, 사업 안내 페이지, 보도자료)를 우선해요.
   메인 홈페이지만 적으면 점검 도구가 주의를 표시해요.
-- 오래된 정보를 찾을 때는 `verifiedAt`을 검색하면 돼요.
+- 오래된 정보는 `node tools/check-data.js`가 ‘[최신성]’ 주의로 알려 줘요(아래).
 - ARS 메뉴 번호는 해당 연도 공식 자료에 적혀 있을 때만 `menu`에 넣어요. 없으면 `menuNote`만 써요.
 - 전화번호는 위기 상황에서 쓰여요. 번호를 바꿨다면 실제로 걸어 보거나 공식 자료와 다시 대조해 주세요.
 
+### 최신성(verifiedAt·sourceUpdatedAt·reviewStatus)
+
+중요한 데이터에는 언제 확인했는지를 함께 적어요. 문장마다 붙이지 않고 아래 단위로만 관리해요.
+
+| 단위 | 필드 | 경고 기준 |
+| --- | --- | --- |
+| 회복·보호 제도(`BENEFITS`), 공통 근거(`COMMON_PUBLIC_SOURCES`) | `verifiedAt`, `reviewStatus`, `sourceUpdatedAt`(근거 중 가장 최근 시행·개정일) | stable 365일 |
+| 지역 지원 항목(`programs`)·지역 회복·보호 기준(`benefits`)·지역 출처(`sources`) | `verifiedAt`, `reviewStatus`(지원 항목), `sourceUpdatedAt`(알 때만) | volatile 180일 |
+| 지역 연락처·관할 | `contactsVerifiedAt`, `areasVerifiedAt`, `reviewBy`, `areasReviewBy` | volatile 180일, 재확인일 |
+
+- `reviewStatus`: `verified`(확인됨) · `review-needed`(바뀐 것으로 보여 다시 확인) · `source-unavailable`(원문이 사라짐 → 화면 ‘최종 확인’ 옆에 짧게 표시).
+- 기준 일수는 `data/common.js`의 `FRESHNESS_DAYS = { stable: 365, volatile: 180 }`에서 바꿔요. 법령처럼 잘 바뀌지 않는 자료와 지역 사업·금액·상담 횟수·경호 기간·전화번호·신청 링크처럼 자주 바뀌는 자료를 같은 기준으로 보지 않아요.
+- 기준을 넘긴 항목, 지난 재확인일, 확인 뒤에 근거 자료가 개정된 항목, `review-needed` 항목은 **오류가 아니라 ‘주의’**로 보여요. 확인일이 미래이거나 없는 날짜(예: 2026-02-30)면 오류예요.
+- 앞으로 뜰 주의를 미리 보려면: `CHECK_TODAY=2027-04-01 node tools/check-data.js`
+- 화면에는 새 날짜 표시를 늘리지 않았어요. 이미 있던 ‘공식 근거 ○건 · 날짜 확인’(회복·보호)과 ‘날짜 최종 확인’(지원 찾기·지역 기준 상자)이 항목의 `verifiedAt`을 보여 줘요.
+
 ### 배포 전 점검
+
+실제로 쓰는 명령이에요(외부 패키지 설치 없이 Node 18 이상).
 
 ```bash
 node tools/check-data.js
 ```
+
+```bash
+node tools/check-links.js
+```
+
+```bash
+git diff --check
+```
+
+- `check-data.js`: 아래 항목 + 최신성(날짜 형식·미래 날짜·오래된 확인·재확인일·`reviewStatus`) + 공유 주소(지역 id, 주소에 쓰는 id 형식, 모든 지역 × 화면 × 항목의 ‘주소 만들기 → 읽기’ 왕복, 받는 사람의 저장 지역 유지, 잘못된 값 무시) + asset version 일치. 마지막 ‘요약’ 줄에서 상황 38·그룹 11·오류·주의 수를 한 번에 봐요.
+- `check-links.js`: 데이터에 적힌 모든 https 주소에 접속해요. 정상·이동(redirect)·확인 필요(401·403·5xx·시간 초과 — 공공기관 서버가 자동 접속을 막는 경우가 많아 브라우저로 확인)·끊김(404·410·없는 도메인·‘존재하지 않는 게시물’ 안내 페이지)으로 나눠요. 끊김이 있으면 종료 코드 1. `--only=incheon`, `--timeout=20000`, `--json=결과.json` 옵션이 있어요.
+- `git diff --check`: 공백 오류 확인.
 
 필수 항목·출처 번호·확인일 형식, 교육지원청 관할 중복·누락(`expectedAreas`와 비교), 전화번호 형식, 지역 간 전화번호 혼입,
 지원 항목의 유형 연결, 세부 상황의 큰 상황 연결, 신청·안내 링크의 https·공식 도메인, 출처의 `uses`와 공통 근거의 지역 자료 혼입,
@@ -174,7 +211,7 @@ node tools/check-data.js
 ‘자동 승인·지급’ 같은 오해 표현, 특별휴가 ‘범위에서 부여’·휴직 ‘검토’ 표현, 상황 → 권리 연결·회복 경로·홈 카드 id,
 지역 `benefits`·`highlights`의 id·출처, 숫자 정보의 출처, 다른 지역 사업명 혼입, 출처의 `region`,
 5메뉴 순서, 회복·보호에 외부 지원이 섞였는지, 제도 묶음·공식 근거 id, 단계별 바로가기·홈 입구 id, 지원 유형의 공통 기준·회복·보호 연결, 지원 항목 area(배열 포함)를 검사해요.
-문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에 있어요.
+문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에 있어요.
 
 ## 로컬에서 확인하기
 
@@ -190,7 +227,7 @@ npx serve .
 
 상단 5개 메뉴 이동은 History API(`pushState`·`popstate`)로 브라우저 뒤로가기·앞으로가기와 이어져요. 라우터나 경로(path) 주소는 쓰지 않아요.
 
-- 주소(URL)는 바꾸지 않아요(`?region=`만 그대로). 그래서 GitHub Pages에서 새로고침해도 404가 나지 않고, 새로고침하면 지금처럼 홈에서 시작해요.
+- 주소는 쿼리(`?region=…&page=…`)만 바꿔요(경로 주소 없음). 그래서 GitHub Pages에서 새로고침해도 404가 나지 않고, 새로고침하면 보던 화면이 다시 열려요.
 - 다른 메뉴로 가면 기록을 하나 쌓고(`push`), 같은 메뉴 안 이동은 현재 기록만 바꿔요(`replace`). 처음 들어올 때는 `replaceState`로 현재 화면만 등록해요.
 - 기록에는 메뉴와 그 메뉴에서 펼친 것(대응 절차 단계·회복·보호 제도·지원 유형)과 스크롤 위치만 담아요. 지역은 localStorage, 체크는 체크 저장소가 그대로 맡아요.
 - 뒤로가기로 복원하는 중에는 기록을 쌓지 않아 기록이 꼬이지 않아요. 검색어 입력은 기록을 만들지 않아요(한글 입력 영향 없음).
@@ -198,26 +235,37 @@ npx serve .
 ## 공유 링크·인쇄·비교·행동 체크
 
 - **공유 링크**: 주소에는 공유할 수 있는 핵심 상태만 넣어요(경로 라우팅 없음 → GitHub Pages에서 새로고침해도 404 없음).
-  - `?region=incheon&page=care&benefit=special-leave` (회복·보호 제도) · `?page=care&compare=leave` (비교표)
-  - `?region=seoul&page=guide&situ=physical-assault` (상황) · `?region=gyeonggi&page=support&type=legal` (지원 유형) · `?page=proc&step=2` (대응 절차 단계)
-  - `region`이 없으면 보는 사람이 저장해 둔 지역(없으면 공통)으로 보여요. 알 수 없는 값은 무시하고 기본 화면으로 가요.
+  - `?region=incheon&page=care&benefit=special-leave` (회복·보호 제도) · `?region=common&page=care&compare=leave` (비교표)
+  - `?region=seoul&page=guide&situ=physical-assault` (상황) · `?region=gyeonggi&page=support&type=legal` (지원 유형) · `?region=common&page=proc&step=2` (대응 절차 단계)
+  - **링크 복사·인쇄·주소창의 주소에는 지역을 늘 적어요.** 시·도는 그 id, 공통(지역 미선택)은 `region=common`(내부에서는 지역 없음 `null`). 그래서 받는 사람이 다른 지역을 저장해 두었어도 보낸 사람이 보던 지역 그대로 열려요.
+  - 공유 받은 주소의 지역은 그 탭 화면에만 적용하고, 받는 사람이 저장해 둔 지역은 덮어쓰지 않아요(저장된 지역이 없을 때만 그 시·도를 저장). 주소 없이 들어오는 일반 진입은 지금처럼 저장된 지역으로 열려요.
+  - `region`이 없는 예전 주소는 보는 사람이 저장해 둔 지역(없으면 공통)으로 보여요. 알 수 없는 값(`region=mars` 등)은 무시하고 기본 화면으로 가요. `common`은 지역 id로 쓸 수 없어요(점검 도구가 확인).
   - 검색어·체크·스크롤·사소한 펼침 상태는 주소에 넣지 않아요(탐색 중 세부 상태는 `history.state`).
   - 다른 메뉴로 가거나 지역을 바꾸면 기록을 쌓고(`pushState`), 같은 메뉴 안에서 제도를 펼치거나 유형을 바꾸면 주소만 바꿔요(`replaceState`). 뒤로가기 복원 중에는 기록을 쌓지 않아요.
 - **링크 복사·인쇄하기**: 제도·상황·지원 유형·대응 단계 상세 아래의 작은 도구 묶음. 인쇄하기는 그 상세만 A4로 인쇄해요(`@media print`, 상단에 서비스 이름·항목·지역 기준·날짜·공유 주소).
 - **비교표**: `COMPARISONS`(휴가·병가, 질병휴직). 칸 내용은 모두 `BENEFITS`에서 가져와요(숫자를 두 군데 적지 않기). 넓은 화면은 표, 좁은 화면은 항목별 카드.
 - **행동 체크**: 제도의 ‘지금 확인해 볼 일’(`BENEFITS[].actions`)과 핵심 상황의 ‘지금 해볼 일’(`SITU_ACTIONS`). 제출 서류 목록이 아니라 스스로 확인할 항목이에요.
 
+## 의견 받기
+
+‘정보가 바뀌었거나 잘못된 내용을 발견하셨나요? [알려주기]’ 영역을 푸터에 넣을 자리를 만들어 두었어요. 관리하는 공식 양식(Google 설문) 주소가 아직 없어 **지금은 보이지 않아요.**
+
+- 주소가 정해지면 `data/common.js`의 `FEEDBACK_URL`에만 넣어요(임의 주소 금지, `docs.google.com/forms`·`forms.gle`만 점검 도구가 허용).
+- 양식은 바뀐 정보·잘못된 내용과 출처만 받고, 사건 내용이나 개인정보는 받지 않아요. 별도 서버는 만들지 않아요.
+
 ## 저장하는 정보
 
 사용자 기기의 localStorage에만 저장돼요(서버 전송 없음).
 
-- `teacher-care-region`: 선택한 지역 id(알 수 없는 값이면 무시하고 지워요)
+- `teacher-care-region`: 선택한 지역 id(알 수 없는 값이면 무시하고 지워요). 공유 받은 주소의 지역으로 덮어쓰지 않아요
 - `teacher-care-action-checks-v1`: 행동 체크 `{ 'benefit:제도id.항목id': true, 'situ:상황id.항목id': true }`(체크 여부만, 사건 내용은 저장하지 않아요)
 - `teacher-care-procedure-checks-v1`: 대응 절차 진행 체크 `{ '단계번호.항목id': true }`. 항목 id(`STEP_DETAIL[].checks[].id`)는 문구를 고쳐도 바꾸지 마세요.
 - 예전 체크리스트 키(`teacher-care-checks`, `icn-gyeote-checks`)는 삭제된 목록의 순번으로 저장돼 새 항목과 맞지 않아 옮기지 않고 지워요.
 
 ## 배포
 
-**배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-1` → `20261003-2`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.
+**배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-2` → `20261004-1`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.
+
+배포 순서: `node tools/check-data.js` → `node tools/check-links.js` → `git diff --check` → asset version 올리기 → 커밋 → `main` push → GitHub Pages 배포 확인 → 실제 주소에서 확인.
 
 `main` 브랜치가 GitHub Pages로 배포돼요(`.nojekyll` 포함). 작업은 기능 브랜치에서 하고 검토 후 `main`에 합쳐요.

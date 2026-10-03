@@ -199,7 +199,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
   padding: 3px 9px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); white-space: nowrap;
 }
 .badge-accent { background: var(--accent-soft); color: var(--accent); }
-.unknown { color: var(--faint); }
+.feedback { margin-top: 12px; }
 .tel-link { font-weight: 600; white-space: nowrap; }
 
 /* 펼침 표시 */

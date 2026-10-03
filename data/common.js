@@ -92,6 +92,7 @@ const QUICK = [
 // - category: BENEFIT_CATEGORIES id · employment: EMPLOYMENT_SCOPES(사용자의 신분은 추정하지 않고 배지로만 알려요)
 // - badges: 짧은 의미 단위 배지(첫째 = 핵심 기간, 나머지 = 조건, 14자 이하) · notice: 상세 맨 위 ‘꼭 확인하세요’ · missed: ‘놓치기 쉬워요’ 2개까지
 // - refs: 공식 근거(COMMON_PUBLIC_SOURCES id) · supportLinks: 지원 찾기로 이어지는 질문과 유형(SUPPORT_TYPES id)
+// - verifiedAt·sourceUpdatedAt·reviewStatus: 최신성 정보(아래 ‘최신성 관리’ 참고). sourceUpdatedAt은 refs 중 가장 최근 시행·개정일이에요
 // - recognition·cause: 비교표(COMPARISONS)에 쓰는 ‘별도 인정 필요 여부’·‘발생 원인’ · actions: ‘지금 확인해 볼 일’(3~5개, 제출 서류 목록이 아니에요)
 // 표현 규칙: ‘자동 승인·지급’, ‘휴직 인정’, ‘특별휴가 10일’처럼 쓰지 않아요. ‘~범위에서 ~할 수 있어요’, ‘검토할 수 있어요’로 써요(점검 도구가 검사)
 const BENEFIT_FIELDS = [
@@ -117,6 +118,7 @@ const BENEFIT_CATEGORIES = [
 
 const BENEFITS = [
   { id: 'special-leave', category: 'rest', t: '특별휴가', e: '🌤️', employment: 'public', badges: ['5일 범위', '해당 시 5일 범위 추가'],
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-27', reviewStatus: 'verified',
     recognition: '교육활동 침해 피해 교원이어야 해요. 위원회 심의 전에도 학교장 판단으로 허가할 수 있고, 나중에 침해가 아니라고 판단되면 병가·연가로 정정돼요.',
     actions: [{ id: 'tell', t: '학교 관리자에게 현재 상황과 회복이 필요하다는 점 알리기' }, { id: 'ask', t: '특별휴가 부여 여부와 사용 시기를 학교장에게 확인하기' }, { id: 'timeline', t: '사건 경과를 시간순으로 정리하기' }, { id: 'proof', t: '신고서·진단서 등 나중에 갖출 증빙 확인하기' }, { id: 'next', t: '회복이 더 필요하면 병가 제도도 확인하기' }],
     keywords: ['특별휴가', '휴가', '마음돌봄휴가', '쉬고 싶어요'],
@@ -139,6 +141,7 @@ const BENEFITS = [
     supportLinks: { q: '상담이나 치료도 필요하신가요?', types: ['counsel', 'care-cost'] } },
 
   { id: 'sick-leave', category: 'rest', t: '일반 병가', e: '🏥', employment: 'public', badges: ['연 60일 범위', '연 6일 넘으면 진단서'],
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-02', reviewStatus: 'verified',
     recognition: '교육활동 침해나 공무상 인정은 필요 없어요. 질병·부상으로 직무를 수행할 수 없으면 돼요.',
     actions: [{ id: 'special', t: '교육활동 침해로 쉬는 것이라면 특별휴가 대상인지 먼저 확인하기' }, { id: 'diag', t: '연간 6일을 넘을 것 같으면 진단서 준비하기' }, { id: 'ask', t: '학교에 병가 신청 방법 확인하기' }, { id: 'official', t: '공무상 질병·부상 가능성이 있으면 공무상 병가도 확인하기' }],
     keywords: ['병가', '일반 병가', '진단서', '아파서'],
@@ -156,6 +159,7 @@ const BENEFITS = [
     supportLinks: { q: '치료나 상담을 함께 받고 있나요?', types: ['counsel', 'care-cost'] } },
 
   { id: 'official-sick-leave', category: 'rest', t: '공무상 병가', e: '🩹', employment: 'public', badges: ['연 180일 범위', '공무상 판단 필요'],
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-02', reviewStatus: 'verified',
     recognition: '공무상 질병·부상인지 판단이 필요해요. 6일을 넘으면 공무상 요양 승인을 거쳐요.',
     actions: [{ id: 'diag', t: '진단서·소견서 확인하기' }, { id: 'ask', t: '공무상 질병·부상 해당 가능성을 학교에 문의하기' }, { id: 'care', t: '6일을 넘길 것 같으면 공무상 요양 승인 절차 확인하기' }, { id: 'keep', t: '사건 관련 자료 보존하기' }],
     keywords: ['공무상 병가', '공상', '공무상', '병가'],
@@ -177,6 +181,7 @@ const BENEFITS = [
     supportLinks: { q: '치료비나 공무상 재해 관련 상담이 필요하신가요?', types: ['care-cost', 'legal'] } },
 
   { id: 'disease-leave', category: 'long', t: '질병휴직', e: '🛌', employment: 'check', badges: ['1년 이내', '부득이하면 1년 연장'],
+    verifiedAt: '2026-10-03', reviewStatus: 'verified',
     cause: '원인과 관계없이 신체·정신상의 장애로 장기요양이 필요할 때',
     recognition: '공무상 인정은 필요 없어요. 장기요양이 필요하다는 의학적 판단이 필요해요.',
     actions: [{ id: 'opinion', t: '장기요양이 필요하다는 의사 소견 받기' }, { id: 'status', t: '내 신분(국·공립·사립·기간제)에 맞는 기준 확인하기' }, { id: 'ask', t: '학교에 휴직 신청 절차와 서류 확인하기' }, { id: 'return', t: '복귀 시기와 복직 신고 방법 미리 확인하기' }],
@@ -195,6 +200,7 @@ const BENEFITS = [
     supportLinks: { q: '휴직 중에도 상담·치료 지원을 받을 수 있는지 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
   { id: 'official-disease-leave', category: 'long', t: '공무상 질병휴직', e: '🩺', employment: 'public', badges: ['3년 이내', '조건 충족 시 연장 가능'],
+    verifiedAt: '2026-10-03', reviewStatus: 'verified',
     cause: '공무수행 과정의 부상·질병(공무상 재해)으로 장기요양이 필요할 때',
     recognition: '공무원연금공단의 공무상 요양(재요양) 승인이 필요해요. 교육활동 침해 인정만으로는 적용되지 않아요.',
     actions: [{ id: 'approval', t: '공무상 요양 승인 결정 통지가 있는지 확인하기' }, { id: 'opinion', t: '장기요양이 필요하다는 의사 소견 받기' }, { id: 'ask', t: '학교를 거쳐 휴직 신청 절차 확인하기' }, { id: 'return', t: '복직 신고 방법 미리 확인하기' }],
@@ -214,6 +220,7 @@ const BENEFITS = [
     supportLinks: { q: '법률 또는 공무상 재해 상담이 필요하신가요?', types: ['legal', 'care-cost'] } },
 
   { id: 'official-medical-care', category: 'care', t: '공무상 요양', e: '📋', employment: 'public', badges: ['3년 안에 청구'],
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-01', reviewStatus: 'verified',
     actions: [{ id: 'docs', t: '진단서(요양기간 기재)와 처음 진료한 병원 의무기록 준비하기' }, { id: 'story', t: '재해 경위를 시간순으로 정리하기' }, { id: 'confirm', t: '학교(기관장) 확인 절차 문의하기' }, { id: 'deadline', t: '사유 발생일부터 3년 안에 청구해야 한다는 점 기억하기' }],
     keywords: ['공무상 요양', '요양', '요양급여', '공무원연금공단', '공무상', '공상', '재해', '산재'],
     notice: '교육활동 침해 인정과 공무상 재해 인정은 별개의 판단이에요.',
@@ -232,6 +239,7 @@ const BENEFITS = [
     supportLinks: { q: '치료비 지원이나 법률 상담도 확인해 보세요.', types: ['care-cost', 'legal'] } },
 
   { id: 'separation', category: 'protect', t: '즉시 분리', e: '🤝', employment: 'all', badges: ['위원회 결과 전에도'],
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
     actions: [{ id: 'tell', t: '분리를 원한다는 뜻을 학교에 바로 알리기' }, { id: 'how', t: '수업·동선에서 바라는 분리 방식 정리하기' }, { id: 'period', t: '분리 기간과 장소를 학교에 확인하기' }],
     keywords: ['분리', '즉시 분리', '마주치기', '가해 학생'],
     d: '원하면 위원회 결과를 기다리지 않고 학교장이 침해 관련자와 즉시 분리해요.',
@@ -248,6 +256,7 @@ const BENEFITS = [
     supportLinks: { q: '신변 위협이 계속되나요?', types: ['safety'] } },
 
   { id: 'protection-request', category: 'protect', t: '보호조치 요청', e: '🛡️', employment: 'all',
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
     actions: [{ id: 'list', t: '필요한 보호조치(상담·치료·휴가 등) 정리하기' }, { id: 'ask', t: '학교장·담당자에게 보호조치 요청하기' }, { id: 'receipt', t: '치료·상담 영수증 보관하기' }],
     keywords: ['보호조치', '보호조치 요청', '치유', '교권 회복'],
     d: '관할청과 학교장은 침해 사실을 알게 되면 즉시 심리상담·치료 등 보호조치를 해야 해요.',
@@ -263,6 +272,7 @@ const BENEFITS = [
     supportLinks: { q: '지역의 상담·치료비 지원을 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
   { id: 'transfer', category: 'work', t: '비정기 전보', e: '🏫', employment: 'check', badges: ['지역별 기준'],
+    verifiedAt: '2026-10-03', reviewStatus: 'verified',
     actions: [{ id: 'ask', t: '학교장에게 전보 희망 알리기' }, { id: 'rule', t: '지역 인사 기준과 시기 확인하기' }, { id: 'docs', t: '조치결정 통지서 등 처리 결과 보관하기' }],
     keywords: ['전보', '비정기 전보', '비정기전보', '학교 옮기기', '근무지', '인사'],
     d: '희망하면 학교장이 시·도교육청 전보 절차·요건에 따라 전보를 요청할 수 있어요.',
@@ -277,6 +287,7 @@ const BENEFITS = [
     basis: '교원지위법 시행령 제2조의3제2항제3호, 교육활동 보호 매뉴얼(2026) 71쪽' },
 
   { id: 'return-to-work', category: 'return', t: '복귀 준비(복직)', e: '🌱', employment: 'public', badges: ['30일 이내 신고'],
+    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
     actions: [{ id: 'report', t: '휴직 사유가 없어지면 30일 이내 복직 신고하기' }, { id: 'protect', t: '복귀 뒤 필요한 보호조치(분리 등)를 학교와 상의하기' }, { id: 'support', t: '복귀 뒤에도 이용할 상담·회복 지원 확인하기' }],
     keywords: ['복직', '복귀', '복귀 준비', '출근', '휴직 끝'],
     scope: '국·공립 교원(교육공무원) 기준이에요. 사립 교원은 학교법인 정관을 따르고, 기간제 교원에게는 휴직·복직 규정이 적용되지 않아요.',
@@ -2318,13 +2329,27 @@ const SUPPORT_TYPES = [
 // 새 지역을 추가할 때 그 지역 매뉴얼의 기한이 같은지 확인하고, 다르면 공통에서 빼 지역 데이터로 옮기세요.
 // 화면에 보이는 공통 근거는 전국 공통 공식 자료(교육부·법령)만이에요. 특정 시·도 자료는 넣지 않아요.
 // 지역을 고르면 그 지역 sources 중 화면 용도(uses)에 맞는 자료가 먼저 보이고, 이 목록은 ‘공통 법적·정책 근거’로 작게 붙어요.
+// ── 최신성 관리(Phase 3) ──
+// verifiedAt      공식 자료와 마지막으로 대조한 날(YYYY-MM-DD). 내용을 고치거나 다시 확인하면 그날로 바꿔요
+// sourceUpdatedAt 공식 자료 자체의 시행·개정·게시일(알 수 있을 때만)
+// reviewStatus    verified(확인됨) · review-needed(바뀐 것으로 보여 다시 확인해야 함) · source-unavailable(원문이 사라져 확인 불가)
+// reviewBy        바뀌는 날이 예고된 자료(학년도 매뉴얼·공제 약관 기간 종료, 관할 개편 시행일)는 그날 다시 확인하도록 적어 둬요
+// 경고 기준(tools/check-data.js): 법령·예규·공통 제도(stable)와 지역 사업·금액·연락처·신청 링크·관할(volatile)을 나눠요.
+// 기준일을 넘기면 오류가 아니라 ‘주의’로 알려 줘요. 기간을 바꾸려면 여기 숫자만 고치세요
+const REVIEW_STATUSES = ['verified', 'review-needed', 'source-unavailable'];
+const FRESHNESS_DAYS = { stable: 365, volatile: 180 };
+
+// 사용자 의견 받기(‘정보가 바뀌었거나 잘못된 내용을 발견하셨나요?’). 관리하는 공식 양식 주소가 정해지면 여기에만 넣어요.
+// 비어 있으면 화면에 의견 받기 영역을 보여 주지 않아요(임의 주소를 넣지 마세요. 개인 사건 내용·개인정보를 받지 않는 양식이어야 해요)
+const FEEDBACK_URL = '';
+
 const COMMON_PUBLIC_SOURCES = [
   { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.cbe.go.kr/upload/dept-26/na/bbs_2019/2026/03/90383C36-8078-4E7F-FA24-E3768E73892E.pdf', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
-  { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'jiwi-decree', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법 시행령 — 제2조의3(전보 등 보호조치)·제17조(분리조치)·제19조(보호조치 비용)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
-  { id: 'leave-rule', title: '「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제6조 병가·제8조 특별휴가', url: 'https://www.law.go.kr/행정규칙/교원휴가에관한예규', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
-  { id: 'bokmu', title: '국가공무원 복무규정 제18조(병가, 2026. 10. 2. 시행)', url: 'https://www.law.go.kr/법령/국가공무원복무규정', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
-  { id: 'bokmu-rule', title: '「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호, 2026. 10. 1. 시행) — 공무상 병가', url: 'https://www.law.go.kr/행정규칙/국가공무원복무·징계관련예규', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'leave-rule', title: '「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제6조 병가·제8조 특별휴가', url: 'https://www.law.go.kr/행정규칙/교원휴가에관한예규', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-27', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'bokmu', title: '국가공무원 복무규정 제18조(병가, 2026. 10. 2. 시행)', url: 'https://www.law.go.kr/법령/국가공무원복무규정', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-02', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'bokmu-rule', title: '「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호, 2026. 10. 1. 시행) — 공무상 병가', url: 'https://www.law.go.kr/행정규칙/국가공무원복무·징계관련예규', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-01', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'edu-act', title: '교육공무원법 제32조(기간제교원)·제44조(휴직)·제45조(휴직기간)', url: 'https://www.law.go.kr/법령/교육공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'edu-appoint', title: '교육공무원임용령 제19조(질병휴직) — 공무상 질병휴직은 공무상 요양 승인 시로 한정', url: 'https://www.law.go.kr/법령/교육공무원임용령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'private-school', title: '사립학교법 제59조(휴직의 사유) — 휴직기간은 정관으로', url: 'https://www.law.go.kr/법령/사립학교법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
