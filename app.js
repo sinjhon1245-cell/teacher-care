@@ -1,7 +1,7 @@
 // 선생님 곁에 — 교육활동 보호·대응 가이드
 // 화면 렌더링 및 상태 관리 (바닐라 JS, 빌드 도구 없이 동작)
 // 지역별 내용은 data/regions/*.js 에서만 가져와요. 이 파일에는 특정 시·도 이름이나 번호를 두지 않아요.
-// 화면 역할: 홈 = 시작 · 상황별 도움 = 판단 · 대응 절차 = 실행(체크) · 지원 찾기 = 연결(신청·상담·안내)
+// 화면 역할: 홈 = 어디부터 · 대응 절차 = 지금 할 일(체크) · 상황별 도움 = 어떤 경우 · 회복·보호 = 내가 쓸 제도 · 지원 찾기 = 어디서 도움
 
 const STORAGE_REGION = 'teacher-care-region';
 const STORAGE_CHECKS = 'teacher-care-procedure-checks-v1'; // { '단계번호.항목id': true }
@@ -22,8 +22,7 @@ const App = {
     supportType: 'all', // 지원 찾기에서 고른 도움 유형('related'는 상황별 도움에서 넘어온 관련 지원 묶음)
     related: null,      // { situId: 상황 stable id, ids: [지원 유형 id] }
     faqOpen: null,
-    protection: null,   // 대응 절차 1단계에서 펼친 권리·지원 id(BENEFITS[].id, request: true인 항목)
-    recovery: null,     // 대응 절차 ‘회복에 시간이 더 필요하다면’에서 펼친 권리·지원 id
+    benefit: null,      // 회복·보호에서 펼친 제도 id(BENEFITS[].id)
     checks: {},
     onboarding: false   // 첫 방문(저장된 지역·주소의 region 모두 없음)이면 지역 선택 첫 화면을 보여요
   },
@@ -73,23 +72,66 @@ const App = {
     this.setState({ [key]: this.state[key] === value ? null : value });
   },
 
-  // 권리·지원 하나를 펼쳐서 보여 줘요. 학교에 요청하는 보호조치(request)는 대응 절차 1단계에서,
-  // 휴직·공무상 요양처럼 회복 경로에만 있는 항목은 ‘회복에 시간이 더 필요하다면’에서 펼쳐요
+  // 회복·보호의 제도 하나를 펼쳐서 보여 줘요(홈·상황별 도움·대응 절차·지원 찾기에서 들어와요)
   openBenefit(id) {
-    const b = benefitById(id);
-    if (!b) return;
-    if (b.request) this.nav('proc', { step: 0, protection: id });
-    else this.nav('proc', { recovery: id });
+    if (!benefitById(id)) return;
+    this.nav('care', { benefit: id });
     // render()는 동기라 바로 찾을 수 있어요. 화면이 바뀐 직후라 부드러운 스크롤 대신 바로 이동해요
-    const el = document.getElementById(b.request ? 'prot-' + id : 'rec-detail');
+    const el = document.getElementById('bf-' + id);
     if (el) el.scrollIntoView({ block: 'start' });
   },
 
-  // 홈 ‘병가·휴직’ 카드 → 회복 경로 전체
+  // 회복·보호 맨 위 ‘회복에 시간이 더 필요하다면’
   openRecovery() {
-    this.nav('proc', { recovery: null });
+    this.nav('care', { benefit: null });
     const el = document.getElementById('recovery');
     if (el) el.scrollIntoView({ block: 'start' });
+  },
+
+  // 지원 찾기의 한 유형으로(지역을 고르지 않았으면 지원 찾기의 지역 선택 화면이 보여요)
+  openSupport(typeId) {
+    this.nav('support', { supportType: typeId || 'all', related: null });
+  },
+
+  // ── 회복·보호 제도 검색 ──
+  // 입력창은 다시 그리지 않고 카드 표시만 바꿔요(한글 조합 중 자모가 흩어지지 않게). 검색어는 이 세션에서만 기억해요
+  onCareInput(e) {
+    this.filterCare(e.target.value);
+  },
+
+  filterCare(value) {
+    this._careQuery = String(value || '');
+    const terms = guideSearchTerms(this._careQuery);
+    let shown = 0;
+    document.querySelectorAll('[data-bf]').forEach(el => {
+      const hit = !terms.length || matchesBenefit(benefitById(el.dataset.bf), terms);
+      el.hidden = !hit;
+      if (hit) shown++;
+    });
+    document.querySelectorAll('.care-cat').forEach(sec => { sec.hidden = !sec.querySelector('[data-bf]:not([hidden])'); });
+    const count = document.getElementById('care-count');
+    if (count) count.textContent = terms.length ? `제도 ${shown}개를 찾았어요` : '';
+    const empty = document.getElementById('care-empty');
+    if (empty) empty.hidden = shown > 0;
+    const clear = document.getElementById('care-search-clear');
+    if (clear) clear.hidden = !terms.length;
+  },
+
+  clearCareSearch() {
+    const el = document.getElementById('care-search');
+    if (el) {
+      el.value = '';
+      el.focus({ preventScroll: true });
+    }
+    this.filterCare('');
+  },
+
+  // 상황 검색어가 제도 이름일 때: 회복·보호의 제도 검색으로 옮겨요(두 검색의 결과는 섞지 않아요)
+  searchCare(query) {
+    this._careQuery = String(query || '');
+    this.nav('care', { benefit: null });
+    const el = document.getElementById('care-search');
+    if (el) el.scrollIntoView({ block: 'center' });
   },
 
   // 홈의 특정 영역으로 이동(다른 화면이면 홈으로 먼저 이동)
@@ -220,12 +262,15 @@ const App = {
         ${S.page === 'home' ? this.renderHome() : ''}
         ${S.page === 'proc' ? this.renderProc() : ''}
         ${S.page === 'guide' ? this.renderGuide() : ''}
+        ${S.page === 'care' ? this.renderCare() : ''}
         ${S.page === 'support' ? this.renderSupport() : ''}
       </main>
       ${this.renderFooter()}
       ${this.renderBottomNav()}
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
     `);
+    // 회복·보호 검색어가 있으면 다시 그린 뒤에도 같은 결과를 보여 줘요
+    if (S.page === 'care' && this._careQuery) this.filterCare(this._careQuery);
   },
 
   // ══════════════ 공통 부품 ══════════════
@@ -332,6 +377,7 @@ const App = {
       return `
         ${this.renderCommonHero()}
         ${this.renderCommonFirst()}
+        ${this.renderEntries()}
         ${this.renderHighlights()}
         ${this.renderStepsSummary()}
         ${this.renderOutsideNote()}
@@ -339,6 +385,7 @@ const App = {
     }
     return `
       ${this.renderHero()}
+      ${this.renderEntries()}
       ${this.renderQuick()}
       ${this.renderHighlights()}
       ${this.renderStepsSummary()}
@@ -476,37 +523,56 @@ const App = {
     }).join('');
     return `
       <section class="section" id="quick">
-        ${this.eyebrow('시작')}
-        <h2 class="h2">지금 어떤 도움이 필요하신가요?</h2>
+        ${this.eyebrow('상황')}
+        <h2 class="h2">자주 겪는 상황, 먼저 할 일</h2>
         <ul class="action-list">${rows}</ul>
       </section>
     `;
   },
 
-  // 홈 ‘놓치기 쉬운 권리·지원’: 카드마다 공통 핵심 1~2줄 + 작은 배지 + (지역 선택 시) 그 지역 한 줄.
-  // 숫자는 배지에서도 ‘범위·조건’과 함께만 보여 줘요. 자세한 내용은 대응 절차에서 펼쳐 봐요
+  // 홈 ‘지금 어떤 도움이 필요하신가요?’: 5메뉴로 들어가는 입구 4개(정보는 각 화면에서)
+  renderEntries() {
+    const cards = HOME_ENTRIES.map(x => `
+      <li><button class="entry-card" onclick="App.nav('${x.page}')">
+        <span class="entry-icon" aria-hidden="true">${x.e}</span>
+        <span class="entry-text"><span class="entry-title">${x.t}</span><span class="entry-desc">${x.d}</span></span>
+        <span class="entry-go" aria-hidden="true">→</span>
+      </button></li>
+    `).join('');
+    return `
+      <section class="section" id="entries">
+        ${this.eyebrow('시작')}
+        <h2 class="h2">지금 어떤 도움이 필요하신가요?</h2>
+        <ul class="entry-list">${cards}</ul>
+      </section>
+    `;
+  },
+
+  // 홈 ‘놓치기 쉬운 제도’: 회복·보호 제도 6개를 한 줄씩(+ 지역 한 줄). 자세한 조건은 회복·보호에서 펼쳐 봐요
   renderHighlights() {
     const R = this.R;
     const cards = HOME_HIGHLIGHTS.map(h => {
+      const b = benefitById(h.id);
       const local = R && R.highlights && R.highlights[h.id];
-      const go = h.to === 'recovery' ? 'App.openRecovery()' : `App.openBenefit('${h.to}')`;
       return `
         <li class="hl-card">
-          <button class="hl-btn" onclick="${go}">
-            <span class="hl-title"><span aria-hidden="true">${h.e}</span> ${h.t}</span>
-            ${h.badge ? `<span class="bf-badge">${h.badge}</span>` : ''}
+          <button class="hl-btn" onclick="App.openBenefit('${b.id}')">
+            <span class="hl-title"><span aria-hidden="true">${b.e}</span> ${b.t}</span>
+            <span class="hl-badges">${benefitBadges(b)}</span>
             <span class="hl-text">${h.d}</span>
             ${local ? `<span class="hl-local"><strong>${R.short}</strong> ${local}</span>` : ''}
-            <span class="hl-more">자세히 <span aria-hidden="true">→</span></span>
+            <span class="hl-more">${h.cta} <span aria-hidden="true">→</span></span>
           </button>
         </li>
       `;
     }).join('');
     return `
       <section class="section" id="highlights">
-        ${this.eyebrow('권리·지원')}
-        <h2 class="h2">놓치기 쉬운 권리·지원</h2>
-        <p class="muted">${R ? `${R.short} 금액·횟수는 ${R.office} 2026년 공식 자료 기준이에요.` : '금액·횟수·신청처는 시·도마다 달라요. 근무 지역을 고르면 함께 보여요.'}</p>
+        <div class="section-head">
+          <div>${this.eyebrow('회복·보호')}<h2 class="h2">놓치기 쉬운 제도</h2></div>
+          <button class="link-btn" onclick="App.nav('care')">회복·보호 전체 보기</button>
+        </div>
+        <p class="muted">제도별 적용 대상과 승인 절차는 교원 신분과 상황에 따라 달라질 수 있어요.</p>
         <ul class="hl-list">${cards}</ul>
       </section>
     `;
@@ -672,30 +738,41 @@ const App = {
           </div>
           <p class="caution"><strong>주의할 점</strong> ${d.caution.join(' · ')}</p>
           <p class="next-step"><strong>다음 단계</strong> ${d.next}</p>
-          ${i === 0 ? this.renderProtections() : ''}
+          ${this.renderStepLinks(i)}
           <div class="btn-row">
             ${i > 0 ? `<button class="btn btn-secondary" onclick="App.setState({ step: ${i - 1} })">← 이전 단계</button>` : ''}
             ${i < STEPS.length - 1 ? `<button class="btn btn-primary" onclick="App.setState({ step: ${i + 1} }); document.querySelector('.stepper').scrollIntoView({ behavior: 'smooth' })">다음 단계 →</button>` : ''}
           </div>
         </div>
         <p class="muted small">기한은 법률이 아닌 교육활동 보호 매뉴얼 기준이에요(법률은 '지체 없이' 보고). 실제 적용 기한과 제출 방식은 소속 교육지원청 안내를 확인하세요.</p>
-        ${this.renderRecovery()}
         ${this.renderSources('procedure')}
       </section>
     `;
   },
 
-  // 권리·지원 하나의 상세: 공통 기준(법령·전국 지침) → 놓치기 쉬워요 → 선택한 지역 기준(R.benefits[id]) 상자.
+  // 대응 절차 단계별 ‘이 단계에서 함께 확인’: 회복·보호 제도와 지원 유형으로 가는 링크만(목록을 펼치지 않아요)
+  renderStepLinks(i) {
+    const L = STEP_LINKS[i];
+    if (!L) return '';
+    const bs = L.benefits.map(benefitById).filter(Boolean);
+    const ts = L.supports.map(supportTypeById).filter(Boolean);
+    return `
+      <div class="step-links">
+        <p class="step-links-title">이 단계에서 함께 확인</p>
+        ${bs.length ? `<div class="link-group"><span class="link-group-label">회복·보호</span><div class="bf-list">${bs.map(benefitChip).join('')}</div></div>` : ''}
+        ${ts.length ? `<div class="link-group"><span class="link-group-label">지원 찾기</span><div class="bf-list">${ts.map(t => supportChip(t, this.R)).join('')}</div></div>` : ''}
+      </div>
+    `;
+  },
+
+  // 제도 하나의 상세: 꼭 확인할 한 줄 → 적용 범위 → 공통 기준 → 놓치기 쉬워요 → 지역 기준(R.benefits[id]) → 공식 근거 → 지원 찾기 연결.
   // 지역 값은 공통 문장에 섞지 않고, 지역을 고르지 않으면 지역 상자를 아예 보여 주지 않아요
   benefitDetail(x) {
     const R = this.R;
     const local = R && R.benefits && R.benefits[x.id];
-    const missedBox = (list, title) => list && list.length ? `
-      <div class="prot-missed">
-        <p class="prot-missed-title">${title}</p>
-        <ul>${list.map(m => `<li>${m}</li>`).join('')}</ul>
-      </div>` : '';
+    const links = x.supportLinks ? x.supportLinks.types.map(supportTypeById).filter(Boolean) : [];
     return `
+      ${x.notice ? `<p class="bf-notice"><strong>꼭 확인하세요</strong> ${x.notice}</p>` : ''}
       ${x.scope ? `<p class="prot-scope">${x.scope}</p>` : ''}
       ${this.facts(BENEFIT_FIELDS.map(([k, label]) => [label, x[k]]))}
       ${missedBox(x.missed, '놓치기 쉬워요')}
@@ -706,72 +783,86 @@ const App = {
           ${this.facts(BENEFIT_FIELDS.map(([k, label]) => [label, local[k] ? linkifyPhone(local[k]) : '']))}
           ${missedBox(local.missed, R.short + '에서 놓치기 쉬워요')}
           <p class="muted small">${sourceLine(R, local)}</p>
-        </div>` : (R ? `<p class="muted small prot-local-none">${R.short} 공식 자료에서 따로 정한 금액·신청 기준은 확인되지 않아 공통 기준을 따라요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
-      ${x.basis ? `<p class="muted small">공통 근거: ${x.basis}</p>` : ''}
-      ${x.link ? `<button class="link-btn small" onclick="App.nav('support', { supportType: '${x.link}' })">${R ? R.short + ' ' : ''}지원 찾기에서 보기 →</button>` : ''}
+        </div>` : (R ? `<p class="muted small prot-local-none">${R.short} 공식 자료에서 따로 정한 기준은 확인되지 않아 공통 기준을 따라요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
+      ${refsBox(x.refs, x.basis)}
+      ${links.length ? `
+        <div class="bf-cross">
+          <p class="bf-cross-q">${x.supportLinks.q}</p>
+          <div class="bf-list">${links.map(t => supportChip(t, R)).join('')}</div>
+        </div>` : ''}
     `;
   },
 
-  // 대응 절차 1단계 ‘학교에 요청할 수 있는 보호조치’(BENEFITS 중 request: true): 펼치면 공통 기준과 지역 기준을 나눠 보여 줘요
-  renderProtections() {
+  // ══════════════ 회복·보호 = 내가 사용할 수 있는 제도 ══════════════
+  // 맨 위 회복 흐름 → 제도 검색 → 상황별 묶음(BENEFIT_CATEGORIES). 기관이 주는 지원은 지원 찾기에 있어요
+  renderCare() {
     const S = this.state;
-    const R = this.R;
-    const items = BENEFITS.filter(x => x.request).map(x => {
-      const open = S.protection === x.id;
+    const card = b => {
+      const open = S.benefit === b.id;
       return `
-        <li class="action prot ${open ? 'open' : ''}" id="prot-${x.id}">
-          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('protection','${x.id}')">
-            <span class="prot-icon" aria-hidden="true">${x.e}</span>
-            <span class="action-label">${x.t}${benefitBadges(x)}<span class="prot-sum">${x.d}</span></span>
+        <li class="action prot ${open ? 'open' : ''}" id="bf-${b.id}" data-bf="${b.id}">
+          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('benefit','${b.id}')">
+            <span class="prot-icon" aria-hidden="true">${b.e}</span>
+            <span class="action-label">${b.t}${benefitBadges(b)}<span class="prot-sum">${b.d}</span></span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          ${open ? `<div class="action-body">${this.benefitDetail(x)}</div>` : ''}
+          ${open ? `<div class="action-body">${this.benefitDetail(b)}</div>` : ''}
         </li>
       `;
+    };
+    const cats = BENEFIT_CATEGORIES.map(c => {
+      const list = BENEFITS.filter(b => b.category === c.id);
+      if (!list.length) return '';
+      return `
+        <section class="care-cat" aria-labelledby="cat-${c.id}">
+          <h2 class="care-cat-title" id="cat-${c.id}">${c.t}</h2>
+          <ul class="action-list prot-list">${list.map(card).join('')}</ul>
+        </section>
+      `;
     }).join('');
+    const q = this._careQuery || '';
     return `
-      <div class="prot-section">
-        <h3 class="prot-heading">학교에 요청할 수 있는 보호조치</h3>
-        <p class="muted small">${R ? `항목을 펼치면 공통 기준과 ${R.short}의 금액·횟수·신청처를 나눠 보여 줘요.` : '항목을 펼치면 전국 공통 기준을 보여 줘요. 금액·횟수·신청처는 근무 지역을 고르면 함께 보여요.'}</p>
-        <ul class="action-list prot-list">${items}</ul>
-        <p class="muted small">특별휴가 뒤에도 회복이 어렵다면 아래 <button class="link-btn small" onclick="App.openRecovery()">회복에 시간이 더 필요하다면</button>을 확인하세요.</p>
-      </div>
+      <section class="section page">
+        ${this.eyebrow('회복·보호')}
+        <h1 class="page-title">회복·보호</h1>
+        <p class="muted">사건 이후 사용할 수 있는 휴가·병가·휴직과 보호 제도를 확인해 보세요.</p>
+        <p class="muted small">제도별 적용 대상과 승인 절차는 교원 신분과 상황에 따라 달라질 수 있어요. 상담·치료비·법률·경호 같은 지원은 <button class="link-btn small" onclick="App.nav('support')">지원 찾기</button>에서 확인하세요.</p>
+        ${this.renderRecoveryFlow()}
+        <div class="tool-panel guide-search-panel care-search-panel">
+          <label class="guide-search-label" for="care-search">어떤 제도를 찾으세요?</label>
+          <div class="guide-search-field">
+            <input id="care-search" class="guide-search-input" type="search"
+              value="${escapeAttr(q)}"
+              placeholder="특별휴가, 병가, 공무상, 휴직, 요양, 전보, 분리..."
+              autocomplete="off" enterkeyhint="search"
+              oninput="App.onCareInput(event)"
+              aria-describedby="care-count">
+            <button type="button" id="care-search-clear" class="guide-search-clear" onclick="App.clearCareSearch()" aria-label="검색어 지우기" ${guideSearchTerms(q).length ? '' : 'hidden'}>지우기</button>
+          </div>
+          <p id="care-count" class="muted small guide-search-hint" aria-live="polite"></p>
+        </div>
+        <p class="note" id="care-empty" hidden>검색어에 맞는 제도가 없어요. 상담·치료비·변호사·경호는 <button class="link-btn" onclick="App.nav('support')">지원 찾기</button>에서 찾아보세요.</p>
+        ${cats}
+        ${this.renderSources('care')}
+      </section>
     `;
   },
 
-  // ‘회복에 시간이 더 필요하다면’: 특별휴가 → 병가·공무상 병가 → 질병휴직 → 공무상 질병휴직을 한눈에.
-  // 자동으로 이어지는 단계가 아니라 각자 요건·승인이 다른 제도라는 안내를 반드시 함께 보여 줘요
-  renderRecovery() {
-    const S = this.state;
-    const steps = RECOVERY_PATH.map((r, i) => {
-      const b = benefitById(r.id);
-      const open = S.recovery === r.id;
-      return `
-        <li class="rec-step ${open ? 'open' : ''}">
-          <p class="rec-title"><span class="rec-num" aria-hidden="true">${i + 1}</span>${b.t}</p>
-          <p class="rec-period"><span class="bf-badge">${r.period}</span></p>
-          <p class="rec-who">${r.who}</p>
-          <p class="rec-text">${r.d}</p>
-          <button class="link-btn small rec-more" aria-expanded="${open}" onclick="App.toggle('recovery','${r.id}')">${open ? '접기' : '자세히 보기'}</button>
-        </li>
-      `;
-    }).join('');
-    const extra = RECOVERY_EXTRA.map(id => benefitById(id)).map(b => `
-      <button class="bf-chip ${S.recovery === b.id ? 'active' : ''}" aria-expanded="${S.recovery === b.id}" onclick="App.toggle('recovery','${b.id}')"><span aria-hidden="true">${b.e}</span> 함께 확인: ${b.t}</button>
+  // ‘회복에 시간이 더 필요하다면’: 특별휴가 → 병가 → 휴직 → 복귀를 한눈에. 자동으로 이어지지 않는다는 안내를 반드시 함께 보여 줘요
+  renderRecoveryFlow() {
+    const steps = RECOVERY_PATH.map((r, i) => `
+      <li class="rec-step">
+        <p class="rec-title"><span class="rec-num" aria-hidden="true">${i + 1}</span>${r.t}</p>
+        <p class="rec-period"><span class="bf-badge">${r.period}</span> <span class="bf-badge bf-scope">${r.badge}</span></p>
+        <p class="rec-text">${r.d}</p>
+        <div class="rec-links">${r.ids.map(id => `<button class="link-btn small" onclick="App.openBenefit('${id}')">${benefitById(id).t} 자세히 보기</button>`).join('')}</div>
+      </li>
     `).join('');
-    const openB = S.recovery ? benefitById(S.recovery) : null;
     return `
       <section class="recovery" id="recovery">
         <h2 class="h2">회복에 시간이 더 필요하다면</h2>
-        <p class="muted">특별휴가 뒤에도 회복이 어렵다면 아래 제도를 검토할 수 있어요.</p>
         <ol class="rec-flow">${steps}</ol>
-        <p class="rec-note"><strong>꼭 확인하세요</strong> 각 제도는 적용 요건과 승인 절차가 서로 달라요. 현재 상태와 교원 신분에 따라 확인이 필요합니다.</p>
-        <div class="bf-list">${extra}</div>
-        ${openB ? `
-          <div class="rec-detail" id="rec-detail">
-            <div class="rec-detail-head"><span class="prot-icon" aria-hidden="true">${openB.e}</span><h3 class="sub-title">${openB.t}</h3>${benefitBadges(openB)}</div>
-            ${this.benefitDetail(openB)}
-          </div>` : ''}
+        <p class="rec-note"><strong>꼭 확인하세요</strong> ${RECOVERY_NOTE}</p>
       </section>
     `;
   },
@@ -780,7 +871,7 @@ const App = {
   // 상황 하나의 안내. ‘관련 대응 절차’·‘관련 지원 보기’는 상황 데이터(stages·supports)로 둘러볼 곳만 안내해요
   // 상황의 supports를 현재 지역에 실제로 있는 지원 유형으로 옮겨요(새 판단 없이 SUPPORT_TYPES.situ 매핑만 사용)
   relatedTypes(s) {
-    return this.availableTypes().filter(t => s.supports.some(v => t.situ.includes(v)));
+    return this.availableTypes().filter(t => s.supports.some(v => t.situ.includes(v)) || s.typeTags.some(v => (t.tags || []).includes(v)));
   },
 
   situById(id) {
@@ -805,9 +896,14 @@ const App = {
         ${withTitle ? `<h3 class="sub-title">${s.title} ${urgencyBadge(s.urgency)}</h3>` : ''}
         <p class="muted small">예: ${s.example}</p>
         <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.firstAction}</p></div>
-        ${this.facts([['학교에 알릴 내용', s.report], ['지금 기록해 두세요', s.evidence], ['하지 말 것', s.dont], ['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs], ['관련 지원', types.map(t => t.label).join(' · ')]])}
-        ${this.situBenefits(s)}
+        ${this.facts([['학교에 알릴 내용', s.report], ['남겨 두면 좋은 기록', s.evidence], ['주의할 점', s.dont]])}
         ${s.legalCaution ? `<p class="note"><strong>판단 시 주의</strong> ${s.legalCaution}</p>` : ''}
+        ${this.situBenefits(s)}
+        <div class="situ-supports">
+          <p class="first-label">연결 가능한 지원</p>
+          ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+          ${types.length ? `<div class="bf-list">${types.map(t => supportChip(t, this.R)).join('')}</div>` : ''}
+        </div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="App.nav('proc', { step: ${step === undefined ? 0 : step} })">관련 대응 절차 →</button>
           ${supportBtn}
@@ -816,13 +912,14 @@ const App = {
     `;
   },
 
-  // 상황과 관련 있는 권리·지원(SITU_BENEFITS)만 작은 버튼으로. 누르면 대응 절차에서 공통·지역 기준을 펼쳐요
+  // 상황과 관련이 분명한 회복·보호 제도(SITU_BENEFITS)만 작은 버튼으로. 적용을 확정하지 않고 ‘함께 확인’으로 안내해요
   situBenefits(s) {
     const list = (SITU_BENEFITS[s.id] || []).map(benefitById).filter(Boolean);
     if (!list.length) return '';
     return `
       <div class="situ-benefits">
-        <p class="first-label">놓치기 쉬운 권리·지원</p>
+        <p class="first-label">함께 확인할 회복·보호 제도</p>
+        <p class="muted small">적용 여부는 교원 신분과 요건·승인 절차에 따라 달라요.</p>
         <div class="bf-list">${list.map(benefitChip).join('')}</div>
       </div>
     `;
@@ -914,8 +1011,8 @@ const App = {
     const benefitHits = queryActive ? matchBenefits(query) : [];
     const hint = benefitHits.length ? `
       <div class="bf-hint">
-        <p class="bf-hint-title">권리·지원에서도 찾았어요</p>
-        <div class="bf-list">${benefitHits.map(benefitChip).join('')}</div>
+        <p class="bf-hint-title">‘${escapeAttr(query.trim())}’은(는) 회복·보호 제도에서 찾을 수 있어요</p>
+        <button class="link-btn" data-q="${escapeAttr(query.trim())}" onclick="App.searchCare(this.dataset.q)">회복·보호에서 찾아보기 →</button>
       </div>` : '';
     return `
       ${hint}
@@ -977,7 +1074,7 @@ const App = {
   // 현재 지역에서 실제로 지원이 있는 유형만
   availableTypes() {
     const R = this.R;
-    return R ? SUPPORT_TYPES.filter(t => R.programs.some(p => t.areas.includes(p.area))) : SUPPORT_TYPES;
+    return R ? SUPPORT_TYPES.filter(t => R.programs.some(p => inType(p, t))) : SUPPORT_TYPES;
   },
 
   // 지역 지원 허브: 왼쪽 대표 창구, 오른쪽 공식 확인된 바로가기(시·도교육청 홈페이지는 항상)
@@ -1039,10 +1136,10 @@ const App = {
     const selectedId = relMode ? 'related' : (cur ? cur.id : 'all');
     const chips = chipDefs.map(t => {
       const on = selectedId === t.id;
-      const n = t.id === 'all' ? R.programs.length : R.programs.filter(p => t.areas.includes(p.area)).length;
+      const n = t.id === 'all' ? R.programs.length : R.programs.filter(p => inType(p, t)).length;
       return `<button class="chip ${on ? 'active' : ''}" aria-pressed="${on}" onclick="App.setState({ supportType: '${t.id}' })">${t.label} <span class="chip-count">${n}</span></button>`;
     }).join('');
-    const programs = R.programs.filter(p => relMode ? areasOf(relTypes).includes(p.area) : (!cur || cur.areas.includes(p.area)));
+    const programs = R.programs.filter(p => relMode ? relTypes.some(t => inType(p, t)) : (!cur || inType(p, cur)));
     const items = programs.map(p => `
       <li class="support-item">
         <div class="support-head">
@@ -1068,7 +1165,8 @@ const App = {
       <section class="section page">
         ${this.eyebrow('연결')}
         <h1 class="page-title">지원 찾기</h1>
-        <p class="muted">${R.name}에서 실제로 신청하거나 상담받는 방법을 보여 드려요.</p>
+        <p class="muted">현재 지역(${R.name})에서 이용할 수 있는 상담·치료·법률·경호 등의 지원을 찾아보세요.</p>
+        <p class="muted small">특별휴가·병가·휴직처럼 직접 사용하는 제도는 <button class="link-btn small" onclick="App.nav('care')">회복·보호</button>에 있어요.</p>
         ${this.renderHub(R)}
         <div class="tool-panel">
           <p class="tool-title">어떤 도움이 필요하신가요?</p>
@@ -1081,6 +1179,7 @@ const App = {
           </div>
           ${relMode || cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
         </div>
+        ${cur ? this.supportGuideBox(cur) : ''}
         <ul class="support-list">${items}</ul>
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
@@ -1090,6 +1189,30 @@ const App = {
         </ul>
         ${this.renderSources('support')}
       </section>
+    `;
+  },
+
+  // 지원 유형의 공통 기준(접힘) + 회복·보호 제도 연결. 지역 사업은 아래 카드에 있어요
+  supportGuideBox(t) {
+    const g = t.guide;
+    const careIds = t.care ? t.care.ids.map(benefitById).filter(Boolean) : [];
+    if (!g && !careIds.length && t.id !== 'office') return '';
+    return `
+      <div class="sup-guide">
+        ${g ? `
+          <details class="support-more sup-guide-detail">
+            <summary>${t.label} 지원, 공통 기준 보기 <span class="muted small">무엇 · 누가 · 언제 · 어디에</span></summary>
+            ${this.facts([['어떤 지원인가요?', g.what], ['누가 받을 수 있나요?', g.who], ['언제 신청하나요?', g.when], ['어디에 신청하나요?', g.apply]])}
+            ${missedBox(g.missed, '놓치기 쉬워요')}
+            ${refsBox(g.refs, g.basis)}
+          </details>` : ''}
+        ${careIds.length ? `
+          <div class="bf-cross">
+            <p class="bf-cross-q">${t.care.q}</p>
+            <div class="bf-list">${careIds.map(b => `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t} 제도 확인</button>`).join('')}</div>
+          </div>` : ''}
+        ${t.id === 'office' ? `<button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기 →</button>` : ''}
+      </div>
     `;
   },
 
@@ -1147,6 +1270,7 @@ const App = {
       home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
       proc: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
       guide: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
+      care: '<path d="M12 20s-7-4.3-8.9-8.6A4.9 4.9 0 0 1 12 6.6a4.9 4.9 0 0 1 8.9 4.8C19 15.7 12 20 12 20z"/>',
       support: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'
     };
     const tabs = PAGES.map(([id, label]) => `
@@ -1158,9 +1282,22 @@ const App = {
   }
 };
 
-// ── 권리·지원(BENEFITS) 헬퍼 ──
+// ── 회복·보호(BENEFITS)·지원 유형(SUPPORT_TYPES) 헬퍼 ──
 function benefitById(id) {
   return BENEFITS.find(b => b.id === id) || null;
+}
+
+function supportTypeById(id) {
+  return SUPPORT_TYPES.find(t => t.id === id) || null;
+}
+
+// 지원 항목의 area는 문자열 또는 배열이에요(법률 상담과 수사·소송 지원을 함께 하는 사업)
+function programAreas(p) {
+  return [].concat(p.area);
+}
+
+function inType(p, t) {
+  return programAreas(p).some(a => t.areas.includes(a));
 }
 
 // 핵심 범위 배지 + 교원 신분 배지(국·공립 기준 / 신분별 확인). 사용자의 신분을 추정하지 않고 적용 범위만 알려요
@@ -1173,7 +1310,38 @@ function benefitChip(b) {
   return `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t}${b.badge ? ` <span class="bf-badge">${b.badge}</span>` : ''}</button>`;
 }
 
-// 상황 검색어로 권리·지원도 찾아요(제목 + keywords, 공백으로 나눈 검색어는 모두 포함)
+// 지원 유형 버튼: 지역을 골랐으면 ‘인천 상담·회복 지원’처럼 지역을 붙여요
+function supportChip(t, R) {
+  return `<button class="bf-chip sup-chip" onclick="App.openSupport('${t.id}')">${R ? R.short + ' ' : ''}${t.label} 지원 보기 <span aria-hidden="true">→</span></button>`;
+}
+
+// 놓치기 쉬워요 상자(공통·지역 기준을 섞지 않고 각자의 상자에)
+function missedBox(list, title) {
+  return list && list.length ? `
+    <div class="prot-missed">
+      <p class="prot-missed-title">${title}</p>
+      <ul>${list.map(m => `<li>${m}</li>`).join('')}</ul>
+    </div>` : '';
+}
+
+// 공식 근거: 조문 요약 + COMMON_PUBLIC_SOURCES 링크(접힘)
+function refsBox(refs, basis) {
+  const srcs = (refs || []).map(id => COMMON_PUBLIC_SOURCES.find(s => s.id === id)).filter(Boolean);
+  if (!basis && !srcs.length) return '';
+  return `
+    <details class="bf-refs">
+      <summary>공식 근거${srcs.length ? ` ${srcs.length}건` : ''}</summary>
+      ${basis ? `<p class="muted small">${basis}</p>` : ''}
+      ${srcs.length ? `<ul class="source-common">${srcs.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}</a></li>`).join('')}</ul>` : ''}
+    </details>`;
+}
+
+// 제도 검색(제목 + keywords + 요약, 공백으로 나눈 검색어는 모두 포함)
+function matchesBenefit(b, terms) {
+  const corpus = normalizeGuideSearch([b.t, ...(b.keywords || []), b.d].join(' '));
+  return terms.every(t => corpus.includes(t));
+}
+
 function matchBenefits(query) {
   const terms = guideSearchTerms(query);
   if (!terms.length) return [];
@@ -1454,6 +1622,7 @@ document.addEventListener('compositionstart', e => {
 });
 document.addEventListener('compositionend', e => {
   if (e.target.id === 'guide-search') App.guideCompositionEnd(e);
+  if (e.target.id === 'care-search') App.filterCare(e.target.value);
 });
 
 document.addEventListener('DOMContentLoaded', () => App.init());

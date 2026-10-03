@@ -1,10 +1,11 @@
 // 선생님 곁에 — 전국 공통 데이터
-// 절차·상황별 도움·권리·지원(BENEFITS)·FAQ처럼 어느 시·도에서나 같은 내용만 둬요.
+// 절차·상황별 도움·회복·보호 제도(BENEFITS)·지원 유형(SUPPORT_TYPES)·FAQ처럼 어느 시·도에서나 같은 내용만 둬요.
 // 지역마다 다른 값(대표번호, 기관·사업 이름)은 {HOT}·{HOT1}·{HOT2}·{OFFICER}·{LEGAL}·{MUTUAL}·{SOS}·{MEDIATE}
 // 토큰으로 쓰고, data/regions/*.js 의 terms가 채워요. 전국 공통 긴급번호(112)만 여기에 직접 적어요.
 
+// 상단·하단 메뉴. 홈(어디부터) → 대응 절차(지금 할 일) → 상황별 도움(어떤 경우) → 회복·보호(내가 쓸 제도) → 지원 찾기(어디서 도움)
 const PAGES = [
-  ['home', '홈'], ['proc', '대응 절차'], ['guide', '상황별 도움'], ['support', '지원 찾기']
+  ['home', '홈'], ['proc', '대응 절차'], ['guide', '상황별 도움'], ['care', '회복·보호'], ['support', '지원 찾기']
 ];
 
 const STEPS = [
@@ -85,16 +86,15 @@ const QUICK = [
   { id: 'heal', label: '심리상담·치료가 필요해요', urgent: false, first: '{HOT1}로 심리상담·치료 지원을 신청하세요. 교육활동보호센터를 통해 전문 상담·치료기관과 연계돼요.', org: '교육활동보호센터, 전문 상담·치료기관', records: '별도 기록 없이 신청할 수 있어요. 치료비 지원은 진료 관련 서류가 필요해요', supports: '심리상담, 치료비 지원, 치유·회복 프로그램', next: '상담 → 필요 시 치료 연계 → 회복 프로그램 참여' }
 ];
 
-// ══════════════ 권리·보호조치·지원제도(BENEFITS) ══════════════
-// 제도 자체와 법령·예규·전국 지침상 기본 권리만 적어요. 금액·횟수·사업 이름·기관·신청처·구비서류처럼
-// 시·도마다 다른 값은 지역 데이터 benefits[id]에 적고, 화면에서 ‘○○ 기준’ 상자로 따로 보여 줘요.
-// - request: 대응 절차 1단계 ‘학교에 요청할 수 있는 보호조치’에 보여요(아니면 ‘회복에 시간이 더 필요하다면’에서)
-// - employment: 교원 신분별 적용 범위(EMPLOYMENT_SCOPES). 사용자의 신분을 추정하지 않고 배지로만 알려요
-// - badge: 핵심 범위를 조건과 함께 짧게(숫자만 단독으로 쓰지 않아요) · keywords: 상황 검색에서 권리·지원 바로 가기
-// - missed: ‘놓치기 쉬워요’ 1~2개 · link: 지원 찾기 유형(SUPPORT_TYPES id)
+// ══════════════ 회복·보호: 선생님이 스스로 사용할 수 있는 제도(BENEFITS) ══════════════
+// 기관·사업이 주는 지원(상담·치료비·법률·공제·경호·조정)은 여기에 두지 않고 SUPPORT_TYPES + 지역 programs(지원 찾기)에 둬요.
+// 제도 자체와 법령·예규·전국 지침만 적어요. 시·도마다 다른 값(전보 기준 등)은 지역 데이터 benefits[id]에 적어요.
+// - category: BENEFIT_CATEGORIES id · employment: EMPLOYMENT_SCOPES(사용자의 신분은 추정하지 않고 배지로만 알려요)
+// - badge: 핵심 범위를 조건과 함께 짧게 · notice: 상세 맨 위에 먼저 보여 줄 한 줄 · missed: ‘놓치기 쉬워요’ 2개까지
+// - refs: 공식 근거(COMMON_PUBLIC_SOURCES id) · supportLinks: 지원 찾기로 이어지는 질문과 유형(SUPPORT_TYPES id)
 // 표현 규칙: ‘자동 승인·지급’, ‘휴직 인정’, ‘특별휴가 10일’처럼 쓰지 않아요. ‘~범위에서 ~할 수 있어요’, ‘검토할 수 있어요’로 써요(점검 도구가 검사)
 const BENEFIT_FIELDS = [
-  ['what', '어떤 제도인가요?'], ['who', '누가 이용할 수 있나요?'], ['limit', '기간·한도'], ['when', '언제 사용할 수 있나요?'],
+  ['what', '어떤 제도인가요?'], ['who', '누가 사용할 수 있나요?'], ['limit', '기간·범위'], ['when', '언제 사용할 수 있나요?'],
   ['apply', '어떻게 요청하나요?'], ['prepare', '준비하면 좋은 것'], ['caution', '주의할 점']
 ];
 
@@ -104,26 +104,25 @@ const EMPLOYMENT_SCOPES = {
   check: { badge: '신분별 적용 기준 확인' }
 };
 
-const BENEFITS = [
-  { id: 'separation', t: '침해 관련자와 분리', e: '🤝', employment: 'all', request: true,
-    keywords: ['분리', '즉시 분리', '마주치기'],
-    d: '원하면 위원회 결과를 기다리지 않고 학교장이 침해 관련자와 즉시 분리해요.',
-    what: '교원이 반대하지 않으면 학교장이 가해자와 피해 교원을 즉시 분리해야 해요. 쉬는 시간·점심시간 동선 분리도 함께 계획해요.',
-    who: '교육활동 침해행위로 피해를 입은 교원',
-    limit: '분리 기간은 침해의 심각성·지속성·고의성을 고려해 학교가 정해요. 매뉴얼은 분리 방법을 정한 때부터 최대 7일 범위(토요일·공휴일 포함)를 권장해요.',
-    when: '학교가 침해 사실을 알게 된 즉시. 교권보호위원회 결과 전에도 할 수 있어요.',
-    apply: '학교장이 분리 의사를 확인(즉시 분리 의사 확인서)하면, 학교가 분리 대상·기간·장소를 정해 침해 관련 학생(보호자)에게 알려요.',
-    prepare: '분리를 원하는지, 수업·동선에서 바라는 분리 방식 메모',
-    missed: ['특별휴가·병가로 이미 출근하지 않는다면 그 자체로 분리된 것으로 볼 수 있어요.'],
-    basis: '교원지위법 제20조제2항, 같은 법 시행령 제17조, 교육활동 보호 매뉴얼(2026) 40쪽' },
+// 회복·보호 화면의 묶음(사용자의 상황 기준)
+const BENEFIT_CATEGORIES = [
+  { id: 'rest', t: '잠시 쉬어야 할 때' },
+  { id: 'long', t: '회복에 더 긴 시간이 필요할 때' },
+  { id: 'care', t: '치료를 계속 받아야 할 때' },
+  { id: 'protect', t: '안전하게 보호받아야 할 때' },
+  { id: 'work', t: '근무 환경을 바꿔야 할 때' },
+  { id: 'return', t: '복귀를 준비할 때' }
+];
 
-  { id: 'special-leave', t: '특별휴가', e: '🌤️', employment: 'public', request: true, badge: '5일 범위',
+const BENEFITS = [
+  { id: 'special-leave', category: 'rest', t: '특별휴가', e: '🌤️', employment: 'public', badge: '5일 범위',
     keywords: ['특별휴가', '휴가', '마음돌봄휴가', '쉬고 싶어요'],
+    notice: '침해를 당했다고 정해진 일수가 자동으로 부여되는 것은 아니에요. 사안과 학교장 승인 절차로 정해져요.',
     scope: '국·공립학교 교원에게 적용되는 「교원휴가에 관한 예규」 기준이에요. 사립학교 교원은 학교법인 복무 규정을, 기간제 교원은 학교의 복무 기준을 확인하세요.',
     d: '5일의 범위에서 부여할 수 있고, 상해·폭행·성폭력범죄에 해당하면 5일의 범위에서 추가로 부여할 수 있어요.',
     what: '교육활동 침해로 피해를 입은 교원의 회복을 위한 특별휴가예요. 학교장(소속기관의 장)이 5일의 범위에서 부여할 수 있어요.',
     who: '교육활동 침해행위(교원지위법 제19조)로 피해를 입은 교원',
-    limit: '5일의 범위에서 부여할 수 있어요. 침해행위가 상해·폭행 등의 범죄(형법 제257조~제265조)나 성폭력범죄에 해당하는 경우 5일의 범위에서 추가로 부여할 수 있어요(합쳐 최대 10일 범위). 부여 일수는 구체적인 사안과 학교장 승인 절차로 정해져요.',
+    limit: '5일의 범위에서 부여할 수 있어요. 침해행위가 상해·폭행 등의 범죄(형법 제257조~제265조)나 성폭력범죄에 해당하는 경우 5일의 범위에서 추가로 부여할 수 있어요(합쳐 최대 10일 범위). 의무적으로 5일·10일을 주는 것은 아니에요.',
     when: '특별한 사유가 없다면 사안 발생(인지) 직후 연속으로 쓰는 것이 원칙이에요. 지역교권보호위원회 심의 전이라도 학교장 판단으로 허가할 수 있어요.',
     apply: '학교장 승인. 증빙서류(사안 발생보고서·진단서 등)는 나중에 갖춰도 돼요. 피해 교원 뜻으로 위원회를 열지 않거나 분쟁조정을 신청해도 학교장이 피해 교원으로 판단하면 예외적으로 허가할 수 있어요(신고서 등은 교육지원청에 공문 제출).',
     prepare: '교육활동 침해 신고서, 시간순 사건 경과 기록',
@@ -132,26 +131,45 @@ const BENEFITS = [
       '위원회 심의가 끝난 뒤에만 쓸 수 있는 제도가 아니에요. 불가피하면 학교장이 위원회 개최 전(사안 신고 후 21일)까지 사용 시기·방법을 달리 승인할 수 있어요.',
       '위원회·행정심판 등에서 침해가 아니라고 판단되면 승인된 특별휴가가 취소되고 병가·연가로 정정돼요.'
     ],
-    basis: '교원지위법 제23조, 「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제8조, 교육활동 보호 매뉴얼(2026) 71~72쪽' },
+    refs: ['leave-rule', 'jiwi-law', 'manual'],
+    basis: '교원지위법 제23조, 「교원휴가에 관한 예규」 제8조, 교육활동 보호 매뉴얼(2026) 71~72쪽',
+    supportLinks: { q: '상담이나 치료도 필요하신가요?', types: ['counsel', 'care-cost'] } },
 
-  { id: 'sick-leave', t: '병가·공무상 병가', e: '🏥', employment: 'public', request: true, badge: '공무상은 연 180일 범위',
-    keywords: ['병가', '공무상 병가', '공상', '진단서', '아파서', '공무상'],
+  { id: 'sick-leave', category: 'rest', t: '일반 병가', e: '🏥', employment: 'public', badge: '연 60일 범위',
+    keywords: ['병가', '일반 병가', '진단서', '아파서'],
     scope: '국·공립학교 교원에게 적용되는 「국가공무원 복무규정」 기준이에요. 사립·기간제 교원은 적용 기준이 달라 학교에 확인하세요.',
-    d: '일반 병가는 연 60일 범위, 공무상 질병·부상은 연 180일 범위에서 승인할 수 있어요.',
-    what: '질병·부상으로 직무를 수행할 수 없을 때 쓰는 병가예요. 교육활동 침해로 생긴 질병·부상이 공무상으로 판단되면 공무상 병가를 검토할 수 있어요.',
+    d: '질병·부상으로 직무를 수행할 수 없을 때 연 60일 범위에서 승인받을 수 있어요.',
+    what: '질병·부상으로 직무를 수행할 수 없을 때 쓰는 병가예요.',
     who: '질병·부상으로 직무 수행이 어려운 국·공립학교 교원',
-    limit: '일반 병가: 연 60일 범위(연간 6일을 넘으면 의사 진단서 첨부). 공무상 병가: 연 180일 범위. 단순 안정만 필요한 경미한 공무상 질병·부상은 6일 이내에서 학교장이 판단해 승인할 수 있고, 그보다 길면 공무상 요양 승인 범위에서 승인돼요.',
-    when: '특별휴가를 쓴 뒤에도 요양이 더 필요할 때, 또는 진단상 치료·요양이 필요할 때',
-    apply: '학교장(복무 승인권자)에게 신청해요. 6일을 넘는 공무상 병가는 공무원연금공단의 공무상 요양 승인을 거쳐요.',
-    prepare: '진단서·소견서(연간 6일 초과 시 필수), 시간순 사건 경과 기록, 교육활동 침해 신고·처리 자료',
-    caution: '기간제 교원은 산업재해보상보험법, 사립학교 교원은 사립학교교직원 연금법에 따라 요양급여를 받는다고 안내돼요.',
-    missed: [
-      '교육활동 침해 인정과 공무상 질병·부상 인정은 별개의 판단이에요.',
-      '공무상 요양 승인 심의 중에는 일반 병가·연가를 쓰고, 공무상으로 결정되면 공무상 병가로 소급 처리할 수 있어요.'
-    ],
-    basis: '국가공무원 복무규정 제18조, 「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호, 2026. 10. 1. 시행), 「교원휴가에 관한 예규」 제6조, 교육활동 보호 매뉴얼(2026) 70·72쪽' },
+    limit: '연 60일 범위. 질병·부상으로 인한 지각·조퇴·외출은 누계 8시간을 병가 1일로 계산해요.',
+    when: '치료·안정이 필요할 때. 특별휴가를 쓴 뒤에도 회복이 더 필요하면 검토할 수 있어요.',
+    apply: '학교장(복무 승인권자)에게 신청',
+    prepare: '연간 병가 일수가 6일을 넘으면 의사 진단서',
+    missed: ['교육활동 침해로 쉬어야 한다면, 일반 병가로 내기 전에 특별휴가 대상인지 먼저 학교에 확인하세요.'],
+    refs: ['bokmu', 'leave-rule'],
+    basis: '국가공무원 복무규정 제18조제1항·제3항, 「교원휴가에 관한 예규」 제6조',
+    supportLinks: { q: '치료나 상담을 함께 받고 있나요?', types: ['counsel', 'care-cost'] } },
 
-  { id: 'disease-leave', t: '질병휴직', e: '🛌', employment: 'check', request: false, badge: '1년 이내(연장 1년 범위)',
+  { id: 'official-sick-leave', category: 'rest', t: '공무상 병가', e: '🩹', employment: 'public', badge: '연 180일 범위',
+    keywords: ['공무상 병가', '공상', '공무상', '병가'],
+    notice: '교육활동 침해로 인정됐다고 공무상 병가가 자동으로 승인되는 것은 아니에요. 공무상 질병·부상인지 따로 판단해요.',
+    scope: '국·공립학교 교원(교육공무원) 기준이에요. 기간제 교원은 산업재해보상보험법, 사립학교 교원은 사립학교교직원 연금법에 따른 요양급여로 안내돼요.',
+    d: '공무상 질병·부상으로 직무를 수행할 수 없거나 요양이 필요할 때 연 180일 범위에서 승인받을 수 있어요.',
+    what: '공무수행 과정에서 생긴 질병·부상으로 쓰는 병가예요. 교육활동 침해로 생긴 질병·부상이 공무상으로 판단되는 경우에 검토할 수 있어요.',
+    who: '공무상 질병·부상을 입은 국·공립학교 교원',
+    limit: '연 180일 범위. 단순 안정만 필요한 경미한 공무상 질병·부상은 6일 이내에서 학교장이 판단해 승인할 수 있고, 그보다 길면 공무상 요양 승인 범위에서 승인돼요.',
+    when: '특별휴가 뒤에도 요양이 더 필요할 때, 또는 진단상 치료·요양이 필요할 때',
+    apply: '6일 이내: 학교장이 공무상 여부를 판단해 승인. 그 이상: 공무원연금공단의 공무상 요양 승인을 거쳐 학교장이 승인해요.',
+    prepare: '진단서·소견서, 시간순 사건 경과 기록, 교육활동 침해 신고·처리 자료, 공무상 요양 승인 결정(6일 초과 시)',
+    missed: [
+      '공무상 요양 승인 심의 중에는 일반 병가·연가를 쓰고, 공무상으로 결정되면 공무상 병가로 소급 처리할 수 있어요.',
+      '공무상 병가가 필요할 만큼 중대한 사안이면 분쟁조정보다 교권보호위원회 조치 심의로 대응하는 것이 적절하다고 안내돼요.'
+    ],
+    refs: ['bokmu', 'bokmu-rule', 'manual'],
+    basis: '국가공무원 복무규정 제18조제2항, 「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호), 교육활동 보호 매뉴얼(2026) 70·72쪽',
+    supportLinks: { q: '치료비나 공무상 재해 관련 상담이 필요하신가요?', types: ['care-cost', 'legal'] } },
+
+  { id: 'disease-leave', category: 'long', t: '질병휴직', e: '🛌', employment: 'check', badge: '1년 이내(연장 1년 범위)',
     keywords: ['휴직', '질병휴직', '장기요양', '장기 치료'],
     scope: '국·공립 교원은 교육공무원법, 사립 교원은 사립학교법과 학교법인 정관을 따라요. 기간제 교원에게는 휴직 규정이 적용되지 않아요(교육공무원법 제32조제3항).',
     d: '교육활동 침해 이후 장기간 치료가 필요하다면 질병휴직을 검토할 수 있어요.',
@@ -162,10 +180,13 @@ const BENEFITS = [
     apply: '학교를 거쳐 임용권자에게 신청해요. 요건에 해당하면 임용권자가 휴직을 명해요.',
     prepare: '장기요양이 필요하다는 의사 진단서·소견서, 휴직 신청서(학교 양식)',
     missed: ['교육활동 침해로 인정됐다고 해서 휴직이 정해지는 것은 아니에요. 장기요양 필요성은 의학적 소견으로 따로 판단해요.'],
-    basis: '교육공무원법 제44조제1항제1호·제45조제1항제1호, 교육공무원법 제32조제3항, 사립학교법 제59조' },
+    refs: ['edu-act', 'private-school'],
+    basis: '교육공무원법 제44조제1항제1호·제45조제1항제1호·제32조제3항, 사립학교법 제59조',
+    supportLinks: { q: '휴직 중에도 상담·치료 지원을 받을 수 있는지 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
-  { id: 'official-disease-leave', t: '공무상 질병휴직', e: '🩹', employment: 'public', request: false, badge: '3년 이내(연장 2년 범위)',
+  { id: 'official-disease-leave', category: 'long', t: '공무상 질병휴직', e: '🩺', employment: 'public', badge: '3년 이내(연장 2년 범위)',
     keywords: ['공무상 질병휴직', '공상휴직', '공무상 휴직', '휴직', '공무상'],
+    notice: '교육활동 침해 인정만으로 자동 적용되는 제도는 아니에요. 공무상 요양 승인을 따로 받아야 해요.',
     scope: '국·공립 교원(교육공무원) 기준이고, 공무상 요양 승인을 받은 경우로 한정돼요.',
     d: '공무상 질병·부상으로 인정되는 경우에는 공무상 질병휴직 제도를 확인할 수 있어요.',
     what: '「공무원 재해보상법」에 따른 공무상 부상·질병으로 장기요양이 필요할 때의 휴직이에요.',
@@ -174,11 +195,14 @@ const BENEFITS = [
     when: '공무상 요양 승인을 받은 뒤 장기요양이 필요할 때',
     apply: '먼저 공무원연금공단에 공무상 요양 승인을 신청하고, 승인 뒤 학교를 거쳐 임용권자에게 휴직을 신청해요.',
     prepare: '공무상 요양 승인 결정 통지, 의사 진단서·소견서, 휴직 신청서',
-    missed: ['교육활동 침해 인정만으로 공무상 질병휴직이 자동 승인되는 것은 아니에요. 공무상 요양 승인을 따로 받아야 해요.'],
-    basis: '교육공무원법 제45조제1항제1호 단서, 교육공무원임용령 제19조제2항·제3항, 공무원 재해보상법 제4조' },
+    missed: ['휴직 사유가 없어지면 30일 이내에 신고해야 복직 절차가 진행돼요(‘복귀 준비’ 참고).'],
+    refs: ['edu-act', 'edu-appoint', 'accident-act'],
+    basis: '교육공무원법 제45조제1항제1호 단서, 교육공무원임용령 제19조제2항·제3항, 공무원 재해보상법 제4조',
+    supportLinks: { q: '법률 또는 공무상 재해 상담이 필요하신가요?', types: ['legal', 'care-cost'] } },
 
-  { id: 'official-medical-care', t: '공무상 요양 승인', e: '📋', employment: 'public', request: false, badge: '사유 발생 후 3년 안에 청구',
-    keywords: ['공무상 요양', '요양급여', '공무원연금공단', '공무상', '공상', '재해', '산재'],
+  { id: 'official-medical-care', category: 'care', t: '공무상 요양', e: '📋', employment: 'public', badge: '사유 발생 후 3년 안에 청구',
+    keywords: ['공무상 요양', '요양', '요양급여', '공무원연금공단', '공무상', '공상', '재해', '산재'],
+    notice: '교육활동 침해 인정과 공무상 재해 인정은 별개의 판단이에요.',
     scope: '국·공립 교원(공무원) 기준이에요. 사립 교원은 사립학교교직원 연금법, 기간제 교원은 산재보험으로 안내돼요.',
     d: '교육활동 침해로 생긴 부상·질병이 공무상 재해로 인정되면 요양급여를 받고 공무상 병가·휴직을 검토할 수 있어요.',
     what: '공무수행 과정의 부상·질병을 공무상 재해로 인정받아 요양급여를 받는 제도예요. 민원인 등의 폭언 등으로 인한 업무상 정신적 스트레스가 원인인 질병도 공무상 질병에 포함될 수 있어요.',
@@ -187,107 +211,43 @@ const BENEFITS = [
     when: '급여 사유가 발생한 날부터 3년 안에 청구해요.',
     apply: '공무상 요양 승인신청서에 재해발생 경위서와 요양기간이 적힌 진단서를 붙여 기관(학교) 또는 공무원연금공단에 내요 → 기관장 확인 → 공무원재해보상심의회 심의 → 인사혁신처 결정. 본인이 공단에 직접 청구할 수도 있어요.',
     prepare: '공무상 요양 승인 신청서, 진단서 원본(요양기간 기재), 처음 진료한 병원의 의무기록지 사본, 상병 경위 조사서, 사건 기록·교육활동 침해 처리 자료 등 재해 입증자료',
-    caution: '공무와 재해 사이에 상당한 인과관계가 없으면 공무상 재해로 보지 않아요.',
+    caution: '공무와 재해 사이에 상당한 인과관계가 없으면 공무상 재해로 보지 않아요. 공무상 요양으로 받은 치료비는 교육청 보호조치 비용으로 다시 받을 수 없어요.',
     missed: ['가해자 손해배상 등으로 요양비가 나오지 않더라도, 공무상 병가를 쓰려면 공무상 요양 승인은 받아야 해요.'],
-    basis: '공무원 재해보상법 제4조·제9조·제22조·제27조·제54조, 같은 법 시행령 제28조, 공무원연금공단 공무상 요양 승인 안내' },
+    refs: ['accident-act', 'accident-decree', 'geps', 'bokmu-rule'],
+    basis: '공무원 재해보상법 제4조·제9조·제22조·제27조·제54조, 같은 법 시행령 제28조, 공무원연금공단 공무상 요양 승인 안내',
+    supportLinks: { q: '치료비 지원이나 법률 상담도 확인해 보세요.', types: ['care-cost', 'legal'] } },
 
-  { id: 'counseling', t: '심리상담', e: '💜', employment: 'all', request: true, badge: '지역별 횟수',
-    keywords: ['심리상담', '상담', '마음', '트라우마', '우울', '불면'],
-    d: '교육활동보호센터 전담상담사 상담을 받고, 필요하면 전문기관·정신건강의학과로 연계돼요.',
-    what: '교육활동보호센터 전담상담사의 전화·대면 심리상담, 필요하면 전문상담기관·정신건강의학과 연계',
-    who: '교육활동 침해 피해 교원(지역에 따라 아동학대 피신고·소진 교원도 지원)',
-    limit: '상담 횟수·금액은 시·도마다 달라요. 지역을 고르면 그 지역 기준을 함께 보여 줘요.',
-    when: '사안 직후부터 조사·심의 중, 종결 뒤에도 이용할 수 있어요.',
-    apply: '{HOT1} 또는 교육활동보호센터에 신청',
-    prepare: '상담 신청 자체는 별도 기록 없이 할 수 있어요. 비용 지원 서류는 지역 기준을 확인하세요.',
-    missed: ['보호조치 비용으로 인정되는 상담은 교육청이 정한 전문심리상담기관에서 받은 상담이에요. 먼저 기관을 안내받으세요.'],
-    basis: '교원지위법 제20조제1항, 같은 법 시행령 제19조제1항, 교육활동 보호 매뉴얼(2026) 70쪽',
-    link: 'mind' },
+  { id: 'separation', category: 'protect', t: '즉시 분리', e: '🤝', employment: 'all', badge: '위원회 결과 전에도',
+    keywords: ['분리', '즉시 분리', '마주치기', '가해 학생'],
+    d: '원하면 위원회 결과를 기다리지 않고 학교장이 침해 관련자와 즉시 분리해요.',
+    what: '교원이 반대하지 않으면 학교장(관할청 포함)이 가해자와 피해 교원을 즉시 분리해야 해요. 쉬는 시간·점심시간 동선 분리도 함께 계획해요.',
+    who: '교육활동 침해행위로 피해를 입은 교원',
+    limit: '분리 기간은 침해의 심각성·지속성·고의성을 고려해 학교가 정해요. 매뉴얼은 분리 방법을 정한 때부터 최대 7일 범위(토요일·공휴일 포함)를 권장해요.',
+    when: '학교가 침해 사실을 알게 된 즉시. 교권보호위원회 결과 전에도 할 수 있어요.',
+    apply: '학교장이 분리 의사를 확인(즉시 분리 의사 확인서)하면, 학교가 분리 대상·기간·장소를 정해 침해 관련 학생(보호자)에게 알려요. 분리 기간 학생의 학습은 학교가 따로 마련해요.',
+    prepare: '분리를 원하는지, 수업·동선에서 바라는 분리 방식 메모',
+    caution: '교원이 반대하거나, 특별휴가·병가 등으로 이미 분리된 경우에는 분리조치를 하지 않을 수 있어요.',
+    missed: ['분리를 원한다는 뜻은 사안을 알린 즉시 밝혀 두세요. 학교는 알게 된 즉시 의사를 확인해야 해요.'],
+    refs: ['jiwi-law', 'jiwi-decree', 'manual'],
+    basis: '교원지위법 제20조제2항, 같은 법 시행령 제17조, 교육활동 보호 매뉴얼(2026) 40쪽',
+    supportLinks: { q: '신변 위협이 계속되나요?', types: ['safety'] } },
 
-  { id: 'treatment-cost', t: '치료비·약제비', e: '🩺', employment: 'all', request: true, badge: '지역별 한도',
-    keywords: ['치료비', '약제비', '병원비', '진료비', '보호조치 비용', '치료'],
-    d: '치료·요양·의약품 비용을 보호조치 비용으로 교육청에 청구할 수 있어요.',
-    what: '의료기관(국민건강보험 요양기관)에서 받은 치료, 치료를 위한 요양, 처방 의약품 비용',
-    who: '교육활동 침해로 신체적·정신적 치료가 필요한 피해 교원',
-    limit: '한도·인정 시점·인정 범위는 시·도 고시마다 달라요. 지역을 고르면 그 지역 기준을 함께 보여 줘요.',
-    when: '치료를 받은 뒤 청구해요. 청구 시점·기한은 지역 기준을 확인하세요.',
-    apply: '피해 교원 또는 학교장이 교육감에게 보호조치 비용 부담 신청서와 증빙 자료를 내요.',
-    prepare: '진료비·약제비 영수증 등 증빙 자료(세부 서류는 지역 기준)',
-    caution: '비용은 원칙적으로 침해 학생의 보호자 등이 부담해요. 신속한 치료를 위해 교원·학교장이 원하면 관할청이 먼저 부담하고 보호자에게 구상해요.',
-    missed: ['분쟁조정으로 합의할 때는 치료비 부담 내용을 합의서에 꼭 넣어요.', '지역별 지원 한도와 인정 시점이 달라요.'],
-    basis: '교원지위법 제20조제5항, 같은 법 시행령 제19조, 교육활동 보호 매뉴얼(2026) 70·72~73쪽',
-    link: 'mind' },
+  { id: 'protection-request', category: 'protect', t: '보호조치 요청', e: '🛡️', employment: 'all',
+    keywords: ['보호조치', '보호조치 요청', '치유', '교권 회복'],
+    d: '관할청과 학교장은 침해 사실을 알게 되면 즉시 심리상담·치료 등 보호조치를 해야 해요.',
+    what: '피해 교원의 치유와 교권 회복을 위해 관할청(교육감 등)과 학교장이 해야 하는 조치예요. 심리상담·조언, 치료·치료를 위한 요양, 그 밖에 치유와 교권 회복에 필요한 조치가 있어요.',
+    who: '교육활동 침해행위로 피해를 입은 교원',
+    limit: '보호조치 비용(상담·치료·의약품)은 원칙적으로 침해 학생의 보호자 등이 부담해요. 교원·학교장이 원하면 관할청이 먼저 부담하고 보호자에게 구상해요. 지역별 금액 한도는 지원 찾기의 ‘치료·비용’에서 확인하세요.',
+    when: '침해 사실을 알게 된 즉시. 위원회 결과를 기다리지 않아도 돼요.',
+    apply: '학교장·{OFFICER}에게 필요한 보호조치를 말하고, 비용 부담은 피해 교원 또는 학교장이 교육감에게 신청서와 증빙을 내요.',
+    prepare: '필요한 조치(상담·치료·휴가 등) 메모, 치료 관련 영수증',
+    missed: ['분쟁조정으로 합의할 때는 치료비 부담 내용을 합의서에 꼭 넣어요.'],
+    refs: ['jiwi-law', 'jiwi-decree', 'manual'],
+    basis: '교원지위법 제20조제1항·제5항, 같은 법 시행령 제19조, 교육활동 보호 매뉴얼(2026) 70·72~73쪽',
+    supportLinks: { q: '지역의 상담·치료비 지원을 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
-  { id: 'legal-consult', t: '법률 상담·수사 지원', e: '⚖️', employment: 'all', request: true, badge: '지역별 지원 범위',
-    keywords: ['변호사', '법률', '경찰 조사', '수사', '고소', '검찰', '출석', '소송', '법률상담'],
-    d: '{LEGAL}의 법률 상담을 받고, 수사·소송 비용은 지역 지원과 교원보호공제를 확인할 수 있어요.',
-    what: '변호사 등 법률지원단의 법률 상담(교육감이 반드시 운영), 수사·소송 대응 자문, 정당한 교육활동 관련 민·형사 소송비용 지원(교원보호공제)',
-    who: '교육활동 관련 분쟁, 아동학대 신고·수사·소송을 겪는 교원',
-    limit: '변호사 동행·선임 지원과 소송비용 한도는 시·도마다 달라요. 지역을 고르면 그 지역 기준을 함께 보여 줘요.',
-    when: '경찰 출석요구·고소장·소장을 받기 전후, 진술하기 전에 미리',
-    apply: '{HOT1}로 법률 상담 신청 → 필요하면 {MUTUAL}에 소송비용 청구',
-    prepare: '시간순 사건 경과, 증거 목록, 출석요구서·고소장·소장 등 받은 서류',
-    caution: '교원의 고의·중과실이 있거나 유죄가 확정되면 지원하지 않거나 돌려받을 수 있어요.',
-    missed: ['정당한 생활지도가 아동학대로 신고돼 조사·수사가 진행되면, 교육감이 수사기관 등에 의견을 신속히 제출해야 해요. 학교·교육청에 의견서 제출을 요청하세요.'],
-    basis: '교원지위법 제17조·제21조·제22조제2항제3호',
-    link: 'legal' },
-
-  { id: 'mutual-aid', t: '교원보호공제', e: '🧾', employment: 'check', request: true, badge: '지역별 보장 범위',
-    keywords: ['공제', '교원보호공제', '안심공제', '소송비', '배상', '손해배상'],
-    d: '손해배상·소송비용·치료비, 위협 시 보호 서비스를 시·도 교원보호공제로 지원해요.',
-    what: '교육활동으로 생긴 손해배상금, 침해로 생긴 상해·상담·심리치료 비용, 위협 시 보호 서비스, 정당한 교육활동 관련 민·형사 소송비용',
-    who: '시·도교육청 교원보호공제의 보장 대상 교원(대상 범위는 지역 기준 확인)',
-    limit: '보장 한도는 시·도 약관마다 달라요. 지역을 고르면 대상·조건과 함께 보여 줘요.',
-    when: '사고·분쟁이 생긴 뒤 청구해요. 청구 기한은 지역 약관을 확인하세요.',
-    apply: '{MUTUAL} 또는 {HOT}로 문의·청구',
-    prepare: '사안 경위, 비용 영수증·선임계약서 등 증빙(세부 서류는 지역 기준)',
-    caution: '교원의 고의·중과실로 생긴 손해배상은 지원하지 않아요.',
-    missed: ['병가·휴직을 쓰고 복귀한 뒤에 생긴 상해·상담·심리치료 비용도 법정 지원 범위에 들어가요.'],
-    basis: '교원지위법 제22조, 같은 법 시행령 제20조',
-    link: 'mutual' },
-
-  { id: 'security', t: '경호·신변보호', e: '🛡️', employment: 'all', request: true, badge: '지역별 일수',
-    keywords: ['경호', '신변', '신변보호', '스토킹', '위협', '보복'],
-    d: '위협을 받으면 교원보호공제의 보호(경호) 서비스를 신청할 수 있어요.',
-    what: '교원이 위협을 받는 경우의 보호 서비스(경호)',
-    who: '교육활동과 관련해 폭행·상해·협박 등 신변 위협을 받은 교원',
-    limit: '경호 일수·인원·연장 기준은 시·도 교원보호공제마다 달라요.',
-    when: '위협이 계속되거나 다시 일어날 우려가 있을 때. 지금 위험하면 112가 먼저예요.',
-    apply: '{HOT} 또는 {MUTUAL}에 신청',
-    prepare: '위협 내용(메시지·통화 기록) 원본, 112 신고 기록, 학교장 의견',
-    missed: ['경호는 경찰 신고를 대신하지 않아요. 지금 위험하면 먼저 112에 신고하세요.'],
-    basis: '교원지위법 제22조제2항제2호',
-    link: 'safety' },
-
-  { id: 'property-damage', t: '물적 피해', e: '📦', employment: 'check', request: true, badge: '지역별 한도',
-    keywords: ['물품', '파손', '안경', '휴대폰', '재산', '물건', '물적 피해'],
-    d: '침해로 소지품이 훼손되면 시·도 교원보호공제의 재산상 피해 지원을 확인할 수 있어요.',
-    what: '제3자의 교육활동 침해로 교원의 소지품 등이 훼손된 경우의 재산상 피해 비용(교원보호공제)',
-    who: '교육활동 침해로 소지품이 훼손된 교원(보장 대상은 지역 공제 기준)',
-    limit: '물품당·사고당 한도는 시·도 공제 약관마다 달라요.',
-    when: '피해 직후 사진 등 기록을 남기고, 지역 공제 기준에 따라 청구해요.',
-    apply: '{MUTUAL} 또는 {HOT}에 문의·청구',
-    prepare: '훼손 물품 사진, 구입·수리 영수증, 학교장 의견서 등 피해 확인 자료',
-    caution: '소지품 보관·관리를 현저히 소홀히 한 경우에는 지원되지 않을 수 있어요.',
-    basis: '교육활동 보호 매뉴얼(2026) 84쪽 교원보호공제 표준약관(재산상 피해비용, 시·도별 보장범위 상이)',
-    link: 'mutual' },
-
-  { id: 'mediation', t: '갈등·분쟁조정', e: '🕊️', employment: 'all', request: true,
-    keywords: ['조정', '분쟁조정', '중재', '화해', '갈등'],
-    d: '지역교권보호위원회 분쟁조정과 시·도 갈등 조정 지원을 이용할 수 있어요.',
-    what: '지역교권보호위원회의 교육활동 관련 분쟁 조정(조정되지 않으면 시·도교권보호위원회), 시·도별 갈등 조정·중재 지원',
-    who: '교육활동과 관련해 학생·보호자와 분쟁이 있는 교원(학생과의 분쟁도 가능)',
-    limit: '양쪽 당사자가 모두 원해야 진행돼요. 분쟁조정 개시일부터 30일이 지나도록 성립하지 않으면 종료돼요.',
-    when: '침해 신고 때 분쟁조정 의사를 밝히거나, 위원회 심의 전에 신청해요. 지역 조정단은 신고 전 갈등 단계에도 이용할 수 있는 경우가 있어요.',
-    apply: '학교를 거쳐 지역교권보호위원회에 분쟁조정 신청(분쟁조정 신청서)',
-    prepare: '분쟁 경위 요약, 원하는 해결 방향, 치료비 등 비용 정리',
-    caution: '고소·고발이나 민사소송이 제기되면 조정을 거부하거나 중지할 수 있어요. 합의서는 민사상 화해계약의 효력이 있어요.',
-    missed: ['조정이 결렬되면 지역교권보호위원회의 침해 여부·조치 심의로 넘어가요.'],
-    basis: '교원지위법 제18조, 교육활동 보호 매뉴얼(2026) 62~65쪽',
-    link: 'mediate' },
-
-  { id: 'transfer', t: '비정기 전보', e: '🏫', employment: 'check', request: true, badge: '지역별 기준',
-    keywords: ['전보', '비정기 전보', '학교 옮기기', '근무지', '인사'],
+  { id: 'transfer', category: 'work', t: '비정기 전보', e: '🏫', employment: 'check', badge: '지역별 기준',
+    keywords: ['전보', '비정기 전보', '비정기전보', '학교 옮기기', '근무지', '인사'],
     d: '희망하면 학교장이 시·도교육청 전보 절차·요건에 따라 전보를 요청할 수 있어요.',
     what: '교육활동 침해 피해 교원의 치유와 교권 회복을 위해, 시·도교육청 인사 기준에 따라 정기전보가 아닌 시기·조건으로 전보를 요청하는 조치예요.',
     who: '교육활동 침해로 피해를 입고 전보를 희망하는 교원',
@@ -296,68 +256,100 @@ const BENEFITS = [
     apply: '학교장에게 희망을 알리면 학교장이 시·도교육청 절차에 따라 전보를 요청(내신)해요.',
     prepare: '교육활동 침해 처리 결과(조치결정 통지서 등), 전보를 희망하는 사유 정리',
     missed: ['요청한다고 바로 전보가 확정되는 것은 아니에요. 지역 인사 기준과 심의를 거쳐요.'],
-    basis: '교원지위법 시행령 제2조의3제2항제3호, 교육활동 보호 매뉴얼(2026) 71쪽' }
+    refs: ['jiwi-decree', 'manual'],
+    basis: '교원지위법 시행령 제2조의3제2항제3호, 교육활동 보호 매뉴얼(2026) 71쪽' },
+
+  { id: 'return-to-work', category: 'return', t: '복귀 준비(복직)', e: '🌱', employment: 'public', badge: '30일 이내 신고',
+    keywords: ['복직', '복귀', '복귀 준비', '출근', '휴직 끝'],
+    scope: '국·공립 교원(교육공무원) 기준이에요. 사립 교원은 학교법인 정관을 따르고, 기간제 교원에게는 휴직·복직 규정이 적용되지 않아요.',
+    d: '휴직 사유가 없어지거나 기간이 끝나면 30일 이내 신고로 복직하고, 복귀 뒤에도 상담·치료 지원을 이어서 확인할 수 있어요.',
+    what: '휴직을 마치고 직무로 돌아가는 절차예요. 복귀 뒤 생긴 상해·상담·심리치료 비용도 교원보호공제 법정 지원 범위에 들어가요.',
+    who: '질병휴직·공무상 질병휴직 중인 국·공립 교원',
+    limit: '휴직 기간 중 사유가 없어지면 30일 이내에 신고하고 임용권자가 복직을 명해요. 휴직 기간이 끝나고 30일 이내 복귀 신고를 하면 복직돼요.',
+    when: '회복으로 휴직 사유가 없어졌을 때, 또는 휴직 기간이 끝날 때',
+    apply: '학교를 거쳐 임용권자에게 복직(복귀) 신고',
+    prepare: '복직 신고서(학교 양식), 필요하면 회복 소견서',
+    missed: ['복귀 뒤에도 침해 관련자와 다시 마주치지 않도록 분리·전보 같은 조치를 함께 요청할 수 있어요.'],
+    refs: ['gukga', 'jiwi-law'],
+    basis: '국가공무원법 제73조제2항·제3항, 교원지위법 제22조제2항제2호',
+    supportLinks: { q: '복귀 뒤 상담·회복 프로그램도 확인해 보세요.', types: ['counsel'] } }
 ];
 
-// 대응 절차 ‘회복에 시간이 더 필요하다면’: 차례대로 검토할 수 있는 제도(자동으로 이어지지 않아요).
-// period는 조건과 함께 쓴 핵심 기간, who는 대상과 신분 기준이에요. RECOVERY_EXTRA는 아래 ‘함께 확인’ 버튼
+// 회복·보호 맨 위 ‘회복에 시간이 더 필요하다면’: 차례대로 검토할 수 있는 제도(자동으로 이어지지 않아요)
 const RECOVERY_PATH = [
-  { id: 'special-leave', period: '5일 범위(해당 시 5일 범위 추가)', who: '교육활동 침해 피해 교원 · 국·공립 예규 기준', d: '사안 직후 회복을 위해 학교장 승인으로 써요.' },
-  { id: 'sick-leave', period: '일반 연 60일 · 공무상 연 180일 범위', who: '국·공립 교원 · 연 6일 넘으면 진단서', d: '치료·요양이 더 필요할 때 검토해요. 공무상은 요양 승인과 이어져요.' },
-  { id: 'disease-leave', period: '1년 이내(부득이하면 1년 범위 연장)', who: '장기요양이 필요한 교원 · 신분별 기준 다름', d: '장기간 치료가 필요하다면 검토할 수 있어요.' },
-  { id: 'official-disease-leave', period: '3년 이내(필요 시 2년 범위 연장)', who: '공무상 요양 승인을 받은 국·공립 교원', d: '공무상 질병·부상으로 인정되는 경우 확인할 수 있어요.' }
+  { ids: ['special-leave'], t: '특별휴가', period: '5일 범위(해당 시 5일 범위 추가)', badge: '국·공립 예규 기준', d: '사안 직후 회복을 위해 학교장 승인으로 써요.' },
+  { ids: ['sick-leave', 'official-sick-leave'], t: '병가 / 공무상 병가', period: '일반 연 60일 · 공무상 연 180일 범위', badge: '국·공립 교원 기준', d: '치료·요양이 더 필요할 때 검토해요. 공무상은 요양 승인과 이어져요.' },
+  { ids: ['disease-leave', 'official-disease-leave'], t: '질병휴직 / 공무상 질병휴직', period: '1년 이내 · 공무상 3년 이내(각 연장 범위 있음)', badge: '신분별 적용 기준 확인', d: '장기간 치료가 필요하다면 검토할 수 있어요.' },
+  { ids: ['return-to-work'], t: '복귀·회복', period: '사유가 없어지면 30일 이내 신고', badge: '국·공립 교원 기준', d: '복직하고, 상담·치료 지원을 이어서 확인해요.' }
 ];
-const RECOVERY_EXTRA = ['official-medical-care'];
+const RECOVERY_NOTE = '각 제도는 자동으로 이어지는 것이 아니며, 적용 대상과 승인 요건이 서로 달라요.';
 
-// 홈 ‘놓치기 쉬운 권리·지원’ 카드(각 1~2줄 + 작은 배지). to는 펼칠 BENEFITS id 또는 'recovery'(회복 경로 전체).
-// 지역을 고르면 지역 데이터 highlights[id]의 한 줄이 함께 보여요(금액은 지역 데이터에만)
+// 홈 ‘지금 어떤 도움이 필요하신가요?’ — 5메뉴로 들어가는 입구
+const HOME_ENTRIES = [
+  { page: 'proc', e: '🚨', t: '지금 사건이 발생했어요', d: '안전 확보부터 보고·기록까지 순서대로' },
+  { page: 'guide', e: '🔎', t: '이런 상황도 교육활동 침해일까요?', d: '38개 상황에서 먼저 할 일 찾기' },
+  { page: 'care', e: '🌤️', t: '쉬거나 회복할 방법을 알고 싶어요', d: '휴가·병가·휴직과 보호 제도' },
+  { page: 'support', e: '🤝', t: '상담·법률·경호 지원이 필요해요', d: '내 지역에서 받을 수 있는 지원' }
+];
+
+// 홈 ‘놓치기 쉬운 제도’(BENEFITS id). 지역을 고르면 지역 데이터 highlights[id]의 한 줄이 함께 보여요(금액은 지역 데이터에만)
 const HOME_HIGHLIGHTS = [
-  { id: 'leave', to: 'special-leave', t: '특별휴가', e: '🌤️', badge: '5일 범위', d: '교육활동 침해 피해교원에게 적용되는 특별휴가의 기간과 사용 시점을 확인해 보세요.' },
-  { id: 'rest', to: 'recovery', t: '병가·휴직', e: '🏥', badge: '신분별 기준 확인', d: '회복에 더 긴 시간이 필요하다면 병가·공무상 병가·질병휴직 제도를 확인할 수 있어요.' },
-  { id: 'care', to: 'treatment-cost', t: '치료·심리', e: '💜', badge: '지역별 한도', d: '지역별 상담 횟수와 치료비 지원 범위를 확인해 보세요.' },
-  { id: 'legal', to: 'legal-consult', t: '법률·공제·경호', e: '⚖️', badge: '조건 확인 필요', d: '수사·소송, 경호, 교원보호공제 등 지역별 지원을 확인할 수 있어요.' }
+  { id: 'special-leave', d: '교육활동 침해 피해교원이 사용할 수 있는 특별휴가 제도가 있어요.', cta: '조건과 기간 확인' },
+  { id: 'official-sick-leave', d: '공무상 질병·부상으로 판단되면 공무상 병가를 검토할 수 있어요.', cta: '조건 확인' },
+  { id: 'disease-leave', d: '회복에 시간이 더 필요하다면 병가나 휴직 제도를 확인할 수 있어요.', cta: '회복·보호에서 확인' },
+  { id: 'official-disease-leave', d: '공무상 질병·부상으로 인정되는 경우 확인할 수 있는 휴직이에요.', cta: '요건 확인' },
+  { id: 'separation', d: '원하면 위원회 결과 전에도 침해 관련자와 분리돼요.', cta: '요청 방법 확인' },
+  { id: 'transfer', d: '희망하면 지역 인사 기준에 따라 비정기 전보를 요청할 수 있어요.', cta: '지역 기준 확인' }
 ];
 
-// 상황별 도움: 상황(SITUS id)마다 관련 있는 권리·지원(BENEFITS id)만 연결해요. 모든 상황에 휴직을 붙이지 않아요
+// 대응 절차 단계별 ‘함께 확인’ 바로가기(STEPS 순서). 제도는 회복·보호, 지원은 지원 찾기로 이어져요
+const STEP_LINKS = [
+  { benefits: ['separation', 'special-leave', 'protection-request'], supports: ['safety'] },
+  { benefits: ['special-leave'], supports: ['care-cost', 'counsel'] },
+  { benefits: ['protection-request'], supports: ['mediate', 'legal'] },
+  { benefits: ['sick-leave', 'official-sick-leave', 'disease-leave', 'official-medical-care', 'transfer', 'return-to-work'], supports: ['counsel'] }
+];
+
+// 상황별 도움: 상황마다 ‘함께 확인할 회복·보호 제도’(BENEFITS id). 관련성이 분명할 때만 연결하고, 지원 중심 상황은 비워 둬요
 const SITU_BENEFITS = {
-  'physical-assault': ['separation', 'special-leave', 'treatment-cost', 'sick-leave', 'legal-consult', 'security', 'mutual-aid'],
-  'object-threat': ['separation', 'special-leave', 'security', 'legal-consult', 'counseling', 'property-damage'],
-  'specific-threat': ['separation', 'security', 'special-leave', 'legal-consult', 'counseling'],
-  'weapon-threat': ['separation', 'security', 'special-leave', 'treatment-cost', 'legal-consult'],
-  'stalking-approach': ['security', 'legal-consult', 'counseling', 'transfer'],
-  'verbal-abuse': ['separation', 'special-leave', 'counseling', 'legal-consult'],
-  'private-verbal-abuse': ['special-leave', 'counseling', 'legal-consult'],
-  'public-insult-body-shaming': ['separation', 'special-leave', 'counseling', 'legal-consult'],
-  'sexual-remarks-content': ['separation', 'special-leave', 'counseling', 'legal-consult'],
-  'sexual-contact': ['separation', 'special-leave', 'treatment-cost', 'counseling', 'legal-consult', 'security'],
-  'repeated-class-disruption': ['separation', 'counseling', 'mediation'],
-  'guidance-noncompliance-disruption': ['separation', 'counseling', 'mediation'],
-  'work-interference': ['counseling', 'legal-consult', 'mediation'],
-  'repeated-complaint': ['mediation', 'counseling', 'legal-consult'],
-  'repeated-long-contact': ['mediation', 'counseling'],
-  'after-hours-contact': ['mediation', 'counseling'],
-  'repeated-info-disclosure-complaint': ['counseling', 'legal-consult'],
-  'homeroom-change-demand': ['mediation', 'counseling'],
-  'no-guidance-demand': ['mediation', 'counseling', 'legal-consult'],
-  'attendance-record-change-demand': ['legal-consult', 'mediation'],
-  'assessment-change-demand': ['mediation', 'legal-consult'],
-  'unlawful-personal-demand': ['legal-consult', 'mediation', 'counseling'],
-  'unauthorized-entry': ['separation', 'security', 'legal-consult', 'counseling'],
-  'refusal-to-leave-occupation': ['separation', 'security', 'legal-consult'],
-  'property-data-damage': ['property-damage', 'mutual-aid', 'legal-consult'],
-  'hidden-parent-recording': ['legal-consult', 'counseling'],
-  'class-recording-filming': ['legal-consult', 'counseling'],
-  'recording-distribution': ['legal-consult', 'counseling', 'special-leave'],
-  'synthetic-media-posting': ['legal-consult', 'counseling', 'special-leave', 'mutual-aid'],
-  'online-defamation-doxxing': ['legal-consult', 'counseling', 'mutual-aid', 'security'],
-  'child-abuse-report': ['legal-consult', 'counseling', 'mutual-aid'],
-  'suspected-false-report': ['legal-consult', 'counseling', 'mutual-aid'],
-  'investigator-summons': ['legal-consult', 'mutual-aid', 'counseling'],
-  'criminal-procedure-response': ['legal-consult', 'mutual-aid'],
-  'civil-damages-legal-response': ['legal-consult', 'mutual-aid', 'mediation'],
-  'pre-litigation-mediation': ['mediation', 'legal-consult', 'mutual-aid'],
-  'post-incident-burnout': ['special-leave', 'sick-leave', 'disease-leave', 'official-disease-leave', 'counseling', 'treatment-cost'],
-  'counseling-treatment-return': ['counseling', 'treatment-cost', 'sick-leave', 'disease-leave', 'official-medical-care', 'transfer']
+  'physical-assault': ['separation', 'special-leave', 'official-sick-leave', 'official-medical-care'],
+  'object-threat': ['separation', 'special-leave'],
+  'specific-threat': ['separation', 'special-leave'],
+  'weapon-threat': ['separation', 'special-leave', 'official-sick-leave'],
+  'stalking-approach': ['special-leave', 'transfer'],
+  'verbal-abuse': ['separation', 'special-leave'],
+  'private-verbal-abuse': ['special-leave'],
+  'public-insult-body-shaming': ['separation', 'special-leave'],
+  'sexual-remarks-content': ['separation', 'special-leave'],
+  'sexual-contact': ['separation', 'special-leave', 'official-sick-leave'],
+  'repeated-class-disruption': ['separation'],
+  'guidance-noncompliance-disruption': ['separation'],
+  'work-interference': [],
+  'repeated-complaint': [],
+  'repeated-long-contact': [],
+  'after-hours-contact': [],
+  'repeated-info-disclosure-complaint': [],
+  'homeroom-change-demand': [],
+  'no-guidance-demand': [],
+  'attendance-record-change-demand': [],
+  'assessment-change-demand': [],
+  'unlawful-personal-demand': [],
+  'unauthorized-entry': ['separation'],
+  'refusal-to-leave-occupation': ['separation'],
+  'property-data-damage': [],
+  'hidden-parent-recording': [],
+  'class-recording-filming': [],
+  'recording-distribution': ['special-leave'],
+  'synthetic-media-posting': ['special-leave'],
+  'online-defamation-doxxing': ['special-leave'],
+  'child-abuse-report': [],
+  'suspected-false-report': [],
+  'investigator-summons': [],
+  'criminal-procedure-response': [],
+  'civil-damages-legal-response': [],
+  'pre-litigation-mediation': [],
+  'post-incident-burnout': ['special-leave', 'sick-leave', 'official-sick-leave', 'disease-leave', 'official-disease-leave', 'return-to-work'],
+  'counseling-treatment-return': ['sick-leave', 'official-sick-leave', 'disease-leave', 'official-medical-care', 'transfer', 'return-to-work']
 };
 
 const FAQS = [
@@ -404,6 +396,7 @@ const SITUS = [
     ],
     "supports": [
       "법률 지원",
+      "경호 지원",
       "치료 지원",
       "심리상담"
     ],
@@ -2203,16 +2196,80 @@ const STAGE_TO_STEP = { '발생 직후': 0, '학교 초기 대응': 0, '교육�
 // 큰 상황 안에서 세부 상황을 보여 주는 순서(위험한 것부터)
 const URGENCY_ORDER = ['즉시 안전 확보 필요', '당일 학교 보고 필요', '교육지원청 신고 검토', '일반 상담 가능'];
 
-// 지원 찾기: 지역 programs[].area → 사용자가 고르는 도움 유형. situ는 상황별 도움의 supports 값(‘관련 지원 보기’ 이동)이에요. 새 area를 만들면 여기에도 추가하세요(점검 도구가 확인해요)
+// 지원 찾기: 기관·사업이 주는 지원의 유형. 지역 programs[].area(문자열 또는 배열)가 areas에 연결돼요.
+// situ: 상황의 supports 값(필터 값, ‘연결 가능한 지원’·‘관련 지원 보기’), tags: 상황의 typeTags 값으로도 연결할 때.
+// guide: 이 지원의 공통 기준(법령·전국 지침만, 금액·사업명 없이), care: 회복·보호 제도로 이어지는 질문과 BENEFITS id.
+// 새 area를 만들면 여기에도 추가하세요(점검 도구가 확인해요)
 const SUPPORT_TYPES = [
-  { id: 'general', label: '종합 상담', desc: '대표번호·긴급 지원팀 첫 상담', areas: ['행정 지원', '긴급 지원'], situ: ['행정 지원'] },
-  { id: 'report', label: '신고·심의', desc: '교육활동 침해 신고와 위원회 심의', areas: ['신고·심의'], situ: [] },
-  { id: 'legal', label: '법률', desc: '법률 상담·자문, 소송·수사 대응', areas: ['법률 상담·자문', '아동학대 피신고 교원 지원'], situ: ['법률 지원'] },
-  { id: 'mind', label: '심리·치료', desc: '심리상담, 치료, 회복 프로그램', areas: ['심리상담·치료', '치유·회복 프로그램'], situ: ['심리상담', '치료 지원', '치유·회복'] },
-  { id: 'complaint', label: '민원', desc: '반복·특이민원 대응 지원', areas: ['학교민원·특이민원 지원'], situ: [] },
-  { id: 'mediate', label: '갈등 중재', desc: '학생·보호자와의 갈등 조정', areas: ['갈등 중재'], situ: ['갈등 중재'] },
-  { id: 'mutual', label: '교원보호공제', desc: '소송비용·배상책임 등 보장', areas: ['교원보호공제'], situ: ['교원보호공제'] },
-  { id: 'safety', label: '신변 보호', desc: '위협을 받을 때 경호·보호', areas: ['경호·신변 보호'], situ: ['경호 지원'] }
+  { id: 'counsel', label: '상담·회복', desc: '심리상담·전문상담·치유 프로그램', areas: ['심리상담', '치유·회복 프로그램'], situ: ['심리상담', '치유·회복'],
+    guide: {
+      what: '교육활동보호센터 전담상담사의 전화·대면 심리상담, 필요하면 전문상담기관·정신건강의학과 연계, 치유·회복 프로그램',
+      who: '교육활동 침해 피해 교원(지역에 따라 아동학대 피신고·소진 교원도 지원)',
+      when: '사안 직후부터 조사·심의 중, 종결 뒤에도 이용할 수 있어요. 상담 횟수는 지역마다 달라요.',
+      apply: '{HOT1} 또는 교육활동보호센터',
+      missed: ['비용 지원으로 인정되는 상담은 교육청이 정한 전문심리상담기관에서 받은 상담이에요. 먼저 기관을 안내받으세요.'],
+      refs: ['jiwi-law', 'jiwi-decree', 'manual'], basis: '교원지위법 제20조제1항, 같은 법 시행령 제19조제1항, 교육활동 보호 매뉴얼(2026) 70쪽'
+    },
+    care: { q: '쉬면서 치료가 필요한가요?', ids: ['sick-leave', 'official-sick-leave', 'disease-leave'] } },
+  { id: 'care-cost', label: '치료·비용', desc: '치료비·상담비·약제비·보호조치 비용', areas: ['치료·비용'], situ: ['치료 지원'],
+    guide: {
+      what: '의료기관(국민건강보험 요양기관)에서 받은 치료·요양·처방 의약품 비용과 전문심리상담 비용(보호조치 비용)',
+      who: '교육활동 침해로 신체적·정신적 치료가 필요한 피해 교원',
+      when: '치료를 받은 뒤 청구해요. 한도·인정 시점·청구 기한은 지역마다 달라요.',
+      apply: '피해 교원 또는 학교장이 교육감에게 보호조치 비용 부담 신청서와 증빙을 내요.',
+      missed: ['비용은 원칙적으로 침해 학생의 보호자 등이 부담하지만, 신속한 치료를 위해 원하면 관할청이 먼저 부담하고 보호자에게 구상해요.', '공무상 요양 등 다른 제도로 이미 받은 비용은 다시 받을 수 없어요.'],
+      refs: ['jiwi-law', 'jiwi-decree', 'manual'], basis: '교원지위법 제20조제5항, 같은 법 시행령 제19조, 교육활동 보호 매뉴얼(2026) 72~73쪽'
+    },
+    care: { q: '치료가 길어진다면 공무상 요양·병가도 확인해 보세요.', ids: ['official-medical-care', 'official-sick-leave'] } },
+  { id: 'legal', label: '법률', desc: '법률상담·전담변호사·자문', areas: ['법률 상담·자문'], situ: ['법률 지원'],
+    guide: {
+      what: '변호사 등 법률전문가가 포함된 법률지원단의 법률 상담(교육감이 반드시 운영)과 전담변호사 자문',
+      who: '교육활동과 관련한 분쟁·학교폭력 사안을 겪는 교원',
+      when: '사안 초기, 진술·답변을 하기 전에 미리',
+      apply: '{HOT1} 또는 {LEGAL}',
+      missed: ['진술 전에 법률 상담을 먼저 받는 것이 좋아요.'],
+      refs: ['jiwi-law'], basis: '교원지위법 제21조'
+    } },
+  { id: 'lawsuit', label: '수사·소송', desc: '경찰·검찰 조사, 변호사 동행·선임, 소송비', areas: ['수사·소송 지원', '아동학대 피신고 교원 지원'], situ: [], tags: ['수사·소송', '아동학대·신고'],
+    guide: {
+      what: '수사·소송에 놓인 교원의 변호사 지원과 정당한 교육활동 관련 민·형사 소송비용 지원(교원보호공제)',
+      who: '교육활동과 관련해 고소·고발, 아동학대 신고, 민사소송을 겪는 교원',
+      when: '경찰 출석요구·고소장·소장을 받은 즉시',
+      apply: '{HOT1}로 상담 → 지역 변호사 지원 또는 {MUTUAL}에 소송비용 청구',
+      missed: ['정당한 생활지도가 아동학대로 신고돼 조사·수사가 진행되면, 교육감이 수사기관 등에 의견을 신속히 제출해야 해요. 학교·교육청에 의견서 제출을 요청하세요.', '교원의 고의·중과실이 있거나 유죄가 확정되면 소송비용을 지원하지 않거나 돌려받을 수 있어요.'],
+      refs: ['jiwi-law'], basis: '교원지위법 제17조·제22조제2항제3호'
+    } },
+  { id: 'mutual', label: '교원보호공제', desc: '배상책임·소송비·물적 피해·위협 시 보호', areas: ['교원보호공제'], situ: ['교원보호공제'],
+    guide: {
+      what: '교육활동으로 생긴 손해배상금, 침해로 생긴 상해·상담·심리치료 비용, 위협 시 보호 서비스, 정당한 교육활동 관련 민·형사 소송비용. 시·도에 따라 침해로 훼손된 소지품(물적 피해)도 지원해요.',
+      who: '시·도교육청 교원보호공제의 보장 대상 교원(대상 범위는 지역마다 달라요)',
+      when: '사고·분쟁이 생긴 뒤 청구해요. 청구 기한은 지역 약관을 확인하세요.',
+      apply: '{MUTUAL} 또는 {HOT}',
+      missed: ['병가·휴직을 쓰고 복귀한 뒤에 생긴 상해·상담·심리치료 비용도 법정 지원 범위에 들어가요.', '교원의 고의·중과실로 생긴 손해배상은 지원하지 않아요.'],
+      refs: ['jiwi-law', 'manual'], basis: '교원지위법 제22조, 교육활동 보호 매뉴얼(2026) 84쪽 표준약관'
+    },
+    care: { q: '복귀를 준비하고 있나요?', ids: ['return-to-work'] } },
+  { id: 'safety', label: '안전·경호', desc: '경호·신변보호·경찰 연계', areas: ['경호·신변 보호'], situ: ['경호 지원'],
+    guide: {
+      what: '교원이 위협을 받는 경우의 보호 서비스(경호)',
+      who: '교육활동과 관련해 폭행·상해·협박 등 신변 위협을 받은 교원',
+      when: '위협이 계속되거나 다시 일어날 우려가 있을 때. 지금 위험하면 112가 먼저예요.',
+      apply: '{HOT} 또는 {MUTUAL}',
+      missed: ['경호는 경찰 신고를 대신하지 않아요. 지금 위험하면 먼저 112에 신고하세요.'],
+      refs: ['jiwi-law'], basis: '교원지위법 제22조제2항제2호'
+    },
+    care: { q: '침해 관련자와 마주치지 않도록 하고 싶나요?', ids: ['separation', 'transfer'] } },
+  { id: 'complaint', label: '민원 대응', desc: '민원대응팀·특이민원 공동 대응', areas: ['학교민원·특이민원 지원'], situ: [], tags: ['반복·과도한 민원', '방문·점거', '부당한 요구·간섭'] },
+  { id: 'mediate', label: '갈등조정', desc: '중재·분쟁조정·조정단', areas: ['갈등 중재'], situ: ['갈등 중재'],
+    guide: {
+      what: '지역교권보호위원회의 교육활동 관련 분쟁 조정(조정되지 않으면 시·도교권보호위원회)과 시·도별 갈등 조정·중재 지원',
+      who: '교육활동과 관련해 학생·보호자와 분쟁이 있는 교원(학생과의 분쟁도 가능)',
+      when: '침해 신고 때 분쟁조정 의사를 밝히거나 위원회 심의 전에. 지역 조정단은 신고 전 갈등 단계에도 이용할 수 있는 경우가 있어요.',
+      apply: '학교를 거쳐 지역교권보호위원회에 분쟁조정 신청, 지역 조정단은 지역 창구',
+      missed: ['양쪽이 모두 원해야 진행되고, 개시일부터 30일이 지나도록 성립하지 않으면 종료돼요. 합의서는 민사상 화해계약의 효력이 있어요.'],
+      refs: ['jiwi-law', 'manual'], basis: '교원지위법 제18조, 교육활동 보호 매뉴얼(2026) 62~65쪽'
+    } },
+  { id: 'office', label: '지역 교육청', desc: '대표 창구·신고·심의·교육지원청', areas: ['신고·심의', '행정 지원', '긴급 지원'], situ: ['행정 지원'] }
 ];
 
 // ══════════════ 공통 절차의 근거 ══════════════
@@ -2222,18 +2279,19 @@ const SUPPORT_TYPES = [
 // 화면에 보이는 공통 근거는 전국 공통 공식 자료(교육부·법령)만이에요. 특정 시·도 자료는 넣지 않아요.
 // 지역을 고르면 그 지역 sources 중 화면 용도(uses)에 맞는 자료가 먼저 보이고, 이 목록은 ‘공통 법적·정책 근거’로 작게 붙어요.
 const COMMON_PUBLIC_SOURCES = [
-  { title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.cbe.go.kr/upload/dept-26/na/bbs_2019/2026/03/90383C36-8078-4E7F-FA24-E3768E73892E.pdf', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법 시행령 — 제2조의3(전보 등 보호조치)·제17조(분리조치)·제19조(보호조치 비용)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제6조 병가·제8조 특별휴가', url: 'https://www.law.go.kr/행정규칙/교원휴가에관한예규', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '국가공무원 복무규정 제18조(병가, 2026. 10. 2. 시행)', url: 'https://www.law.go.kr/법령/국가공무원복무규정', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호, 2026. 10. 1. 시행) — 공무상 병가', url: 'https://www.law.go.kr/행정규칙/국가공무원복무·징계관련예규', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '교육공무원법 제32조(기간제교원)·제44조(휴직)·제45조(휴직기간)', url: 'https://www.law.go.kr/법령/교육공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '교육공무원임용령 제19조(질병휴직) — 공무상 질병휴직은 공무상 요양 승인 시로 한정', url: 'https://www.law.go.kr/법령/교육공무원임용령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '사립학교법 제59조(휴직의 사유) — 휴직기간은 정관으로', url: 'https://www.law.go.kr/법령/사립학교법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '공무원 재해보상법 제4조(공무상 재해)·제9조(급여 청구)·제22조(요양급여)·제54조(시효)', url: 'https://www.law.go.kr/법령/공무원재해보상법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '공무원 재해보상법 시행령 제28조(공무상 요양 승인 신청)', url: 'https://www.law.go.kr/법령/공무원재해보상법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] },
-  { title: '공무원연금공단 — 공무상 요양 승인(구비서류·청구 기한)', url: 'https://www.geps.or.kr/bizInformation_accidentCompensation_healthCare_careApproval', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'support'] }
+  { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.cbe.go.kr/upload/dept-26/na/bbs_2019/2026/03/90383C36-8078-4E7F-FA24-E3768E73892E.pdf', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'jiwi-decree', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법 시행령 — 제2조의3(전보 등 보호조치)·제17조(분리조치)·제19조(보호조치 비용)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'leave-rule', title: '「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제6조 병가·제8조 특별휴가', url: 'https://www.law.go.kr/행정규칙/교원휴가에관한예규', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'bokmu', title: '국가공무원 복무규정 제18조(병가, 2026. 10. 2. 시행)', url: 'https://www.law.go.kr/법령/국가공무원복무규정', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'bokmu-rule', title: '「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호, 2026. 10. 1. 시행) — 공무상 병가', url: 'https://www.law.go.kr/행정규칙/국가공무원복무·징계관련예규', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'edu-act', title: '교육공무원법 제32조(기간제교원)·제44조(휴직)·제45조(휴직기간)', url: 'https://www.law.go.kr/법령/교육공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'edu-appoint', title: '교육공무원임용령 제19조(질병휴직) — 공무상 질병휴직은 공무상 요양 승인 시로 한정', url: 'https://www.law.go.kr/법령/교육공무원임용령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'private-school', title: '사립학교법 제59조(휴직의 사유) — 휴직기간은 정관으로', url: 'https://www.law.go.kr/법령/사립학교법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'accident-act', title: '공무원 재해보상법 제4조(공무상 재해)·제9조(급여 청구)·제22조(요양급여)·제54조(시효)', url: 'https://www.law.go.kr/법령/공무원재해보상법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'accident-decree', title: '공무원 재해보상법 시행령 제28조(공무상 요양 승인 신청)', url: 'https://www.law.go.kr/법령/공무원재해보상법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'geps', title: '공무원연금공단 — 공무상 요양 승인(구비서류·청구 기한)', url: 'https://www.geps.or.kr/bizInformation_accidentCompensation_healthCare_careApproval', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'gukga', title: '국가공무원법 제73조(휴직의 효력) — 휴직 사유 소멸·기간 종료 후 30일 이내 신고와 복직', url: 'https://www.law.go.kr/법령/국가공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] }
 ];
 
 // 내부 교차검증에 쓴 자료(화면에 출력하지 않아요). 공통 기준이 여러 시·도 자료에서도 같은지 확인한 기록이에요.
@@ -2241,8 +2299,8 @@ const VALIDATION_SOURCES = [
   { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 24시간·5일 기준 교차 확인', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-09-24' }
 ];
 
-// 지역 sources[].uses: 그 자료를 근거로 보여 줄 화면. guide(상황별 도움)·procedure(대응 절차)·support(지원 찾기)·finder(교육지원청 찾기)
-const SOURCE_USES = ['guide', 'procedure', 'support', 'finder'];
+// 지역 sources[].uses: 그 자료를 근거로 보여 줄 화면. guide(상황별 도움)·procedure(대응 절차)·care(회복·보호)·support(지원 찾기)·finder(교육지원청 찾기)
+const SOURCE_USES = ['guide', 'procedure', 'care', 'support', 'finder'];
 
 // ══════════════ 지역 미선택 시 표시 ══════════════
 // 지역을 아직 고르지 않았을 때 토큰을 채우는 중립 문구. 특정 지역 번호를 절대 넣지 않아요.
