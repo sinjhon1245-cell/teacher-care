@@ -881,7 +881,9 @@ const App = {
     const left = col(['what', 'who', 'limit']);
     const right = col(['when', 'apply', 'prepare']);
     if (!left && !right) return '';
-    return `<div class="bf-grid ${left && right ? '' : 'single'}">${left}${right}</div>`;
+    // 필드가 4개 이상일 때만 두 열로(짧은 지역 상자를 억지로 나누지 않아요)
+    const count = BENEFIT_FIELDS.filter(([k]) => ['what', 'who', 'limit', 'when', 'apply', 'prepare'].includes(k) && x[k]).length;
+    return `<div class="bf-grid ${left && right && count >= 4 ? '' : 'single'}">${left}${right}</div>`;
   },
 
   // ══════════════ 회복·보호 = 내가 사용할 수 있는 제도 ══════════════

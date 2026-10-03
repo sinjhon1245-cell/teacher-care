@@ -205,4 +205,6 @@ npx serve .
 
 ## 배포
 
+**배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-1` → `20261003-2`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.
+
 `main` 브랜치가 GitHub Pages로 배포돼요(`.nojekyll` 포함). 작업은 기능 브랜치에서 하고 검토 후 `main`에 합쳐요.

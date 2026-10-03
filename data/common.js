@@ -135,7 +135,7 @@ const BENEFITS = [
     basis: '교원지위법 제23조, 「교원휴가에 관한 예규」 제8조, 교육활동 보호 매뉴얼(2026) 71~72쪽',
     supportLinks: { q: '상담이나 치료도 필요하신가요?', types: ['counsel', 'care-cost'] } },
 
-  { id: 'sick-leave', category: 'rest', t: '일반 병가', e: '🏥', employment: 'public', badges: ['연 60일 범위', '6일 넘으면 진단서'],
+  { id: 'sick-leave', category: 'rest', t: '일반 병가', e: '🏥', employment: 'public', badges: ['연 60일 범위', '연 6일 넘으면 진단서'],
     keywords: ['병가', '일반 병가', '진단서', '아파서'],
     scope: '국·공립학교 교원에게 적용되는 「국가공무원 복무규정」 기준이에요. 사립·기간제 교원은 적용 기준이 달라 학교에 확인하세요.',
     d: '질병·부상으로 직무를 수행할 수 없을 때 연 60일 범위에서 승인받을 수 있어요.',

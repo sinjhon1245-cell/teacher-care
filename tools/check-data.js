@@ -23,10 +23,24 @@ const vm = require('vm');
 
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const scripts = [...html.matchAll(/<script src="(data\/[^"]+)"><\/script>/g)].map(m => m[1]);
+const scripts = [...html.matchAll(/<script src="(data\/[^"?]+)(?:\?v=[^"]*)?"><\/script>/g)].map(m => m[1]);
 
 const errors = [];
 const warnings = [];
+
+// 배포 버전(cache busting): 로컬 CSS·JS는 모두 meta asset-version과 같은 ?v= 를 써야 해요(서로 다른 배포 파일이 섞이지 않게)
+{
+  const meta = (html.match(/<meta name="asset-version" content="([^"]+)">/) || [])[1];
+  if (!meta) errors.push('index.html에 <meta name="asset-version">이 없어요');
+  const local = [...html.matchAll(/<(?:script src|link rel="stylesheet" href)="(?!https?:)([^"]+)"/g)].map(m => m[1]);
+  if (!local.length) errors.push('index.html에서 로컬 CSS·JS를 찾지 못했어요');
+  local.forEach(u => {
+    const v = (u.match(/\?v=([^&"]+)/) || [])[1];
+    if (!v) errors.push(`index.html: ${u}에 ?v= 버전이 없어요`);
+    else if (meta && v !== meta) errors.push(`index.html: ${u}의 버전(${v})이 asset-version(${meta})과 달라요`);
+    if (!fs.existsSync(path.join(root, u.split('?')[0]))) errors.push(`index.html: ${u} 파일이 없어요`);
+  });
+}
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
