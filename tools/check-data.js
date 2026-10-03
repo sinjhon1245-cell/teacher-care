@@ -50,7 +50,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS, COMPARISONS, SITU_ACTIONS, REVIEW_STATUSES, FRESHNESS_DAYS, FEEDBACK_URL, VALIDATION_SOURCES } = vm.runInContext('({ REVIEW_STATUSES, FRESHNESS_DAYS, FEEDBACK_URL, VALIDATION_SOURCES, COMPARISONS, SITU_ACTIONS, PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS })', ctx);
+const { PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS, COMPARISONS, SITU_ACTIONS, REVIEW_STATUSES, FRESHNESS_DAYS, FEEDBACK_URL, FEEDBACK_FIELDS, VALIDATION_SOURCES } = vm.runInContext('({ REVIEW_STATUSES, FRESHNESS_DAYS, FEEDBACK_URL, FEEDBACK_FIELDS: typeof FEEDBACK_FIELDS === "undefined" ? undefined : FEEDBACK_FIELDS, VALIDATION_SOURCES, COMPARISONS, SITU_ACTIONS, PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 // 최신성 날짜 필드(Phase 3)
@@ -585,6 +585,22 @@ REGION_ORDER.forEach(id => {
 if (!(STEPS.length >= 1 && STEPS.length <= 9)) errors.push(`STEPS는 1~9단계여야 해요(공유 주소 step=1~9): ${STEPS.length}`);
 if (typeof FEEDBACK_URL !== 'string') errors.push('FEEDBACK_URL은 문자열이어야 해요(없으면 빈 문자열)');
 else if (FEEDBACK_URL && !/^https:\/\/(docs\.google\.com\/forms|forms\.gle)\//.test(FEEDBACK_URL)) errors.push(`FEEDBACK_URL은 관리하는 Google 설문 주소(https)만 넣어요: ${FEEDBACK_URL}`);
+// 의견 양식 미리 채우기 칸: 정해진 다섯 칸만, 값은 비어 있거나 entry.숫자.
+// 칸을 채우려면 양식 주소가 docs.google.com/forms/d/e/…/viewform 이어야 해요(forms.gle 짧은 주소는 미리 채우기가 안 돼요)
+{
+  const FB_KEYS = ['type', 'region', 'page', 'item', 'url'];
+  if (!FEEDBACK_FIELDS || typeof FEEDBACK_FIELDS !== 'object') errors.push('data/common.js에 FEEDBACK_FIELDS가 없어요');
+  else {
+    const keys = Object.keys(FEEDBACK_FIELDS);
+    keys.filter(k => !FB_KEYS.includes(k)).forEach(k => errors.push(`FEEDBACK_FIELDS: 알 수 없는 칸 ${k}`));
+    FB_KEYS.filter(k => !keys.includes(k)).forEach(k => errors.push(`FEEDBACK_FIELDS: ${k} 칸이 없어요(쓰지 않으면 빈 문자열)`));
+    const used = Object.values(FEEDBACK_FIELDS).filter(v => v !== '');
+    used.filter(v => !/^entry\.\d+$/.test(String(v))).forEach(v => errors.push(`FEEDBACK_FIELDS: entry 번호 형식 오류 ${v}(예: entry.1234567890)`));
+    if (new Set(used).size !== used.length) errors.push('FEEDBACK_FIELDS: 같은 entry 번호가 두 칸에 있어요');
+    if (used.length && !FEEDBACK_URL) errors.push('FEEDBACK_FIELDS를 채웠다면 FEEDBACK_URL도 넣어야 해요');
+    if (used.length && FEEDBACK_URL && !/^https:\/\/docs\.google\.com\/forms\/d\/e\/[\w-]+\/viewform/.test(FEEDBACK_URL)) errors.push('미리 채우기를 쓰려면 FEEDBACK_URL을 docs.google.com/forms/d/e/…/viewform 주소로 넣어요');
+  }
+}
 
 // app.js의 공유 주소 함수를 브라우저 없이 불러와 ‘만들기 → 읽기’가 같은 화면을 가리키는지 확인해요
 {

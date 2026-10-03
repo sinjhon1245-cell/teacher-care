@@ -2339,9 +2339,13 @@ const SUPPORT_TYPES = [
 const REVIEW_STATUSES = ['verified', 'review-needed', 'source-unavailable'];
 const FRESHNESS_DAYS = { stable: 365, volatile: 180 };
 
-// 사용자 의견 받기(‘정보가 바뀌었거나 잘못된 내용을 발견하셨나요?’). 관리하는 공식 양식 주소가 정해지면 여기에만 넣어요.
-// 비어 있으면 화면에 의견 받기 영역을 보여 주지 않아요(임의 주소를 넣지 마세요. 개인 사건 내용·개인정보를 받지 않는 양식이어야 해요)
+// 사용자 의견 받기(서비스 안내의 ‘의견을 들려주세요’ 카드 + 상황·제도·지원 유형 상세의 한 줄 링크).
+// 관리하는 공식 Google Form 주소가 정해지면 여기에만 넣어요. 비어 있으면 화면에 의견 받기를 전혀 보여 주지 않아요.
+// 임의 주소를 넣지 마세요. 개인 사건 내용·개인정보를 받지 않는 양식이어야 해요(docs/feedback-form-spec.md)
 const FEEDBACK_URL = '';
+// 양식의 ‘미리 채워진 링크’ entry 번호(예: 'entry.1234567890'). 양식을 만든 뒤 여기에만 적어요. 빈 칸은 보내지 않아요.
+// type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
+const FEEDBACK_FIELDS = { type: '', region: '', page: '', item: '', url: '' };
 
 const COMMON_PUBLIC_SOURCES = [
   { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.cbe.go.kr/upload/dept-26/na/bbs_2019/2026/03/90383C36-8078-4E7F-FA24-E3768E73892E.pdf', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },

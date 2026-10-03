@@ -425,7 +425,7 @@ const App = {
     }).join('');
     const n = items.filter(a => this.state.actionChecks[`${scope}:${ownerId}.${a.id}`]).length;
     return `
-      <div class="act-box">
+      <div class="act-box act-${scope}">
         <p class="act-title">${title} <span class="muted small">${n}/${items.length}</span></p>
         <ul class="check-list act-list">${rows}</ul>
         <p class="muted small">스스로 확인해 볼 항목이에요(제출 서류 목록이 아니에요). 체크는 이 기기에만 저장되고 서버로 보내지 않아요.</p>
@@ -435,13 +435,15 @@ const App = {
 
   // ── 링크 복사·인쇄 ──
   // 상세 하단의 작은 도구 묶음. url은 공유 주소(지역·화면·항목만, 개인 체크는 넣지 않아요)
-  shareTools(state, label) {
+  // withFeedback: 상황·제도·지원 유형 상세에만 한 줄짜리 의견 링크를 붙여요(의견 양식 주소가 있을 때만)
+  shareTools(state, label, withFeedback) {
     const url = shareUrlOf(state, false);
     return `
       <div class="share-row">
         <button type="button" class="tool-btn" data-url="${escapeAttr(url)}" onclick="App.copyLink(this.dataset.url)" aria-label="${escapeAttr(label)} 링크 복사"><span aria-hidden="true">🔗</span> 링크 복사</button>
         <button type="button" class="tool-btn" data-title="${escapeAttr(label)}" onclick="App.printTarget(this)" aria-label="${escapeAttr(label)} 인쇄하기"><span aria-hidden="true">🖨</span> 인쇄하기</button>
       </div>
+      ${withFeedback ? feedbackLine(state, label) : ''}
     `;
   },
 
@@ -822,14 +824,17 @@ const App = {
         ${this.eyebrow('연결')}
         <h2 class="h2">내 교육지원청 찾기</h2>
         <p class="muted">교육활동 침해 신고와 지역교권보호위원회 심의는 소속 교육지원청이 담당해요.</p>
-        ${R.areaNote ? `<p class="note">${R.areaNote}</p>` : ''}
-        <label class="field">
-          <span class="field-label">학교가 있는 ${R.short} 시·군·구</span>
-          <select onchange="App.setState({ area: this.value })">
-            <option value="" ${office ? '' : 'selected'}>선택해 주세요</option>
-            ${opts}
-          </select>
-        </label>
+        <div class="finder-grid">
+          <div class="finder-pick">
+            <label class="field">
+              <span class="field-label">학교가 있는 ${R.short} 시·군·구</span>
+              <select onchange="App.setState({ area: this.value })">
+                <option value="" ${office ? '' : 'selected'}>선택해 주세요</option>
+                ${opts}
+              </select>
+            </label>
+            ${R.areaNote ? `<p class="note">${R.areaNote}</p>` : ''}
+          </div>
         ${office ? `
           <div class="result" aria-live="polite">
             <p class="result-title">${office.name}</p>
@@ -841,7 +846,8 @@ const App = {
             ])}
             ${actionButtons(officeChannels(office))}
           </div>
-        ` : ''}
+        ` : `<p class="finder-hint">시·군·구를 고르면 담당 교육지원청과 연락처가 여기에 보여요.</p>`}
+        </div>
         ${this.renderSources('finder')}
       </section>
     `;
@@ -986,7 +992,7 @@ const App = {
           <p class="bf-cross-q">${x.supportLinks.q}</p>
           <div class="bf-list">${links.map(t => supportChip(t, R)).join('')}</div>
         </div>` : ''}
-      ${this.shareTools({ page: 'care', benefit: x.id, regionId: this.state.regionId }, '회복·보호 · ' + x.t)}
+      ${this.shareTools({ page: 'care', benefit: x.id, regionId: this.state.regionId }, '회복·보호 · ' + x.t, true)}
     `;
   },
 
@@ -1142,22 +1148,29 @@ const App = {
     return `
       <div class="situ-sub ${this.state.situ === 'situ:' + s.id ? 'is-target' : ''}" id="situ-${s.id}" data-print>
         ${withTitle ? `<h3 class="sub-title">${s.title} ${urgencyBadge(s.urgency)}</h3>` : ''}
-        <p class="muted small">예: ${s.example}</p>
-        <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.firstAction}</p></div>
-        ${this.actionList('situ', s.id, SITU_ACTIONS[s.id], '지금 해볼 일')}
-        ${this.facts([['학교에 알릴 내용', s.report], ['남겨 두면 좋은 기록', s.evidence], ['주의할 점', s.dont]])}
-        ${s.legalCaution ? `<p class="note"><strong>판단 시 주의</strong> ${s.legalCaution}</p>` : ''}
-        ${this.situBenefits(s)}
-        <div class="situ-supports">
-          <p class="first-label">연결 가능한 지원</p>
-          ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
-          ${types.length ? `<div class="bf-list">${types.map(t => supportChip(t, this.R)).join('')}</div>` : ''}
+        <div class="situ-layout">
+          <div class="situ-main">
+            <p class="muted small situ-example">예: ${s.example}</p>
+            <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.firstAction}</p></div>
+            ${this.actionList('situ', s.id, SITU_ACTIONS[s.id], '지금 해볼 일')}
+            ${this.facts([['학교에 알릴 내용', s.report], ['남겨 두면 좋은 기록', s.evidence]])}
+          </div>
+          <div class="situ-side">
+            ${this.facts([['주의할 점', s.dont]])}
+            ${s.legalCaution ? `<p class="note"><strong>판단 시 주의</strong> ${s.legalCaution}</p>` : ''}
+            ${this.situBenefits(s)}
+            <div class="situ-supports">
+              <p class="first-label">연결 가능한 지원</p>
+              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+              ${types.length ? `<div class="bf-list">${types.map(t => supportChip(t, this.R)).join('')}</div>` : ''}
+            </div>
+          </div>
         </div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="App.nav('proc', { step: ${step === undefined ? 0 : step} })">관련 대응 절차 →</button>
           ${supportBtn}
         </div>
-        ${this.shareTools({ page: 'guide', situ: 'situ:' + s.id, regionId: this.state.regionId }, '상황별 도움 · ' + s.title)}
+        ${this.shareTools({ page: 'guide', situ: 'situ:' + s.id, regionId: this.state.regionId }, '상황별 도움 · ' + s.title, true)}
       </div>
     `;
   },
@@ -1475,7 +1488,7 @@ const App = {
             <div class="bf-list">${careIds.map(b => `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t} 제도 확인</button>`).join('')}</div>
           </div>` : ''}
         ${t.id === 'office' ? `<button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기 →</button>` : ''}
-        ${this.shareTools({ page: 'support', supportType: t.id, regionId: this.state.regionId }, '지원 찾기 · ' + t.label)}
+        ${this.shareTools({ page: 'support', supportType: t.id, regionId: this.state.regionId }, '지원 찾기 · ' + t.label, true)}
       </div>
     `;
   },
@@ -1516,15 +1529,45 @@ const App = {
     const R = this.R;
     return `
       <footer class="site-footer">
-        <div class="footer-inner">
-          <p class="footer-title">선생님 곁에 · 서비스 안내</p>
-          <p>교사를 위한 교육활동 보호·대응 가이드예요. 공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.
-          실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.
-          선택한 지역과 체크 상태(대응 절차·행동 체크)만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
-          ${R ? `<p>최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지</a>에서 확인하세요. 화면마다 아래쪽 ‘안내 근거’에 그 화면에 쓴 공식 자료를 적어 두었어요.</p>` : ''}
-          ${feedbackBox()}
+        <div class="footer-inner footer-grid">
+          <div class="footer-main">
+            <p class="footer-title">선생님 곁에 · 서비스 안내</p>
+            <p>교사를 위한 교육활동 보호·대응 가이드예요.</p>
+            <p>공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.</p>
+            <p>실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.</p>
+            <p>선택한 지역과 체크 상태(대응 절차·행동 체크)만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
+          </div>
+          <div class="footer-side">
+            <div class="footer-official">
+              <p class="footer-side-title">최신 안내 확인</p>
+              ${R
+                ? `<p>최신 내용은 <a href="${R.officeUrl}" target="_blank" rel="noopener">${R.office} 홈페이지<span class="sr-only"> (새 창)</span> <span aria-hidden="true">↗</span></a>에서 확인하세요.</p>`
+                : `<p>공통 안내는 교육부 「교육활동 보호 매뉴얼」과 관련 법령을 바탕으로 해요. 근무 지역을 고르면 그 시·도교육청 안내를 함께 보여 줘요.</p>`}
+              <p>화면마다 아래쪽 ‘안내 근거’에 그 화면에 쓴 공식 자료를 적어 두었어요.</p>
+            </div>
+            ${this.feedbackCard()}
+          </div>
         </div>
       </footer>
+    `;
+  },
+
+  feedbackCard() {
+    if (!feedbackEnabled()) return '';
+    const S = this.state;
+    const link = (type, text, cls) => `<a class="${cls}" href="${escapeAttr(buildFeedbackUrl(S, type))}" target="_blank" rel="noopener">${text}<span class="sr-only"> (의견 양식, 새 창)</span></a>`;
+    return `
+      <section class="fb-card" aria-labelledby="fb-title">
+        <h2 class="fb-title" id="fb-title">의견을 들려주세요</h2>
+        <p class="fb-q">이 안내가 도움이 되었나요?</p>
+        <div class="fb-choices">
+          ${link('helpful', '도움이 되었어요', 'fb-btn')}
+          ${link('needs-improvement', '보완이 필요해요', 'fb-btn')}
+        </div>
+        <p class="fb-more">정보가 바뀌었거나 잘못된 내용을 발견하셨다면 알려주세요.</p>
+        <p class="fb-more-link">${link('general', '의견 보내기 <span aria-hidden="true">↗</span>', 'fb-link')}</p>
+        <p class="fb-privacy">학생·보호자·교직원의 이름, 학교명, 연락처 등 개인을 식별할 수 있는 정보나 구체적인 사건 내용은 입력하지 마세요.</p>
+      </section>
     `;
   },
 
@@ -1878,14 +1921,49 @@ function sourceBox(label, sources, verifiedAt, note, common) {
   `;
 }
 
-// 의견 받기(정보 변경·오류 제보). 관리하는 양식 주소가 정해질 때까지(FEEDBACK_URL이 비어 있으면) 아무것도 보여 주지 않아요.
-// 사건 내용·개인정보는 받지 않아요
-function feedbackBox() {
-  if (typeof FEEDBACK_URL !== 'string' || !/^https:\/\//.test(FEEDBACK_URL)) return '';
-  return `
-    <p class="feedback">정보가 바뀌었거나 잘못된 내용을 발견하셨나요?
-      <a href="${FEEDBACK_URL}" target="_blank" rel="noopener">알려주기 <span aria-hidden="true">↗</span></a>
-      <span class="muted small">사건 내용이나 개인정보는 적지 말아 주세요.</span></p>`;
+// ── 의견 받기(Google Form) ──
+// 양식 주소(FEEDBACK_URL)와 미리 채우기 칸(FEEDBACK_FIELDS)은 data/common.js 한 곳에서만 정해요.
+// 주소가 비어 있으면 의견 카드·링크를 아예 그리지 않아요(누를 수 없는 버튼·‘준비 중’ 표시 없음).
+// 보내는 값: 의견 종류와 지금 보는 화면(공유 주소와 같은 지역·화면·항목). 검색어·체크·입력 내용은 보내지 않아요
+const FEEDBACK_TYPES = ['helpful', 'needs-improvement', 'general'];
+const FEEDBACK_HOST = /^https:\/\/(docs\.google\.com\/forms\/|forms\.gle\/)/;
+
+function feedbackEnabled() {
+  return typeof FEEDBACK_URL === 'string' && FEEDBACK_HOST.test(FEEDBACK_URL);
+}
+
+// 공유 주소를 만드는 함수(shareParamsOf·shareUrlOf)를 그대로 써서 같은 상태만 꺼내요
+function feedbackContext(st) {
+  const q = shareParamsOf(st);
+  const step = q.get('step');
+  return {
+    region: q.get('region') || COMMON_REGION,
+    page: q.get('page') || 'home',
+    item: q.get('benefit') || q.get('compare') || q.get('situ') || q.get('type') || (step ? 'step-' + step : ''),
+    url: shareUrlOf(st, false)
+  };
+}
+
+// FEEDBACK_FIELDS에 entry 번호가 적힌 칸만 미리 채워요(번호가 없으면 양식 주소만 열어요)
+function buildFeedbackUrl(st, type) {
+  if (!feedbackEnabled()) return '';
+  let url;
+  try { url = new URL(FEEDBACK_URL); } catch (e) { return ''; }
+  const fields = (typeof FEEDBACK_FIELDS === 'object' && FEEDBACK_FIELDS) || {};
+  const values = { type: FEEDBACK_TYPES.includes(type) ? type : 'general', ...feedbackContext(st) };
+  let filled = false;
+  for (const [key, value] of Object.entries(values)) {
+    const entry = fields[key];
+    if (value && typeof entry === 'string' && /^entry\.\d+$/.test(entry)) { url.searchParams.set(entry, value); filled = true; }
+  }
+  if (filled) url.searchParams.set('usp', 'pp_url');
+  return url.toString();
+}
+
+// 상세(상황·제도·지원 유형) 아래의 한 줄 의견 링크. 큰 카드는 서비스 안내에만 있어요
+function feedbackLine(st, label) {
+  if (!feedbackEnabled()) return '';
+  return `<p class="fb-line">정보가 달라졌거나 보완이 필요하면 알려주세요. <a href="${escapeAttr(buildFeedbackUrl(st, 'general'))}" target="_blank" rel="noopener" aria-label="${escapeAttr(label)} 의견 보내기 (의견 양식, 새 창)">의견 보내기 <span aria-hidden="true">↗</span></a></p>`;
 }
 
 function latestDate(sources) {
