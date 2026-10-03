@@ -14,20 +14,20 @@ registerRegion({
   // 경기도 시·군 수
   expectedAreas: 31,
   sources: [
-    { title: '경기도교육청 2026년도 교육활동 보호 종합대책(요약)', url: 'https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/03/e75532f7-cc69-48b8-abb7-ea9143081ff9.pdf', verifiedAt: '2026-10-03', uses: ['guide', 'procedure', 'support'] },
-    { title: '경기교육모아 — 교권보호119 콜센터(1600-8787)', url: 'https://more.goe.go.kr/eapc/subList/30300001942', verifiedAt: '2026-09-24', uses: ['support'] },
-    { title: '경기도학교안전공제회 — 교권보호119 콜센터 안내', url: 'https://www.gessia.or.kr/compe/tac.php', verifiedAt: '2026-10-03', uses: ['support'] },
-    { title: '경기도학교안전공제회 — 교원보호공제 분쟁조정·법률(소송비용) 지원', url: 'https://www.gessia.or.kr/compe/safe.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '경기교육모아 — 경기교권보호지원센터 안내', url: 'https://more.goe.go.kr/eapc/subList/30300002114', verifiedAt: '2026-09-24', uses: ['support'] },
-    { title: '경기도교육청 보도자료(2026. 9. 23.) — 교육활동 침해에 신속 대응(교권보호전담관)', url: 'https://www.goe.go.kr/goe/na/ntt/selectNttInfo.do?mi=10102&nttSn=2375398', verifiedAt: '2026-09-25', uses: ['support'] },
-    { title: '「경기도교육청 행정기구 설치 조례」 제3조의2·[별표 9] 교육지원청 관할구역', url: 'https://www.law.go.kr/자치법규/경기도교육청행정기구설치조례', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '경기도교육청 교육지원청 안내(대표번호·주소)', url: 'https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?mi=10311&cntntsId=1132', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '경기도교육청 「2026 경기형 교육활동 보호 길라잡이」(경기교권보호지원센터 업무 자료, 2026. 2. 25. 게시, PDF 첨부)', url: 'https://more.goe.go.kr/eapc/subList/20000000408?pmode=detail&nttSeq=1000000816', verifiedAt: '2026-10-03', uses: ['guide', 'procedure', 'support'] },
+    { title: '경기도교육청 2026년도 교육활동 보호 종합대책(요약)', url: 'https://www.goe.go.kr/resource/goe/na/bbs_2675/2026/03/e75532f7-cc69-48b8-abb7-ea9143081ff9.pdf', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['guide', 'procedure', 'support'] },
+    { title: '경기교육모아 — 교권보호119 콜센터(1600-8787)', url: 'https://more.goe.go.kr/eapc/subList/30300001942', verifiedAt: '2026-09-24', region: 'gyeonggi', uses: ['support'] },
+    { title: '경기도학교안전공제회 — 교권보호119 콜센터 안내', url: 'https://www.gessia.or.kr/compe/tac.php', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['support'] },
+    { title: '경기도학교안전공제회 — 교원보호공제 분쟁조정·법률(소송비용) 지원', url: 'https://www.gessia.or.kr/compe/safe.php', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['procedure', 'support'] },
+    { title: '경기교육모아 — 경기교권보호지원센터 안내', url: 'https://more.goe.go.kr/eapc/subList/30300002114', verifiedAt: '2026-09-24', region: 'gyeonggi', uses: ['support'] },
+    { title: '경기도교육청 보도자료(2026. 9. 23.) — 교육활동 침해에 신속 대응(교권보호전담관)', url: 'https://www.goe.go.kr/goe/na/ntt/selectNttInfo.do?mi=10102&nttSn=2375398', verifiedAt: '2026-09-25', region: 'gyeonggi', uses: ['support'] },
+    { title: '「경기도교육청 행정기구 설치 조례」 제3조의2·[별표 9] 교육지원청 관할구역', url: 'https://www.law.go.kr/자치법규/경기도교육청행정기구설치조례', verifiedAt: '2026-09-24', region: 'gyeonggi', uses: ['finder'] },
+    { title: '경기도교육청 교육지원청 안내(대표번호·주소)', url: 'https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?mi=10311&cntntsId=1132', verifiedAt: '2026-09-24', region: 'gyeonggi', uses: ['finder'] },
+    { title: '경기도교육청 「2026 경기형 교육활동 보호 길라잡이」(경기교권보호지원센터 업무 자료, 2026. 2. 25. 게시, PDF 첨부)', url: 'https://more.goe.go.kr/eapc/subList/20000000408?pmode=detail&nttSeq=1000000816', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['guide', 'procedure', 'support'] },
     // 2026-10-03 추가: 교원보호공제 항목별 안내·심리상담
-    { title: '경기도학교안전공제회 — 교원보호공제 회복 지원(치료비·재산 피해·위로금)', url: 'https://www.gessia.or.kr/compe/recov.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '경기도학교안전공제회 — 교원보호공제 위협대처(경호) 서비스', url: 'https://www.gessia.or.kr/compe/safety.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '경기교권보호지원센터 — 심리상담(전문상담기관 10회기·치료비)', url: 'https://more.goe.go.kr/eapc/subList/30300002118', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '경기도학교안전공제회 — 교원보호공제 개요(보장 대상)', url: 'https://www.gessia.or.kr/compe/int.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] }
+    { title: '경기도학교안전공제회 — 교원보호공제 회복 지원(치료비·재산 피해·위로금)', url: 'https://www.gessia.or.kr/compe/recov.php', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['procedure', 'support'] },
+    { title: '경기도학교안전공제회 — 교원보호공제 위협대처(경호) 서비스', url: 'https://www.gessia.or.kr/compe/safety.php', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['procedure', 'support'] },
+    { title: '경기교권보호지원센터 — 심리상담(전문상담기관 10회기·치료비)', url: 'https://more.goe.go.kr/eapc/subList/30300002118', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['procedure', 'support'] },
+    { title: '경기도학교안전공제회 — 교원보호공제 개요(보장 대상)', url: 'https://www.gessia.or.kr/compe/int.php', verifiedAt: '2026-10-03', region: 'gyeonggi', uses: ['procedure', 'support'] }
   ],
 
   // ARS 세부 메뉴는 2026년 공식 자료에서 확인되지 않아 menu를 두지 않아요.
@@ -81,17 +81,28 @@ registerRegion({
   ].map(o => ({ ...o, dept: '경기교권보호지원센터', contact: '교육지원청 안내 확인' })),
   areaNote: '통합 교육지원청(안양과천·화성오산 등) 분리가 추진 중이에요. 관할이 바뀌면 이 안내도 갱신해요.',
 
-  // 홈 ‘놓치기 쉬운 보호·지원’ 카드에 붙는 경기 한 줄(HOME_HIGHLIGHTS id)
+  // 홈 ‘놓치기 쉬운 권리·지원’ 카드에 붙는 경기 한 줄(HOME_HIGHLIGHTS id). 숫자는 대상·조건과 함께 써요
   highlights: {
     leave: '한 사안에 학생이 여럿이어도 특별휴가는 1회(5일 범위)예요',
-    care: '심리상담 10회기, 치료비 1인당 200만 원 이내(1년 안)',
-    legal: '수사 단계 변호사 수임료 550만 원 한도 선지급, TAC 변호사 콜백',
-    mutual: '소송비용 사고당 최고 7천만 원 · 재산 200만 원 · 경호 20일'
+    care: '침해 인정 교원 치료비 1인당 200만 원 범위(1년) · 상담 10회기',
+    legal: '공제 소송비 사고당 최고 7천만 원 범위 · 경호 최대 20일'
   },
 
-  // 대응 절차 1단계 보호조치의 경기 기준(PROTECTIONS id). 길라잡이 쪽수는 인쇄 쪽 기준
-  protections: {
-    leave: {
+  // 권리·지원(BENEFITS id)의 경기 기준. 공통 문장에 섞지 않고 ‘경기 기준’ 상자로 따로 보여 줘요(문서 쪽수는 인쇄 쪽 기준)
+  benefits: {
+    transfer: {
+      program: '피해교원 비정기전보',
+      apply: '학교장이 각 교육지원청 세부기준에서 정한 비정기전보 절차·요건에 따라 요청',
+      missed: ['비정기전보 요건은 교육지원청 세부기준마다 달라요. 소속 교육지원청에 확인하세요.'],
+      source: 8
+    },
+    'property-damage': {
+      program: '재산상 피해 지원(교원보호공제)',
+      limit: '사고당 최대 200만 원 범위(안경 지원 30만 원 포함)',
+      apply: '청구서류 스캔본을 공제회 이메일(ggssia77@ssif.or.kr)로 보내고 1600-8787로 접수 확인',
+      source: 9
+    },
+    'special-leave': {
       apply: '학교장 승인. 학교장은 특별한 사유가 없다면 심의 전에 허가할 수 있고, 서류는 나중에 갖출 수 있어요.',
       missed: [
         '한 사안에 침해 학생이 여럿이어도 하나의 사안으로 보아 특별휴가는 1회(5일 범위 내)예요.',
@@ -99,14 +110,14 @@ registerRegion({
       ],
       source: 8
     },
-    counsel: {
+    'counseling': {
       program: '경기교권보호지원센터 심리상담(교권전담상담사·전문상담기관)',
       limit: '침해 피해 교원: 전문상담기관 심리상담 10회기. 침해가 확인되지 않은 직무 스트레스 교원: 5회기. 상담·조언 비용은 도교육청이 직접 지원해요.',
       when: '학교가 사안을 보고(24시간 이내, 구두·유선)한 뒤에는 위원회 심의 전에도 교권전담상담사 상담을 받을 수 있어요.',
       apply: '1600-8787(교권보호119·TAC) 또는 소속 교육지원청 경기교권보호지원센터',
       source: [11, 8]
     },
-    treat: {
+    'treatment-cost': {
       program: '도교육청 보호조치 비용 · 교원보호공제 치료비(경기도학교안전공제회)',
       who: '지역교권보호위원회 심의로 교육활동 침해가 인정된 피해 교원',
       limit: '도교육청 보호조치 비용: 1인당 200만 원 한도(1년간), 심리상담·조언 비용은 도교육청 직접 지원 · 공제 치료비: 2025. 8. 1. 이후 사안 200만 원 한도(사안 발생일 기준, 그 전 사안은 150만 원)',
@@ -120,7 +131,7 @@ registerRegion({
       ],
       source: [8, 9]
     },
-    legal: {
+    'legal-consult': {
       program: 'SOS! 경기교육법률지원단 · TAC 변호사 콜백 · 교원보호공제 소송비용',
       what: '도교육청 교권전담 변호사·경기교권보호지원센터 법무담당 변호사·형사고발 자문 변호사 상담, TAC 유선 자문(변호사 콜백), 경찰 수사 개시 통보 전 초기 단계부터 지원',
       limit: '공제 소송비용 사고당 최고 7천만 원(심급별 1,200만 원). 수사 단계 변호사 수임료 550만 원 한도 선지급 가능(1심 소송비용에 포함). 피소 민사는 소송가액별 330만~550만 원',
@@ -132,7 +143,7 @@ registerRegion({
       ],
       source: [8, 0, 3]
     },
-    mutual: {
+    'mutual-aid': {
       program: '교원보호공제(경기도학교안전공제회 위탁, 2026. 3. 1.~2027. 2. 28.)',
       who: '경기도교육청 소속 정규·기간제 교원(휴직자·퇴직자, 행정직·장학사·시간강사·방과후강사 제외)',
       limit: '배상책임 사고당 최고 2억 5천만 원(소 제기 전 합의 1억 원) · 소송비용 사고당 7천만 원 · 재산 피해 사고당 200만 원(안경 30만 원 포함) · 치료비 200만 원 · 경호 최대 20일',
@@ -141,7 +152,7 @@ registerRegion({
       missed: ['강력범죄 피해 위로금(4주 이상 치료 신체피해 500만 원)과 중대 사안 피해 위로금(사고당 100만 원)도 있어요.'],
       source: [0, 9, 12]
     },
-    safety: {
+    'security': {
       program: '위협대처(경호) 서비스(교원보호공제)',
       who: '난입·난동·폭행·상해·협박·부당한 보상 강요 등으로 신변 위협을 받은 교원',
       limit: '사고당 최대 20일',
@@ -150,7 +161,7 @@ registerRegion({
       caution: '교육활동과 무관한 위협, 긴급 피난에 든 개인 비용(교통·숙박·식사)은 지원하지 않아요.',
       source: 10
     },
-    mediate: {
+    'mediation': {
       program: '교원보호공제 분쟁조정 서비스 · 화해중재단',
       what: '변호사 등 전문가가 현장을 방문해 분쟁 조정(손해사정·합의금 검토 포함). 화해중재단은 사안 접수 전 갈등 단계에도 학교를 방문해요.',
       apply: '공제 분쟁조정: 1600-8787 / 화해중재단: 소속 교육지원청에 요청',

@@ -13,20 +13,20 @@ registerRegion({
   // 2026. 7. 1. 행정체제 개편 후 2군 9구(인천광역시 행정구역 안내)
   expectedAreas: 11,
   sources: [
-    { title: '인천광역시교육청 「2026 교육활동보호 매뉴얼」', url: 'https://www.ice.go.kr/upload/ice/na/bbs_1711/2026/04/0ecf770cd5d1443260ec865a554c116b.pdf', verifiedAt: '2026-10-03', uses: ['guide', 'procedure', 'support'] },
-    { title: '「2026년 인천 교육활동 보호 시행계획」(2026. 2. 13. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3360999', verifiedAt: '2026-10-03', uses: ['guide', 'procedure', 'support'] },
-    { title: '인천광역시교육청 부서안내 — 교육활동보호담당관', url: 'https://www.ice.go.kr/ice/ad/ofcrk/ofcrkDeptInfo.do?mi=12097&deptSn=1120', verifiedAt: '2026-09-24', uses: ['support'] },
-    { title: '인천광역시 행정구역(2026. 7. 1. 2군 9구)', url: 'https://www.incheon.go.kr/IC040102', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '교육지원청 관할 조례 개정 입법예고(교육청공고 제2026-385호, 2027. 3. 1. 시행 예정)', url: 'https://www.ice.go.kr/law/na/ntt/selectNttInfo.do?nttSn=3385048&mi=12782', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '인천광역시교육청 교육활동보호담당관 안내', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11819&cntntsId=855', verifiedAt: '2026-09-24', uses: ['support'] },
-    { title: '인천광역시교육청 기관별 조직도 — 교육지원청 대표전화', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=12059&cntntsId=1034', verifiedAt: '2026-09-25', uses: ['finder'] },
-    { title: '인천광역시학교안전공제회 — 교원 위협대처 경호서비스', url: 'https://incheon.ssif.or.kr/sub/sub03_05_02.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '인천광역시교육청 「2026학년도 학교민원 처리 매뉴얼」(붙임1 학교민원 처리 매뉴얼(인천), 2026. 3. 16. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3364320', verifiedAt: '2026-09-26', uses: ['guide', 'support'] },
+    { title: '인천광역시교육청 「2026 교육활동보호 매뉴얼」', url: 'https://www.ice.go.kr/upload/ice/na/bbs_1711/2026/04/0ecf770cd5d1443260ec865a554c116b.pdf', verifiedAt: '2026-10-03', region: 'incheon', uses: ['guide', 'procedure', 'support'] },
+    { title: '「2026년 인천 교육활동 보호 시행계획」(2026. 2. 13. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3360999', verifiedAt: '2026-10-03', region: 'incheon', uses: ['guide', 'procedure', 'support'] },
+    { title: '인천광역시교육청 부서안내 — 교육활동보호담당관', url: 'https://www.ice.go.kr/ice/ad/ofcrk/ofcrkDeptInfo.do?mi=12097&deptSn=1120', verifiedAt: '2026-09-24', region: 'incheon', uses: ['support'] },
+    { title: '인천광역시 행정구역(2026. 7. 1. 2군 9구)', url: 'https://www.incheon.go.kr/IC040102', verifiedAt: '2026-09-24', region: 'incheon', uses: ['finder'] },
+    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24', region: 'incheon', uses: ['finder'] },
+    { title: '교육지원청 관할 조례 개정 입법예고(교육청공고 제2026-385호, 2027. 3. 1. 시행 예정)', url: 'https://www.ice.go.kr/law/na/ntt/selectNttInfo.do?nttSn=3385048&mi=12782', verifiedAt: '2026-09-24', region: 'incheon', uses: ['finder'] },
+    { title: '인천광역시교육청 교육활동보호담당관 안내', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11819&cntntsId=855', verifiedAt: '2026-09-24', region: 'incheon', uses: ['support'] },
+    { title: '인천광역시교육청 기관별 조직도 — 교육지원청 대표전화', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=12059&cntntsId=1034', verifiedAt: '2026-09-25', region: 'incheon', uses: ['finder'] },
+    { title: '인천광역시학교안전공제회 — 교원 위협대처 경호서비스', url: 'https://incheon.ssif.or.kr/sub/sub03_05_02.php', verifiedAt: '2026-10-03', region: 'incheon', uses: ['procedure', 'support'] },
+    { title: '인천광역시교육청 「2026학년도 학교민원 처리 매뉴얼」(붙임1 학교민원 처리 매뉴얼(인천), 2026. 3. 16. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3364320', verifiedAt: '2026-09-26', region: 'incheon', uses: ['guide', 'support'] },
     // 2026-10-03 추가: 보호조치 비용 한도 200만 원 → 300만 원(2026. 4. 30. 시행). 매뉴얼(4월)·시행계획(2월)의 200만 원보다 우선해요
-    { title: '인천광역시교육청 고시 제2026-200호 「교육활동 침해행위 보호조치 비용부담 및 구상권 행사에 관한 고시」 일부개정(2026. 4. 30. 시행, 2026. 5. 6. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3370378&mi=11822', verifiedAt: '2026-10-03', uses: ['guide', 'procedure', 'support'] },
-    { title: '인천광역시교육청 「2026학년도 교육활동 보호조치 비용 지원 수정 계획」(2026. 5.)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3369621&mi=11822', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '인천광역시학교안전공제회 「2026년 교원보호공제 약관」(2026. 3.~2027. 2.)', url: 'https://incheon.ssif.or.kr/sub/pop_print_insurance.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] }
+    { title: '인천광역시교육청 고시 제2026-200호 「교육활동 침해행위 보호조치 비용부담 및 구상권 행사에 관한 고시」 일부개정(2026. 4. 30. 시행, 2026. 5. 6. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3370378&mi=11822', verifiedAt: '2026-10-03', region: 'incheon', uses: ['guide', 'procedure', 'support'] },
+    { title: '인천광역시교육청 「2026학년도 교육활동 보호조치 비용 지원 수정 계획」(2026. 5.)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3369621&mi=11822', verifiedAt: '2026-10-03', region: 'incheon', uses: ['procedure', 'support'] },
+    { title: '인천광역시학교안전공제회 「2026년 교원보호공제 약관」(2026. 3.~2027. 2.)', url: 'https://incheon.ssif.or.kr/sub/pop_print_insurance.php', verifiedAt: '2026-10-03', region: 'incheon', uses: ['procedure', 'support'] }
   ],
 
   // 대표번호와 ARS 안내(2026 교육활동보호 매뉴얼)
@@ -63,22 +63,39 @@ registerRegion({
   ],
   areaNote: '2026. 7. 1. 행정체제 개편 후 구역 기준이에요. 2027. 3. 1.부터 영종·검단교육지원청 신설이 예고되어 있어요(입법예고 중).',
 
-  // 홈 ‘놓치기 쉬운 보호·지원’ 카드에 붙는 인천 한 줄(HOME_HIGHLIGHTS id)
+  // 홈 ‘놓치기 쉬운 권리·지원’ 카드에 붙는 인천 한 줄(HOME_HIGHLIGHTS id). 숫자는 대상·조건과 함께 써요
   highlights: {
     leave: '이미 쓴 병가는 침해 인정 뒤에도 특별휴가로 바꿀 수 없어요',
-    care: '보호조치 비용 1인당 300만 원(2026. 4. 30.부터, 종전 200만 원)',
-    legal: '아동학대로 신고되면 첫 경찰 조사에 변호사가 동행해요',
-    mutual: '소송비 심급별 최대 660만 원 · 물품 200만 원 · 경호 최대 20일'
+    rest: '연 6일 이내 공무상 병가는 진단서 없이 학교장 승인 가능 안내',
+    care: '침해 인정 교원 보호조치 비용 1인당 300만 원 범위(4. 30.~)',
+    legal: '아동학대 피신고 시 첫 경찰 조사 변호사 동행 · 경호 최대 20일'
   },
 
-  // 대응 절차 1단계 보호조치의 인천 기준(PROTECTIONS id). 공통 문장에 섞지 않고 ‘인천 기준’으로 따로 보여 줘요
-  protections: {
-    leave: {
+  // 권리·지원(BENEFITS id)의 인천 기준. 공통 문장에 섞지 않고 ‘인천 기준’ 상자로 따로 보여 줘요(문서 쪽수는 인쇄 쪽 기준)
+  benefits: {
+    'sick-leave': {
+      limit: '연 6일 이내 공무상 병가는 진단서 제출 없이 학교장이 승인할 수 있다고 안내돼요.',
+      source: 1
+    },
+    transfer: {
+      program: '피해교원 비정기 전보',
+      who: '교육활동 침해가 인정된 피해 교원 중 희망자',
+      apply: '학교장이 인천광역시교육청 전보 절차·요건에 따라 요청',
+      source: [1, 0]
+    },
+    'property-damage': {
+      program: '물적 피해 보상(교원보호공제)',
+      limit: '피해물품당 200만 원 범위(감가상각 적용)',
+      prepare: '공제금 청구서, 개인정보 동의서, 재산 피해 입증자료, 학교장 보호조치통보서 또는 의견서',
+      apply: '070-7848-0794 전화 상담 후 이메일(ssia01@ssif.or.kr) 또는 팩스(032-431-3808)로 청구',
+      source: 12
+    },
+    'special-leave': {
       apply: '학교장 승인. 신고·심의 문의는 소속 교육지원청 초등교육과 032-1395(2번)',
       missed: ['특별휴가를 쓰지 못하고 병가를 썼다면, 나중에 침해로 인정돼도 그 병가는 특별휴가로 바꿀 수 없어요. 처음부터 특별휴가로 요청하세요.'],
       source: 0
     },
-    counsel: {
+    'counseling': {
       program: '교육활동보호담당관 심리상담(원스톱 지원)',
       who: '교육활동 침해 피해 교원, 아동학대 피신고 교원, 학교(특이)민원·교육활동 중 소진 교원',
       limit: '침해 피해 교원은 보호조치 비용 1인당 300만 원 안에서 상담·치료를 함께 써요. 아동학대 피신고·소진 교원은 100만 원 이내예요. 상담 자체는 무료예요.',
@@ -87,7 +104,7 @@ registerRegion({
       caution: '교육감이 정한 협약기관(2026. 5. 기준 심리치료 20곳·심리상담 30곳)을 이용해야 해요. 협약기관이 아닌 곳은 지원되지 않고, 같은 기간 중복 지원도 안 돼요.',
       source: [11, 1]
     },
-    treat: {
+    'treatment-cost': {
       program: '교육활동 침해 피해교원 보호조치 비용',
       who: '지역교권보호위원회에서 침해가 인정되었거나 분쟁조정으로 합의한 교원 중 희망자',
       limit: '1인당 300만 원 한도, 1회 청구(심리상담비 포함). 300만 원을 넘으면 비용심사위원회 심사로 지급 여부를 정해요.',
@@ -97,12 +114,11 @@ registerRegion({
       caution: '한방 약제비(건강보험 본인부담금 제외), 제증명 발급비, 영양주사·접종비는 빠져요. 공무원연금공단 등 다른 제도로 받은 비용과 지병·기왕증 비용은 지급되지 않을 수 있어요.',
       missed: [
         '인천 2026 매뉴얼(4월)·시행계획(2월)에는 200만 원으로 적혀 있지만, 2026. 4. 30. 시행 고시로 300만 원이 최신 기준이에요(그 전에 신청한 건은 종전 기준).',
-        '새 침해 사안이 생기면 앞선 지원은 자동 종료되고, 새 조치결정통지서 날짜부터 다시 300만 원이 적용돼요.',
         '심리치료·요양 비용은 교원보호공제가 아니라 이 보호조치 비용으로 지원돼요.'
       ],
       source: [10, 11]
     },
-    legal: {
+    'legal-consult': {
       program: '교권전담변호사·위촉변호사(법률지원단), 교원보호공제 소송비용',
       what: '교권전담변호사 즉시 자문, 위촉변호사 법률 자문(비밀보장), 교권보호책임관 요청 시 위촉변호사·공제회 직원 학교 방문, 학교 변호사 ON(1교 1변호사, 2026. 3.~2027. 2.)',
       limit: '공제 소송비용: 민사 심급별 330만~660만 원(소송가액별), 형사 피소 심급별 660만 원(수사 단계 종결 시 330만 원), 중대사고 심급별 990만 원',
@@ -111,7 +127,7 @@ registerRegion({
       missed: ['아동학대로 신고된 교원은 첫 경찰 조사에 변호사가 동행해요.', '중대 사안은 교육청에 형사고발을 요청할 수 있어요(매뉴얼 서식 13).'],
       source: [0, 12]
     },
-    mutual: {
+    'mutual-aid': {
       program: '인천학교안전공제회 교원보호공제(2026. 3.~2027. 2.)',
       limit: '배상책임 1사고당 2.5억 원(중대사고 3억 원), 소 제기 전 합의 1.5억 원(중대사고 2억 원) · 소송비용 심급별 최대 660만 원(중대사고 990만 원) · 물적 피해 물품당 200만 원(감가상각) · 경호 최대 20일 · 분쟁조정 서비스',
       when: '청구권은 3년간 행사하지 않으면 소멸해요. 공제회는 청구 후 14일 이내 결정해요.',
@@ -121,7 +137,7 @@ registerRegion({
       missed: ['인천 시행계획(2026. 2.)의 배상 2억·1억 원, 물품 100만 원은 예전 수치예요. 2026 약관 기준은 2.5억·1.5억 원, 200만 원이에요.'],
       source: [12, 0]
     },
-    safety: {
+    'security': {
       program: '교원 위협대처 경호서비스(교원보호공제)',
       who: '교육활동과 관련해 폭행·상해 등 중대 사안으로 신변 위협을 받는 교원',
       limit: '1사고당 최대 20일(1인×20회), 40일까지 연장 가능. 2인 경호는 10일(연장 20일). 출·퇴근 때도 제공해요.',
@@ -129,7 +145,7 @@ registerRegion({
       prepare: '경호 신청서, 학교장 의견서, 중대사안 증빙',
       source: [12, 8]
     },
-    mediate: {
+    'mediation': {
       program: '교육활동 갈등중재 지원(중재지원단) · 공제 분쟁조정 서비스',
       who: '고등학교 이하 학교, 교육활동 침해 신고 전 갈등 단계에서 양쪽이 동의한 경우',
       apply: '032-1395 또는 아이스톡 → 동의 여부 확인 → 중재지원단 매칭 → 학교 방문 중재. 공제 분쟁조정은 070-7848-0794',

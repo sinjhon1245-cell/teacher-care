@@ -13,19 +13,19 @@ registerRegion({
   // 서울특별시 자치구 수
   expectedAreas: 25,
   sources: [
-    { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 초등교육과 게시(2026. 3. 6.)', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-10-03', uses: ['guide', 'procedure', 'support'] },
-    { title: '교육활동보호 매뉴얼(2026 개정판)·2026 서울 교육활동보호 시행계획(안내용) — 성동광진교육지원청 게시', url: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/1354617_6010.html', verifiedAt: '2026-09-24', uses: ['guide', 'support'] },
-    { title: '시·도 교육활동보호센터 연락처 — 한국교육개발원 교원 지원 포털', url: 'https://forteacher.kedi.re.kr/web/mapBoard/list.do?mId=40', verifiedAt: '2026-09-24', uses: ['support'] },
-    { title: '서울SEM119 갈등조정단 ‘봄’ 출범 — 서울특별시교육청 보도자료(2026. 2. 20.)', url: 'https://enews.sen.go.kr/news/view.do?bbsSn=190744&step1=3&step2=1', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '종전 [별표 2] 교육지원청의 명칭·위치 및 관할구역(2023. 6. 27. 개정)', url: 'https://www.law.go.kr/LSW/flDownload.do?flSeq=129700305&bylClsCd=110201', verifiedAt: '2026-09-24', uses: ['finder'] },
-    { title: '서울특별시학교안전공제회 — 교육활동 침해 피해교원 보호조치 비용 지원(심리상담 신청 문의)', url: 'https://www.ssia.or.kr/teacher/page4.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '서울특별시학교안전공제회 — 소진교원 심리상담 비용 지원(상담 신청·비용 청구 문의)', url: 'https://www.ssia.or.kr/teacher/page7.php', verifiedAt: '2026-10-03', uses: ['support'] },
+    { title: '서울특별시교육청 교육활동보호 매뉴얼(2026 개정판) — 초등교육과 게시(2026. 3. 6.)', url: 'https://buseo.sen.go.kr/buseo/bu12/user/bbs/BD_selectBbs.do?q_bbsSn=1266&q_bbsDocNo=20260306151914833', verifiedAt: '2026-10-03', region: 'seoul', uses: ['guide', 'procedure', 'support'] },
+    { title: '교육활동보호 매뉴얼(2026 개정판)·2026 서울 교육활동보호 시행계획(안내용) — 성동광진교육지원청 게시', url: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/1354617_6010.html', verifiedAt: '2026-09-24', region: 'seoul', uses: ['guide', 'support'] },
+    { title: '시·도 교육활동보호센터 연락처 — 한국교육개발원 교원 지원 포털', url: 'https://forteacher.kedi.re.kr/web/mapBoard/list.do?mId=40', verifiedAt: '2026-09-24', region: 'seoul', uses: ['support'] },
+    { title: '서울SEM119 갈등조정단 ‘봄’ 출범 — 서울특별시교육청 보도자료(2026. 2. 20.)', url: 'https://enews.sen.go.kr/news/view.do?bbsSn=190744&step1=3&step2=1', verifiedAt: '2026-10-03', region: 'seoul', uses: ['procedure', 'support'] },
+    { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-09-24', region: 'seoul', uses: ['finder'] },
+    { title: '종전 [별표 2] 교육지원청의 명칭·위치 및 관할구역(2023. 6. 27. 개정)', url: 'https://www.law.go.kr/LSW/flDownload.do?flSeq=129700305&bylClsCd=110201', verifiedAt: '2026-09-24', region: 'seoul', uses: ['finder'] },
+    { title: '서울특별시학교안전공제회 — 교육활동 침해 피해교원 보호조치 비용 지원(심리상담 신청 문의)', url: 'https://www.ssia.or.kr/teacher/page4.php', verifiedAt: '2026-10-03', region: 'seoul', uses: ['procedure', 'support'] },
+    { title: '서울특별시학교안전공제회 — 소진교원 심리상담 비용 지원(상담 신청·비용 청구 문의)', url: 'https://www.ssia.or.kr/teacher/page7.php', verifiedAt: '2026-10-03', region: 'seoul', uses: ['support'] },
     // 2026-10-03 추가: 교원안심공제 항목별 안내(공제회 현재 안내)
-    { title: '서울특별시학교안전공제회 — 교원위험대처 보호서비스(경호) 지원', url: 'https://www.ssia.or.kr/teacher/page5.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '서울특별시학교안전공제회 — 교원 소송 ‘초기대응 플랜’ 서비스 지원', url: 'https://www.ssia.or.kr/teacher/page3.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '서울특별시학교안전공제회 — 교육활동 중 배상책임 지원', url: 'https://www.ssia.or.kr/teacher/page8.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] },
-    { title: '서울특별시학교안전공제회 — 교육활동 침해로 인한 재산상 피해 비용 지원', url: 'https://www.ssia.or.kr/teacher/page9.php', verifiedAt: '2026-10-03', uses: ['procedure', 'support'] }
+    { title: '서울특별시학교안전공제회 — 교원위험대처 보호서비스(경호) 지원', url: 'https://www.ssia.or.kr/teacher/page5.php', verifiedAt: '2026-10-03', region: 'seoul', uses: ['procedure', 'support'] },
+    { title: '서울특별시학교안전공제회 — 교원 소송 ‘초기대응 플랜’ 서비스 지원', url: 'https://www.ssia.or.kr/teacher/page3.php', verifiedAt: '2026-10-03', region: 'seoul', uses: ['procedure', 'support'] },
+    { title: '서울특별시학교안전공제회 — 교육활동 중 배상책임 지원', url: 'https://www.ssia.or.kr/teacher/page8.php', verifiedAt: '2026-10-03', region: 'seoul', uses: ['procedure', 'support'] },
+    { title: '서울특별시학교안전공제회 — 교육활동 침해로 인한 재산상 피해 비용 지원', url: 'https://www.ssia.or.kr/teacher/page9.php', verifiedAt: '2026-10-03', region: 'seoul', uses: ['procedure', 'support'] }
   ],
 
   // 02-1395: SEM119 대표전화(매뉴얼 p.93). ARS 세부 메뉴는 공식 자료에 없어 menu를 두지 않아요.
@@ -63,22 +63,35 @@ registerRegion({
     { name: '성북강북교육지원청', areas: ['성북구', '강북구'], contact: 'SEM119 02-944-9395', url: 'https://sbgbedu.sen.go.kr' }
   ].map(o => ({ ...o, hours: 'SEM119 09:00~18:00' })),
 
-  // 홈 ‘놓치기 쉬운 보호·지원’ 카드에 붙는 서울 한 줄(HOME_HIGHLIGHTS id)
+  // 홈 ‘놓치기 쉬운 권리·지원’ 카드에 붙는 서울 한 줄(HOME_HIGHLIGHTS id). 숫자는 대상·조건과 함께 써요
   highlights: {
     leave: '사용 시기 조정은 사안발생보고서 접수 후 21일 이내까지',
-    care: '심리상담 마음선 8회~마음동 20회, 위원회 인정 시 치료비 실비',
-    legal: '피신고 교원은 100인 변호인단, 수사 단계 최대 360만 원',
-    mutual: '소송비 심급별 최대 660만 원 · 재산 피해 250만 원 · 경호 20일'
+    care: '상담 마음선 8회~마음동 20회 · 위원회 인정 시 치료비 실비',
+    legal: '피신고 교원 100인 변호인단 수사 단계 최대 360만 원 범위'
   },
 
-  // 대응 절차 1단계 보호조치의 서울 기준(PROTECTIONS id). 매뉴얼(2026 개정판) 쪽수는 인쇄 쪽 기준
-  protections: {
-    leave: {
+  // 권리·지원(BENEFITS id)의 서울 기준. 공통 문장에 섞지 않고 ‘서울 기준’ 상자로 따로 보여 줘요(문서 쪽수는 인쇄 쪽 기준)
+  benefits: {
+    transfer: {
+      program: '교육활동 침해로 인한 비정기 전보',
+      who: '교육활동 침해 피해 교원(학교장이 전보 내신). 유·초등은 현임교 1년 미만이라도 교권 보호 등을 위해 교육상 불가피한 교사, 중등은 교권보호위원회 심의 결과 교권을 침해당했거나 침해가 우려되는 교사(교육(지원)청 별도 심의)',
+      when: '정기전보 시기에 비정기 전보를 신청할 수 있어요.',
+      apply: '학교장에게 희망을 알리면 학교장이 서울특별시교육청 전보 절차·요건에 따라 전보 내신',
+      source: 0
+    },
+    'property-damage': {
+      program: '교육활동 침해로 인한 재산상 피해 비용 지원(교원안심공제)',
+      limit: '1사고당 최대 250만 원 범위',
+      prepare: '학교장 의견서 또는 조치 통지서로 피해가 확인돼야 해요.',
+      apply: '1670-4972 문의 후 청구',
+      source: [11, 0]
+    },
+    'special-leave': {
       when: '사안 발생(인지) 직후. 불가피하면 학교장이 교권보호위원회 개최 전(사안발생보고서 접수 후 21일 이내)까지 사용 시기·방법을 달리해 승인할 수 있어요.',
       missed: ['교권보호위원회를 열지 않았다면 교육지원청 접수와 사안 종결 공문이 필요해요(매뉴얼 51쪽).'],
       source: 0
     },
-    counsel: {
+    'counseling': {
       program: '교원 심리상담 마음선·마음생·마음동·마음행(서울특별시교육청 교육활동보호센터)',
       who: '마음선: 정규·기간제 교원(소진 예방) / 마음생: 학교장이 요청한 정규·기간제 교원과 침해 피해 시간강사 / 마음동: 지역교권보호위원회 심의 또는 분쟁조정 합의로 피해가 인정된 교원 / 마음행: 상담 중 자살위험 징후가 있는 교원',
       limit: '마음선 8회(1회 50분, 운영 기간 중 1회) · 마음생 같은 학년도 최대 13회(마음선 포함) · 마음동 20회(인정일부터 1년, 1년 연장 가능) · 마음행 추가 5회(필요 시 3회 연장). 교직 3년 이내 교원은 저경력교원 상담 10회(마음선과 같은 학년도 중복 불가)',
@@ -91,7 +104,7 @@ registerRegion({
       ],
       source: 0
     },
-    treat: {
+    'treatment-cost': {
       program: '교육활동 침해 피해교원 보호조치 비용(서울특별시학교안전공제회 청구)',
       limit: '마음생: 정신건강의학과 치료비 30만 원 범위(처방 약제비 포함) · 마음동(위원회 심의 인정): 치료·요양 실비(처방 약제비 포함, 교육청이 상한을 두지 않고 내부 심사) · 마음동(분쟁조정 인정): 250만 원 한도 실비 · 마음행: 정신건강의학과 초기치료비 50만 원 범위',
       when: '사안이 발생한 날부터 3년 이내 청구. 치료가 끝난 뒤 청구하고, 나눠서 여러 번 청구할 수 있어요.',
@@ -100,7 +113,7 @@ registerRegion({
       caution: '약제비는 처방전에 따른 경우만, 한방 치료는 국민건강보험법에서 인정하는 경우만 인정돼요. 입원료는 일반병실 기준이에요.',
       source: 0
     },
-    legal: {
+    'legal-consult': {
       program: 'SEM119 교육지원청 변호사 · 선생님 동행 100인의 변호인단 · 서울교육활동보호법률지원단 · 교원안심공제 소송비',
       what: '11개 교육지원청 변호사(사안 상담·교권보호위원회·교육감 의견서 조사 지원), 피신고(아동학대·직무유기 등) 교원 변호사 선임 지원(100인의 변호인단), 법률지원단 무료 상담, 공제 소송비',
       limit: '100인의 변호인단: 수사 단계까지 최대 360만 원, 소송으로 이어지면 기지원액 포함 660만 원 이내(교원 부담 없음) · 공제 소송비: 민·형사 각 심급별 최대 660만 원(수사 단계 종결 시 330만 원)',
@@ -110,7 +123,7 @@ registerRegion({
       missed: ['100인의 변호인단(최대 360만 원)과 공제 소송비(수사 단계 330만 원)는 서로 다른 제도예요.', '교권침해 신고를 하지 않았어도 SEM119에 신청할 수 있어요.'],
       source: [0, 9]
     },
-    mutual: {
+    'mutual-aid': {
       program: '교원안심공제(서울특별시학교안전공제회)',
       who: '국·공·사립 유·초·중·고·특수·각종학교와 학력인정 평생교육시설 교원(기간제 포함). 시간강사는 일부만 지원',
       limit: '소송비 민·형사 각 심급별 최대 660만 원 · 손해배상 확정판결 1사고당 최대 2억 원, 소 제기 전 합의 1억 원 · 재산 피해 1사고당 250만 원 · 위험대처 경호 최대 20일 · 분쟁조정·예방 컨설팅',
@@ -119,14 +132,14 @@ registerRegion({
       caution: '교원 개인 부담금은 없어요. 유죄·고의·중과실이 확정되면 지원하지 않아요(과실치사·상 제외).',
       source: [0, 10, 11]
     },
-    safety: {
+    'security': {
       program: '교원위험대처 보호서비스(교원안심공제)',
       limit: '1사고당 최대 20일(2인 출동 시 10일). 출·퇴근 포함, 대중교통 이용 시 밀착 경호',
       apply: '1670-4972로 최소 2일 전 사전 신청',
       caution: '사전 신청이 필요해 당장 위험하면 112 신고가 먼저예요.',
       source: [8, 0]
     },
-    mediate: {
+    'mediation': {
       program: '서울SEM119 갈등조정단 ‘봄’',
       who: '교원과 관련 당사자(보호자·학생 등)',
       limit: '교육·조정 전문가 46명, 위촉 기간 2026. 2. 20.~2027. 2. 28.',
