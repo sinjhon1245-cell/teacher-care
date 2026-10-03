@@ -34,8 +34,17 @@ data/
 tools/
   check-data.js         데이터 점검(배포 전 실행): 형식·출처·관할·번호·최신성·공유 주소
   check-links.js        공식 링크 접속 점검(배포 전·정기 점검): 200·이동·404·403·시간 초과
+  generate-maintenance-report.js  운영 점검 리포트 만들기 → docs/maintenance-report.md
+  check-all.js          위 세 가지를 한 번에(일상 점검)
+  data/regional-gaps.js 서울·경기·인천 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
+  lib/                  점검 도구가 함께 쓰는 계산(최신성·gap·데이터 읽기)
 docs/
-  regional-gap-audit-2026.md  서울·경기·인천 정보 깊이 비교(내부 audit)
+  maintenance-report.md        운영 점검 리포트(자동 생성, 직접 고치지 않기)
+  annual-maintenance-checklist.md  연례 갱신 체크리스트·업데이트 절차
+  regional-gap-audit-2026.md  지역 gap 판정 기준과 기록(현재 표는 maintenance-report.md)
+  usability-test-teachers.md  교사 사용성 테스트 가이드(시나리오 6개)
+  usability-results-template.md  사용성 테스트 결과 빈 양식
+  feedback-form-spec.md       의견 받기 양식 명세(현재 비활성)
 ```
 
 ### 공통 데이터(`data/common.js`)
@@ -185,6 +194,40 @@ docs/
 - 앞으로 뜰 주의를 미리 보려면: `CHECK_TODAY=2027-04-01 node tools/check-data.js`
 - 화면에는 새 날짜 표시를 늘리지 않았어요. 이미 있던 ‘공식 근거 ○건 · 날짜 확인’(회복·보호)과 ‘날짜 최종 확인’(지원 찾기·지역 기준 상자)이 항목의 `verifiedAt`을 보여 줘요.
 
+## 운영자용: 일상 점검
+
+```bash
+node tools/check-all.js
+```
+
+데이터 검사 → 공식 링크 검사 → 운영 리포트 생성을 차례로 하고 마지막에 이렇게 보여 줘요.
+
+```
+DATA       PASS (오류 0 · 주의 1)
+LINKS      PASS (112개)
+REPORT     GENERATED (docs/maintenance-report.md)
+WARNINGS   1
+STATUS     PASS
+```
+
+- `STATUS PASS`: 데이터 오류 없음 · 끊긴 링크 없음 · 리포트 생성. 이때만 종료 코드 0이에요.
+- `STATUS FAIL`: 데이터 오류, 끊긴 링크, 도구 실행 오류, 리포트 생성 실패 중 하나라도 있으면(실패한 도구의 출력을 아래에 보여 줘요).
+- `STATUS INCOMPLETE`: `--skip-links`로 링크 점검을 건너뛰었거나 네트워크 문제로 접속 확인을 못 했을 때. 다시 실행하세요.
+- 다음에 할 일은 `docs/maintenance-report.md`의 **다음 점검 항목**을 보면 돼요(재확인일 지남 → 재검토 필요 → 오래된 정보 → 30·90일 내 예정 → 지역 gap 순).
+
+개별 명령
+
+| 명령 | 하는 일 |
+| --- | --- |
+| `node tools/check-data.js` | 데이터 형식·출처·관할·번호·최신성·공유 주소·지역 gap 데이터 검사. 오류가 있으면 종료 코드 1 |
+| `node tools/check-links.js` | 데이터의 모든 https 주소에 접속해 정상·이동·확인 필요·끊김으로 나눠요. 끊김이 있으면 종료 코드 1 |
+| `node tools/generate-maintenance-report.js` | 위 두 검사를 실행하고(또는 `--data`·`--links` 결과를 받아) `docs/maintenance-report.md`를 다시 만들어요. `--skip-links`로 링크 점검 생략 |
+| `CHECK_TODAY=2027-02-10 node tools/generate-maintenance-report.js --skip-links --out=미리보기.md` | 앞으로의 날짜 기준으로 뜰 점검 항목 미리 보기 |
+
+- 지역 gap(정보 깊이)은 `tools/data/regional-gaps.js` 한곳에서만 고쳐요. 리포트의 표와 다음 점검 항목이 여기서 만들어지고, `check-data.js`가 근거(evidence)가 실제 지원 항목을 가리키는지 확인해요.
+- 매년 새 학년도 전후에는 `docs/annual-maintenance-checklist.md`를 따라 갱신해요.
+- 리포트는 공개 화면에 연결하지 않아요(저장소 문서로만 봐요).
+
 ### 배포 전 점검
 
 실제로 쓰는 명령이에요(외부 패키지 설치 없이 Node 18 이상).
@@ -204,6 +247,7 @@ git diff --check
 - `check-data.js`: 아래 항목 + 최신성(날짜 형식·미래 날짜·오래된 확인·재확인일·`reviewStatus`) + 공유 주소(지역 id, 주소에 쓰는 id 형식, 모든 지역 × 화면 × 항목의 ‘주소 만들기 → 읽기’ 왕복, 받는 사람의 저장 지역 유지, 잘못된 값 무시) + asset version 일치. 마지막 ‘요약’ 줄에서 상황 38·그룹 11·오류·주의 수를 한 번에 봐요.
 - `check-links.js`: 데이터에 적힌 모든 https 주소에 접속해요. 정상·이동(redirect)·확인 필요(401·403·5xx·시간 초과 — 공공기관 서버가 자동 접속을 막는 경우가 많아 브라우저로 확인)·끊김(404·410·없는 도메인·‘존재하지 않는 게시물’ 안내 페이지)으로 나눠요. 끊김이 있으면 종료 코드 1. `--only=incheon`, `--timeout=20000`, `--json=결과.json` 옵션이 있어요.
 - `git diff --check`: 공백 오류 확인.
+- 세 가지를 한 번에: `node tools/check-all.js`(위 ‘운영자용: 일상 점검’).
 
 필수 항목·출처 번호·확인일 형식, 교육지원청 관할 중복·누락(`expectedAreas`와 비교), 전화번호 형식, 지역 간 전화번호 혼입,
 지원 항목의 유형 연결, 세부 상황의 큰 상황 연결, 신청·안내 링크의 https·공식 도메인, 출처의 `uses`와 공통 근거의 지역 자료 혼입,
@@ -266,6 +310,6 @@ npx serve .
 
 **배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-2` → `20261004-1`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.
 
-배포 순서: `node tools/check-data.js` → `node tools/check-links.js` → `git diff --check` → asset version 올리기 → 커밋 → `main` push → GitHub Pages 배포 확인 → 실제 주소에서 확인.
+배포 순서: `node tools/check-all.js`(데이터·링크·리포트) → `git diff --check` → asset version 올리기 → 커밋 → `main` push → GitHub Pages 배포 확인 → 실제 주소에서 확인.
 
 `main` 브랜치가 GitHub Pages로 배포돼요(`.nojekyll` 포함). 작업은 기능 브랜치에서 하고 검토 후 `main`에 합쳐요.

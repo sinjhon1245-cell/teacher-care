@@ -19,6 +19,8 @@
 //     reviewStatus 값, 오래된 확인일(FRESHNESS_DAYS: 법령 stable / 지역 사업·연락처 volatile)·지난 재확인일(reviewBy)·
 //     확인 뒤 개정된 근거·다시 확인 필요 항목은 ‘주의’로 알려요. 기준일은 CHECK_TODAY=2027-06-01 처럼 바꿔 미리 볼 수 있어요
 // 13) 공유 주소: 지역 id(‘common’은 공통 예약어), 주소에 들어가는 id 형식, app.js의 공유 주소 만들기 → 읽기 왕복(모든 지역 × 화면 × 항목)
+// 14) 지역 gap 데이터(tools/data/regional-gaps.js): 지역 × 영역 누락, 상태 값, todo, 근거가 실제 데이터를 가리키는지
+// 옵션: --json=파일 → 오류·주의·요약을 JSON으로도 저장(운영 리포트·check-all이 읽어요)
 // 문제가 있으면 종료 코드 1로 끝나요. 링크 접속 확인은 node tools/check-links.js 로 따로 해요.
 
 const fs = require('fs');
@@ -561,86 +563,14 @@ for (const id of REGION_ORDER) {
 console.log(`합계 시·군·구 ${total}곳`);
 
 // ══════════════ 12) 최신성 ══════════════
-// 오늘(한국 시간 기준 날짜). CHECK_TODAY=YYYY-MM-DD로 바꾸면 앞으로 뜰 주의를 미리 볼 수 있어요
-const TODAY = process.env.CHECK_TODAY || new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
-if (!ISO.test(TODAY)) errors.push(`CHECK_TODAY 형식 오류: ${TODAY}`);
-const isRealDate = d => ISO.test(d) && new Date(d + 'T00:00:00Z').toISOString().slice(0, 10) === d;
-const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10);
-const ageOf = d => Math.floor((Date.parse(TODAY + 'T00:00:00Z') - Date.parse(d + 'T00:00:00Z')) / 86400000);
-if (!REVIEW_STATUSES || !FRESHNESS_DAYS || !(FRESHNESS_DAYS.stable > 0) || !(FRESHNESS_DAYS.volatile > 0)) errors.push('common.js에 REVIEW_STATUSES·FRESHNESS_DAYS가 없어요');
-const fresh = { items: 0, stale: [], due: [], review: [], next: null };
-// 지원 항목에서 특히 자주 바뀌는 정보(주의 문구에 함께 적어 먼저 확인하게 해요)
-function volatileParts(p) {
-  const text = [p.sum, p.amount, p.eligibility, p.timing].filter(Boolean).join(' ');
-  const parts = [];
-  if (p.amount) parts.push('금액');
-  if (/\d+\s*회(기)?/.test(text) && /상담/.test(text + p.t)) parts.push('상담 횟수');
-  if (/경호/.test(p.t + text) && /\d+\s*일/.test(text)) parts.push('경호 기간');
-  if (p.contact || p.contacts) parts.push('전화번호');
-  if ((p.channels || []).length) parts.push('신청 URL');
-  parts.push('프로그램명');
-  return parts;
-}
-// item의 날짜·상태 점검. kind: stable | volatile, need: 반드시 있어야 하는 필드
-function checkFreshness(tag, item, kind, need, parts) {
-  fresh.items++;
-  need.forEach(k => { if (item[k] === undefined) errors.push(`${tag}: ${k}가 없어요`); });
-  for (const k of DATE_KEYS) {
-    const d = item[k];
-    if (d === undefined) continue;
-    if (!isRealDate(d)) { errors.push(`${tag}: ${k} 날짜 형식 오류(YYYY-MM-DD, 실제 날짜): ${d}`); continue; }
-    const review = k === 'reviewBy' || k === 'areasReviewBy';
-    if (!review && d > TODAY) errors.push(`${tag}: ${k}가 미래 날짜예요(${d} > 오늘 ${TODAY})`);
-    if (review && d <= TODAY) { fresh.due.push(tag); warnings.push(`[최신성] ${tag}: 재확인일(${k} ${d})이 지났어요 — 새 자료로 다시 확인하고 날짜를 고치세요`); }
-  }
-  if (item.sourceUpdatedAt && item.verifiedAt && isRealDate(item.sourceUpdatedAt) && item.sourceUpdatedAt > item.verifiedAt) {
-    warnings.push(`[최신성] ${tag}: 공식 자료 날짜(${item.sourceUpdatedAt})가 확인일(${item.verifiedAt})보다 늦어요 — 바뀐 자료로 다시 확인하세요`);
-  }
-  if (item.reviewStatus !== undefined && !REVIEW_STATUSES.includes(item.reviewStatus)) errors.push(`${tag}: 알 수 없는 reviewStatus ${item.reviewStatus}`);
-  if (item.reviewStatus && item.reviewStatus !== 'verified') { fresh.review.push(tag); warnings.push(`[최신성] ${tag}: reviewStatus=${item.reviewStatus} — 공식 자료로 다시 확인이 필요해요`); }
-  // 오래된 확인일: 내용(verifiedAt)·연락처(contactsVerifiedAt)·관할(areasVerifiedAt)을 따로 봐요
-  const limit = FRESHNESS_DAYS[kind];
-  [['verifiedAt', parts || ['공식 자료 내용·링크']], ['contactsVerifiedAt', ['전화번호']], ['areasVerifiedAt', ['교육지원청 관할']]].forEach(([k, what]) => {
-    const d = item[k];
-    if (!d || !isRealDate(d) || !limit) return;
-    const until = addDays(d, limit);
-    if (ageOf(d) > limit) { fresh.stale.push({ tag, k, d, what, limit }); }
-    else if (!fresh.next || until < fresh.next.until) fresh.next = { until, tag: `${tag} ${k}` };
-  });
-}
-
-COMMON_PUBLIC_SOURCES.forEach(src => checkFreshness(`COMMON_PUBLIC_SOURCES.${src.id}`, src, 'stable', ['verifiedAt']));
-(VALIDATION_SOURCES || []).forEach((src, i) => checkFreshness(`VALIDATION_SOURCES[${i}]`, src, 'stable', ['verifiedAt']));
-BENEFITS.forEach(b => {
-  const tag = `BENEFITS.${b.id}`;
-  checkFreshness(tag, b, 'stable', ['verifiedAt', 'reviewStatus'], ['제도 기준']);
-  // sourceUpdatedAt = 근거(refs) 중 가장 최근 시행·개정일. 근거 쪽 날짜를 고치면 여기도 맞춰야 해요
-  const refDates = b.refs.map(id => (COMMON_PUBLIC_SOURCES.find(x => x.id === id) || {}).sourceUpdatedAt).filter(Boolean).sort();
-  const latest = refDates.pop();
-  if ((latest || undefined) !== b.sourceUpdatedAt) warnings.push(`[최신성] ${tag}: sourceUpdatedAt(${b.sourceUpdatedAt || '없음'})이 근거의 가장 최근 시행일(${latest || '없음'})과 달라요 — 바뀐 근거로 다시 확인하세요`);
-});
-for (const id of REGION_ORDER) {
-  const r = REGIONS[id];
-  checkFreshness(`[${id}]`, r, 'volatile', ['verifiedAt', 'reviewStatus', 'contactsVerifiedAt', 'areasVerifiedAt'], ['지역 안내 전체']);
-  r.sources.forEach((src, i) => checkFreshness(`[${id}] sources[${i}]`, src, 'volatile', ['verifiedAt']));
-  r.programs.forEach((p, i) => {
-    const tag = `[${id}] programs[${i}] ${p.t}`;
-    checkFreshness(tag, p, 'volatile', ['verifiedAt', 'reviewStatus'], volatileParts(p));
-    // 근거 자료가 이 항목을 확인한 뒤에 바뀌었으면(게시·시행일이 더 늦으면) 다시 확인
-    [].concat(p.source === undefined ? [] : p.source).map(n => r.sources[n]).filter(Boolean).forEach(src => {
-      if (src.sourceUpdatedAt && p.verifiedAt && src.sourceUpdatedAt > p.verifiedAt) warnings.push(`[최신성] ${tag}: 근거 자료(${src.title.slice(0, 30)}…)가 확인 뒤(${src.sourceUpdatedAt})에 바뀌었어요`);
-      if (src.reviewStatus === 'source-unavailable' && p.reviewStatus === 'verified') warnings.push(`[최신성] ${tag}: 근거 원문이 사라졌어요(source-unavailable) — 항목 reviewStatus도 확인하세요`);
-    });
-  });
-  Object.entries(r.benefits || {}).forEach(([bid, d]) => checkFreshness(`[${id}] benefits.${bid}`, d, 'volatile', ['verifiedAt'], ['지역 기준']));
-}
-// 오래된 항목은 자주 바뀌는 정보(금액·상담 횟수·경호 기간·전화번호·신청 URL·관할)가 있는 것부터 보여 줘요
-const PRIORITY = ['금액', '상담 횟수', '경호 기간', '전화번호', '신청 URL', '교육지원청 관할', '프로그램명'];
-const rank = x => Math.min(...(x.what || []).map(w => PRIORITY.indexOf(w)).filter(n => n >= 0), 99);
-fresh.stale.sort((a, b) => rank(a) - rank(b) || a.d.localeCompare(b.d)).forEach(x => {
-  warnings.push(`[최신성] ${x.tag}: ${x.k} ${x.d} (${ageOf(x.d)}일 지남 · 기준 ${x.limit}일) — 다시 확인할 것: ${x.what.join('·')}`);
-});
-console.log(`최신성: 점검 ${fresh.items}건 · 기준일 ${TODAY} · 기준 법령·공통 ${FRESHNESS_DAYS.stable}일 / 지역 사업·연락처 ${FRESHNESS_DAYS.volatile}일 · 오래된 확인 ${fresh.stale.length} · 재확인일 지남 ${fresh.due.length} · 다시 확인 필요 ${fresh.review.length}${fresh.next ? ` · 다음 주의 예정 ${fresh.next.until}(${fresh.next.tag})` : ''}`);
+// 계산 규칙은 tools/lib/freshness.js에 있어요(운영 리포트와 같은 규칙). CHECK_TODAY=YYYY-MM-DD로 바꾸면 앞으로 뜰 주의를 미리 볼 수 있어요
+const { analyzeFreshness, kstToday } = require('./lib/freshness');
+const TODAY = process.env.CHECK_TODAY || kstToday();
+const fresh = analyzeFreshness({ COMMON_PUBLIC_SOURCES, VALIDATION_SOURCES, BENEFITS, REGIONS, REGION_ORDER, REVIEW_STATUSES, FRESHNESS_DAYS }, TODAY);
+errors.push(...fresh.errors);
+warnings.push(...fresh.warnings);
+const FD = FRESHNESS_DAYS || {};
+console.log(`최신성: 점검 ${fresh.items}건 · 기준일 ${TODAY} · 기준 법령·공통 ${FD.stable}일 / 지역 사업·연락처 ${FD.volatile}일 · 오래된 확인 ${(fresh.stale || []).length} · 재확인일 지남 ${(fresh.due || []).length} · 다시 확인 필요 ${fresh.flags.length}${fresh.next ? ` · 다음 주의 예정 ${fresh.next.until}(${fresh.next.tag})` : ''}`);
 
 // ══════════════ 13) 공유 주소 ══════════════
 // 지역 id: 영문 소문자, ‘common’은 공통(지역 미선택)을 뜻하는 공유 주소 예약어라 지역 id로 쓸 수 없어요
@@ -707,9 +637,24 @@ else if (FEEDBACK_URL && !/^https:\/\/(docs\.google\.com\/forms|forms\.gle)\//.t
   }
   console.log(`공유 주소: 왕복 ${states.length}건(지역 ${REGION_ORDER.length} + 공통) · 불일치 ${bad}`);
 }
+// ══════════════ 14) 지역 gap 데이터 ══════════════
+// tools/data/regional-gaps.js: 모든 지역 × 영역, 상태 값, complete가 아니면 todo, 근거(evidence)가 실제 지원 항목·지역 기준을 가리키는지
+const { analyzeGaps } = require('./lib/gaps');
+const gaps = analyzeGaps(require('./data/regional-gaps.js'), { REGIONS, REGION_ORDER, BENEFITS });
+errors.push(...gaps.errors);
+console.log(`지역 gap: ${Object.entries(gaps.counts).map(([k, n]) => `${k} ${n}`).join(' · ')} · 영역 밖 ${(gaps.extras || []).length}`);
+
 // 배포 전 한눈에 보기
 console.log(`요약: 메뉴 ${PAGES.length} · 상황 ${SITUS.length}/${EXPECTED_SITU_COUNT} · 그룹 ${SITU_GROUPS.length}/${EXPECTED_GROUP_COUNT} · 회복·보호 제도 ${BENEFITS.length} · 비교 ${COMPARISONS.length} · 상황 행동 ${Object.keys(SITU_ACTIONS).length} · 지원 유형 ${SUPPORT_TYPES.length} · 지역 ${REGION_ORDER.join('·')} · 공통 근거 ${COMMON_PUBLIC_SOURCES.length} · 오류 ${errors.length} · 주의 ${warnings.length}`);
 warnings.forEach(w => console.log('주의: ' + w));
+// --json=파일: 운영 리포트·check-all이 읽는 결과(오류·주의·요약)
+const jsonArg = process.argv.slice(2).find(x => x.startsWith('--json='));
+if (jsonArg) {
+  fs.writeFileSync(path.resolve(jsonArg.slice(7)), JSON.stringify({
+    checkedAt: TODAY, ok: !errors.length, errors, warnings,
+    summary: { pages: PAGES.length, situs: SITUS.length, expectedSitus: EXPECTED_SITU_COUNT, groups: SITU_GROUPS.length, expectedGroups: EXPECTED_GROUP_COUNT, benefits: BENEFITS.length, comparisons: COMPARISONS.length, supportTypes: SUPPORT_TYPES.length, regions: REGION_ORDER.slice() }
+  }, null, 2));
+}
 if (errors.length) {
   errors.forEach(e => console.log('오류: ' + e));
   process.exit(1);

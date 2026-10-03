@@ -1065,8 +1065,9 @@ const App = {
   // 넓은 화면은 표, 좁은 화면은 항목별 카드(CSS)로 보여요
   renderCompare() {
     const S = this.state;
-    const btns = COMPARISONS.map(c => `<button type="button" class="bf-chip ${S.compare === c.id ? 'active' : ''}" aria-expanded="${S.compare === c.id}" aria-controls="compare-panel" onclick="App.toggleCompare('${c.id}')">${c.t}</button>`).join('');
     const c = COMPARISONS.find(x => x.id === S.compare);
+    // aria-controls는 비교표가 화면에 있을 때만(닫혀 있으면 가리킬 요소가 없어요)
+    const btns = COMPARISONS.map(x => `<button type="button" class="bf-chip ${S.compare === x.id ? 'active' : ''}" aria-expanded="${S.compare === x.id}"${c ? ' aria-controls="compare-panel"' : ''} onclick="App.toggleCompare('${x.id}')">${x.t}</button>`).join('');
     let panel = '';
     if (c) {
       const bs = c.ids.map(benefitById);
