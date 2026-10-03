@@ -22,6 +22,7 @@ const App = {
     supportType: 'all', // 지원 찾기에서 고른 도움 유형('related'는 상황별 도움에서 넘어온 관련 지원 묶음)
     related: null,      // { situId: 상황 stable id, ids: [지원 유형 id] }
     faqOpen: null,
+    protection: null,   // 대응 절차 1단계에서 펼친 보호조치 id(PROTECTIONS[].id)
     checks: {},
     onboarding: false   // 첫 방문(저장된 지역·주소의 region 모두 없음)이면 지역 선택 첫 화면을 보여요
   },
@@ -69,6 +70,14 @@ const App = {
 
   toggle(key, value) {
     this.setState({ [key]: this.state[key] === value ? null : value });
+  },
+
+  // 홈 ‘놓치기 쉬운 보호·지원’ → 대응 절차 1단계의 해당 보호조치를 펼쳐서 보여 줘요
+  openProtection(id) {
+    this.nav('proc', { step: 0, protection: id });
+    // render()는 동기라 바로 찾을 수 있어요. 화면이 바뀐 직후라 부드러운 스크롤 대신 바로 이동해요
+    const el = document.getElementById('prot-' + id);
+    if (el) el.scrollIntoView({ block: 'start' });
   },
 
   // 홈의 특정 영역으로 이동(다른 화면이면 홈으로 먼저 이동)
@@ -311,6 +320,7 @@ const App = {
       return `
         ${this.renderCommonHero()}
         ${this.renderCommonFirst()}
+        ${this.renderHighlights()}
         ${this.renderStepsSummary()}
         ${this.renderOutsideNote()}
       `;
@@ -318,6 +328,7 @@ const App = {
     return `
       ${this.renderHero()}
       ${this.renderQuick()}
+      ${this.renderHighlights()}
       ${this.renderStepsSummary()}
       ${this.renderFinder()}
       ${this.renderFaq()}
@@ -456,6 +467,32 @@ const App = {
         ${this.eyebrow('시작')}
         <h2 class="h2">지금 어떤 도움이 필요하신가요?</h2>
         <ul class="action-list">${rows}</ul>
+      </section>
+    `;
+  },
+
+  // 홈 ‘놓치기 쉬운 보호·지원’: 카드마다 공통 핵심 1~2줄 + (지역 선택 시) 그 지역 한 줄. 자세한 내용은 대응 절차 1단계에서 펼쳐 봐요
+  renderHighlights() {
+    const R = this.R;
+    const cards = HOME_HIGHLIGHTS.map(h => {
+      const local = R && R.highlights && R.highlights[h.id];
+      return `
+        <li class="hl-card">
+          <button class="hl-btn" onclick="App.openProtection('${h.to}')">
+            <span class="hl-title"><span aria-hidden="true">${h.e}</span> ${h.t}</span>
+            <span class="hl-text">${h.d}</span>
+            ${local ? `<span class="hl-local"><strong>${R.short}</strong> ${local}</span>` : ''}
+            <span class="hl-more">자세히 <span aria-hidden="true">→</span></span>
+          </button>
+        </li>
+      `;
+    }).join('');
+    return `
+      <section class="section" id="highlights">
+        ${this.eyebrow('보호·지원')}
+        <h2 class="h2">놓치기 쉬운 보호·지원</h2>
+        <p class="muted">${R ? `${R.short} 금액·횟수는 ${R.office} 2026년 공식 자료 기준이에요.` : '금액·횟수·신청처는 시·도마다 달라요. 근무 지역을 고르면 함께 보여요.'}</p>
+        <ul class="hl-list">${cards}</ul>
       </section>
     `;
   },
@@ -620,12 +657,7 @@ const App = {
           </div>
           <p class="caution"><strong>주의할 점</strong> ${d.caution.join(' · ')}</p>
           <p class="next-step"><strong>다음 단계</strong> ${d.next}</p>
-          ${i === 0 ? `
-            <details class="more">
-              <summary>학교에 요청할 수 있는 보호조치</summary>
-              <ul class="plain-list">${PROTECTIONS.map(x => `<li><strong>${x.t}</strong> — ${x.d}</li>`).join('')}</ul>
-            </details>
-          ` : ''}
+          ${i === 0 ? this.renderProtections() : ''}
           <div class="btn-row">
             ${i > 0 ? `<button class="btn btn-secondary" onclick="App.setState({ step: ${i - 1} })">← 이전 단계</button>` : ''}
             ${i < STEPS.length - 1 ? `<button class="btn btn-primary" onclick="App.setState({ step: ${i + 1} }); document.querySelector('.stepper').scrollIntoView({ behavior: 'smooth' })">다음 단계 →</button>` : ''}
@@ -634,6 +666,56 @@ const App = {
         <p class="muted small">기한은 법률이 아닌 교육활동 보호 매뉴얼 기준이에요(법률은 '지체 없이' 보고). 실제 적용 기한과 제출 방식은 소속 교육지원청 안내를 확인하세요.</p>
         ${this.renderSources('procedure')}
       </section>
+    `;
+  },
+
+  // 대응 절차 1단계 ‘학교에 요청할 수 있는 보호조치’: 항목마다 펼쳐서 공통 기준(법령·전국 지침)과
+  // 선택한 지역의 금액·횟수·신청처(R.protections[id])를 나눠 보여 줘요. 지역 값은 공통 문장에 섞지 않아요
+  renderProtections() {
+    const S = this.state;
+    const R = this.R;
+    const items = PROTECTIONS.map(x => {
+      const open = S.protection === x.id;
+      const local = R && R.protections && R.protections[x.id];
+      // 놓치기 쉬운 점: 공통(전국 기준)과 지역 기준을 섞지 않고 각자의 상자에 보여 줘요
+      const missedBox = (list, title) => list && list.length ? `
+                <div class="prot-missed">
+                  <p class="prot-missed-title">${title}</p>
+                  <ul>${list.map(m => `<li>${m}</li>`).join('')}</ul>
+                </div>` : '';
+      return `
+        <li class="action prot ${open ? 'open' : ''}" id="prot-${x.id}">
+          <button class="action-head" aria-expanded="${open}" onclick="App.toggle('protection','${x.id}')">
+            <span class="prot-icon" aria-hidden="true">${x.e}</span>
+            <span class="action-label">${x.t}<span class="prot-sum">${x.d}</span></span>
+            <span class="chevron" aria-hidden="true"></span>
+          </button>
+          ${open ? `
+            <div class="action-body">
+              ${x.scope ? `<p class="prot-scope">${x.scope}</p>` : ''}
+              ${this.facts(PROTECTION_FIELDS.map(([k, label]) => [label, x[k]]))}
+              ${missedBox(x.missed, '놓치기 쉬운 점')}
+              ${local ? `
+                <div class="prot-local">
+                  <p class="prot-local-title">${R.short} 기준</p>
+                  ${local.program ? `<p class="prot-local-name">${local.program}</p>` : ''}
+                  ${this.facts(PROTECTION_FIELDS.map(([k, label]) => [label, local[k] ? linkifyPhone(local[k]) : '']))}
+                  ${missedBox(local.missed, R.short + '에서 놓치기 쉬운 점')}
+                  <p class="muted small">${sourceLine(R, local)}</p>
+                </div>` : (R ? `<p class="muted small prot-local-none">${R.short} 공식 자료에서 따로 정한 금액·신청 기준은 확인되지 않아 공통 기준을 따라요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
+              ${x.basis ? `<p class="muted small">공통 근거: ${x.basis}</p>` : ''}
+              ${x.link ? `<button class="link-btn small" onclick="App.nav('support', { supportType: '${x.link}' })">${R ? R.short + ' ' : ''}지원 찾기에서 보기 →</button>` : ''}
+            </div>
+          ` : ''}
+        </li>
+      `;
+    }).join('');
+    return `
+      <div class="prot-section">
+        <h3 class="prot-heading">학교에 요청할 수 있는 보호조치</h3>
+        <p class="muted small">${R ? `항목을 펼치면 공통 기준과 ${R.short}의 금액·횟수·신청처를 나눠 보여 줘요.` : '항목을 펼치면 전국 공통 기준을 보여 줘요. 금액·횟수·신청처는 근무 지역을 고르면 함께 보여요.'}</p>
+        <ul class="action-list prot-list">${items}</ul>
+      </div>
     `;
   },
 
@@ -891,12 +973,14 @@ const App = {
           ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : ''}
         </div>
         <p>${p.sum}</p>
+        ${p.amount ? `<p class="support-amount"><span class="support-amount-label">지원 한도</span> ${p.amount}</p>` : ''}
         ${this.facts([
           ['담당', p.org || UNKNOWN], ['신청 방법', p.apply || UNKNOWN],
           // 용도가 다른 번호(contacts)는 용도별로 나눠 보여 줘요
           ...(p.contacts ? p.contacts.map(c => [c.label, linkifyPhone(c.value)]) : [['연락처', p.contact ? linkifyPhone(p.contact) : UNKNOWN]]),
           ['대상', p.target]
         ])}
+        ${this.supportDetail(p)}
         ${actionButtons(programChannels(p))}
         <p class="muted small">${sourceLine(R, p)}</p>
       </li>
@@ -930,6 +1014,18 @@ const App = {
         </ul>
         ${this.renderSources('support')}
       </section>
+    `;
+  },
+
+  // 지원 카드의 ‘신청 전 확인할 것’: 조건·시기·서류·주의(지역 공식 자료로 확인한 값만 있어요)
+  supportDetail(p) {
+    const rows = [['지원 조건', p.eligibility], ['신청 시기', p.timing], ['준비 서류', p.documents], ['주의할 점', p.caution]].filter(([, v]) => v);
+    if (!rows.length) return '';
+    return `
+      <details class="support-more">
+        <summary>신청 전 확인할 것 <span class="muted small">${rows.map(([k]) => k).join('·')}</span></summary>
+        ${this.facts(rows)}
+      </details>
     `;
   },
 
@@ -1094,11 +1190,14 @@ function regionAreas(R) {
     .sort((a, b) => a.area.localeCompare(b.area, 'ko'));
 }
 
+// source는 sources 배열 번호 하나 또는 번호 배열이에요(근거 자료가 둘 이상이면 ‘근거 자료 1·2’)
 function sourceLine(R, item) {
-  const src = item.source !== undefined ? R.sources[item.source] : null;
-  const date = fmtDate((src && src.verifiedAt) || R.verifiedAt);
-  const link = src && src.url ? ` · <a href="${src.url}" target="_blank" rel="noopener">근거 자료</a>` : '';
-  return `${date} 최종 확인${link}`;
+  const ids = item.source === undefined ? [] : [].concat(item.source);
+  const srcs = ids.map(i => R.sources[i]).filter(Boolean);
+  const date = fmtDate(latestDate(srcs.length ? srcs : [R]) || R.verifiedAt);
+  const links = srcs.filter(s => s.url).map((s, i, arr) =>
+    `<a href="${s.url}" target="_blank" rel="noopener" title="${escapeAttr(s.title)}">근거 자료${arr.length > 1 ? ' ' + (i + 1) : ''}</a>`);
+  return `${date} 최종 확인${links.length ? ' · ' + links.join(' · ') : ''}`;
 }
 
 // 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구, + 공통 법적·정책 근거를 작게)

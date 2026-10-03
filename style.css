@@ -592,6 +592,51 @@ body.is-landing { padding-bottom: 0; }
 }
 
 /* ══════════════ 좁은 데스크톱·태블릿 ══════════════ */
+/* ── 홈: 놓치기 쉬운 보호·지원(compact card) ── */
+.hl-list { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.hl-btn {
+  width: 100%; height: 100%; display: flex; flex-direction: column; gap: 6px; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px;
+  font: inherit; color: inherit;
+}
+.hl-btn:hover { border-color: var(--primary); box-shadow: var(--shadow-soft); }
+.hl-title { font-weight: 700; font-size: 16px; }
+.hl-text { font-size: 14.5px; color: var(--muted); line-height: 1.5; }
+.hl-local { font-size: 14px; line-height: 1.5; background: var(--primary-soft); border-radius: var(--radius-sm); padding: 6px 8px; }
+.hl-local strong { color: var(--primary); margin-right: 4px; }
+.hl-more { margin-top: auto; font-size: 14px; font-weight: 600; color: var(--primary); }
+
+/* ── 대응 절차 1단계: 학교에 요청할 수 있는 보호조치(펼침형) ── */
+.prot-section { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 16px; }
+.prot-heading { font-size: 18px; margin: 0 0 4px; }
+.prot-list { margin-top: 10px; }
+.prot { scroll-margin-top: 80px; }
+.prot-icon { font-size: 20px; flex: none; }
+.prot .action-label { display: flex; flex-direction: column; gap: 2px; }
+.prot-sum { font-size: 14px; font-weight: 400; color: var(--muted); line-height: 1.45; }
+.prot-scope { margin: 14px 0 0; font-size: 14.5px; font-weight: 600; color: var(--accent); }
+.prot-missed { margin: 14px 0 0; background: var(--accent-soft); border-radius: var(--radius-sm); padding: 10px 14px; max-width: var(--read); }
+.prot-missed-title { margin: 0 0 4px; font-weight: 700; color: var(--accent); font-size: 15px; }
+.prot-missed ul { margin: 0; padding-left: 18px; font-size: 15px; }
+.prot-missed li + li { margin-top: 4px; }
+.prot-local { margin: 14px 0 0; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: var(--radius-sm); padding: 10px 14px; }
+.prot-local-title { margin: 0; font-weight: 700; color: var(--primary); }
+.prot-local-name { margin: 4px 0 0; font-weight: 600; }
+.prot-local .facts { margin-top: 8px; }
+.prot-local-none { margin-top: 12px; }
+.prot .link-btn { margin-top: 10px; }
+
+/* ── 지원 찾기: 한도·신청 전 확인 ── */
+.support-amount { margin: 10px 0 0 !important; padding: 8px 12px; background: var(--primary-soft); border-radius: var(--radius-sm); font-weight: 600; }
+.support-amount-label { color: var(--primary); margin-right: 6px; font-size: 14px; }
+.support-more { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 6px; }
+.support-more summary { cursor: pointer; font-weight: 600; color: var(--primary); min-height: 40px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.support-more .facts { margin-top: 4px; }
+
+@media (max-width: 960px) {
+  .hl-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 960px) {
   .nav-btn { padding: 8px 9px; font-size: 14.5px; }
   .main-nav { margin-left: 6px; }
@@ -632,6 +677,8 @@ body.is-landing { padding-bottom: 0; }
   .panel-hot { font-size: 26px; }
 
   .step-list, .first-list { grid-template-columns: 1fr; }
+  .hl-list { gap: 8px; }
+  .hl-btn { padding: 12px; }
   /* 공통 모드 안내 기준 패널은 제목 뒤에 두고, 설명과 지역 버튼을 그대로 보여 줘요 */
   .hero .common-panel { order: 0; display: block; }
   .hero .common-panel .panel-label { display: block; }
@@ -687,6 +734,7 @@ body.is-landing { padding-bottom: 0; }
 
 /* 좁은 휴대폰: 헤더 전화 버튼은 아이콘만(번호는 히어로에 크게 보여요) */
 @media (max-width: 420px) {
+  .hl-list { grid-template-columns: 1fr; }
   .brand-name { font-size: 17px; }
   .header-call { padding: 8px 12px; font-size: 0; gap: 0; min-width: 44px; justify-content: center; }
   .header-call span { font-size: 17px; }

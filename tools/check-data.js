@@ -9,6 +9,8 @@
 //  7) 상황별 도움 V2의 stable id·필수 배열·그룹 연결이 올바른지
 //  8) 신청·상담·안내 링크(channels·links)와 교육청·교육지원청 링크가 https + 공식 도메인인지(접속 확인은 별도로 해요)
 //  9) 지역 출처(sources)마다 쓰이는 화면(uses)이 적혀 있는지, 공통 화면 근거에 특정 시·도 자료가 섞이지 않았는지
+// 10) 보호조치(PROTECTIONS)·홈 ‘놓치기 쉬운 보호·지원’: 공통 문장에 금액(○만 원)이 없는지, 특별휴가가 ‘범위에서 부여’ 표현인지,
+//     지역 보호조치 상세(protections)·한 줄(highlights)의 id와 출처 번호가 맞는지
 // 문제가 있으면 종료 코드 1로 끝나요.
 
 const fs = require('fs');
@@ -24,7 +26,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, COMMON_PUBLIC_SOURCES, SOURCE_USES } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, COMMON_PUBLIC_SOURCES, SOURCE_USES })', ctx);
+const { REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, COMMON_PUBLIC_SOURCES, SOURCE_USES, PROTECTIONS, PROTECTION_FIELDS, HOME_HIGHLIGHTS } = vm.runInContext('({ REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, COMMON_PUBLIC_SOURCES, SOURCE_USES, PROTECTIONS, PROTECTION_FIELDS, HOME_HIGHLIGHTS })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -45,10 +47,13 @@ function contactTexts(r) {
   const out = [['hot', r.hot], ...Object.entries(r.terms).map(([k, v]) => ['terms.' + k, v])];
   for (const key of ['offices', 'programs', 'orgs']) {
     (r[key] || []).forEach((item, i) => {
-      for (const f of ['contact', 'apply']) if (item[f]) out.push([`${key}[${i}].${f} (${item.name || item.t})`, item[f]]);
+      for (const f of ['contact', 'apply', 'amount', 'timing', 'documents', 'caution', 'eligibility']) if (item[f]) out.push([`${key}[${i}].${f} (${item.name || item.t})`, item[f]]);
       (item.contacts || []).forEach((c, j) => out.push([`${key}[${i}].contacts[${j}] (${item.name || item.t})`, c.value]));
     });
   }
+  Object.entries(r.protections || {}).forEach(([pid, d]) => {
+    for (const [k, v] of Object.entries(d)) if (typeof v === 'string') out.push([`protections.${pid}.${k}`, v]);
+  });
   return out;
 }
 
@@ -217,6 +222,37 @@ expectSearch('손해배상', '손해배상', ['civil-damages-legal-response']);
 expectSearch('정보공개', '정보공개', ['repeated-info-disclosure-complaint']);
 expectSearch('출근', '출근', ['post-incident-burnout']);
 
+// 보호조치: 공통 데이터는 제도·법령상 권리만. 금액(○만 원)·특정 지역 기관명은 지역 데이터(protections)로
+const PROTECTION_IDS = new Set();
+const FIELD_KEYS = PROTECTION_FIELDS.map(([k]) => k);
+const MONEY = /\d[\d,]*\s*(?:만|천|억)\s*원|\d[\d,]{2,}\s*원/;
+PROTECTIONS.forEach((x, i) => {
+  const tag = `PROTECTIONS[${i}] (${x.t})`;
+  if (!x.id || !/^[a-z]+$/.test(x.id)) errors.push(`${tag} id 형식 오류: ${x.id}`);
+  else if (PROTECTION_IDS.has(x.id)) errors.push(`${tag} id 중복`);
+  PROTECTION_IDS.add(x.id);
+  for (const f of ['t', 'd', 'e', 'what', 'who', 'when', 'apply']) if (!x[f]) errors.push(`${tag} ${f} 없음`);
+  const text = [x.d, ...FIELD_KEYS.map(k => x[k]), ...(x.missed || [])].filter(Boolean).join(' ');
+  if (MONEY.test(text)) errors.push(`${tag} 공통 보호조치에 금액이 있어요(지역 protections로 옮기세요): ${text.match(MONEY)[0]}`);
+  if (x.link && !SUPPORT_TYPES.some(t => t.id === x.link)) errors.push(`${tag} link가 SUPPORT_TYPES에 없어요: ${x.link}`);
+});
+// 특별휴가: ‘자동 지급’처럼 쓰지 않고 ‘범위에서 부여할 수 있음’을 유지해요
+const leave = PROTECTIONS.find(x => x.id === 'leave');
+if (!leave) errors.push('PROTECTIONS에 특별휴가(leave)가 없어요');
+else {
+  const lt = [leave.d, ...FIELD_KEYS.map(k => leave[k])].join(' ');
+  if (!/범위에서/.test(lt) || !/부여할 수 있/.test(lt)) errors.push('특별휴가 안내에 ‘범위에서 … 부여할 수 있어요’ 표현이 없어요');
+  if (/자동|지급/.test(lt)) errors.push('특별휴가 안내에 ‘자동·지급’ 표현이 있어요');
+}
+// 공무상 병가: 국·공립 교원 기준임을 표시
+const sick = PROTECTIONS.find(x => x.id === 'sick');
+if (!sick || !/국·공립/.test([sick.t, sick.scope, sick.who].join(' '))) errors.push('공무상 병가(sick) 안내에 ‘국·공립’ 적용 범위 표시가 없어요');
+HOME_HIGHLIGHTS.forEach((h, i) => {
+  if (!PROTECTION_IDS.has(h.to)) errors.push(`HOME_HIGHLIGHTS[${i}] to가 PROTECTIONS에 없어요: ${h.to}`);
+  if (MONEY.test(h.d)) errors.push(`HOME_HIGHLIGHTS[${i}] 공통 한 줄에 금액이 있어요: ${h.d}`);
+  if (h.d.length > 70) errors.push(`HOME_HIGHLIGHTS[${i}] 홈 문구가 길어요(70자 이하): ${h.d.length}자`);
+});
+
 // 지역 데이터 전체(설명 문구 포함)에서 올바른 형식의 번호만 모아요(날짜 등은 형식이 달라 제외돼요)
 const numbersOf = id => new Set(phonesIn(JSON.stringify(REGIONS[id])).filter(isValidPhone));
 let total = 0;
@@ -240,10 +276,33 @@ for (const id of REGION_ORDER) {
     if (!r.sources.some(s => (s.uses || []).includes(use))) warnings.push(`${tag} ${use} 화면에 쓸 지역 출처가 없어요(공통 근거만 표시돼요)`);
   }
   r.programs.forEach((p, i) => {
-    if (p.source !== undefined && !r.sources[p.source]) errors.push(`${tag} programs[${i}] source 번호가 없어요: ${p.source}`);
-    else if (p.source !== undefined && !(r.sources[p.source].uses || []).includes('support')) errors.push(`${tag} programs[${i}] source ${p.source}의 uses에 support가 없어요`);
+    // source는 번호 하나 또는 번호 배열
+    for (const n of p.source === undefined ? [] : [].concat(p.source)) {
+      if (!r.sources[n]) errors.push(`${tag} programs[${i}] source 번호가 없어요: ${n}`);
+      else if (!(r.sources[n].uses || []).includes('support')) errors.push(`${tag} programs[${i}] source ${n}의 uses에 support가 없어요`);
+    }
     // 지원 찾기에 보이려면 area가 SUPPORT_TYPES 중 하나에 속해야 해요
     if (!SUPPORT_TYPES.some(t => t.areas.includes(p.area))) errors.push(`${tag} programs[${i}] area가 SUPPORT_TYPES에 없어요: ${p.area}`);
+  });
+
+  // 보호조치 지역 상세·홈 한 줄: 공통 보호조치 id에 연결되고, 근거 출처가 있어야 해요
+  Object.entries(r.protections || {}).forEach(([pid, d]) => {
+    if (!PROTECTION_IDS.has(pid)) errors.push(`${tag} protections.${pid}: PROTECTIONS에 없는 id예요`);
+    const refs = d.source === undefined ? [] : [].concat(d.source);
+    if (!refs.length) errors.push(`${tag} protections.${pid}: source가 없어요`);
+    for (const n of refs) {
+      if (!r.sources[n]) errors.push(`${tag} protections.${pid}: source 번호가 없어요(${n})`);
+      else if (!(r.sources[n].uses || []).includes('procedure')) errors.push(`${tag} protections.${pid}: source ${n}의 uses에 procedure가 없어요`);
+    }
+    Object.keys(d).filter(k => ![...FIELD_KEYS, 'missed', 'source', 'program'].includes(k)).forEach(k => errors.push(`${tag} protections.${pid}: 알 수 없는 필드 ${k}`));
+  });
+  Object.entries(r.highlights || {}).forEach(([hid, text]) => {
+    if (!HOME_HIGHLIGHTS.some(h => h.id === hid)) errors.push(`${tag} highlights.${hid}: HOME_HIGHLIGHTS에 없는 id예요`);
+    if (String(text).length > 60) errors.push(`${tag} highlights.${hid}: 홈 한 줄이 길어요(60자 이하): ${String(text).length}자`);
+  });
+  // 지원 항목 상세 필드(amount·eligibility·timing·documents·caution): 예전 이름(docs·deadline)은 쓰지 않아요
+  r.programs.forEach((p, i) => {
+    for (const old of ['docs', 'deadline']) if (p[old] !== undefined) errors.push(`${tag} programs[${i}] 예전 필드 ${old} → ${old === 'docs' ? 'documents' : 'timing'}로 바꿔 주세요`);
   });
 
   // 신청·상담·안내 링크(channels)와 교육지원청 링크: https + 공식 도메인만
@@ -289,7 +348,7 @@ for (const id of REGION_ORDER) {
     for (const n of theirs) if (mine.has(n)) errors.push(`${tag} 다른 지역(${other}) 번호 포함: ${n}`);
   }
 
-  console.log(`${tag} 교육지원청 ${r.offices.length}곳 · 시·군·구 ${seen.size}곳 · 지원제도 ${r.programs.length} · 기관 ${r.orgs.length} · 최종 확인 ${r.verifiedAt}`);
+  console.log(`${tag} 교육지원청 ${r.offices.length}곳 · 시·군·구 ${seen.size}곳 · 지원제도 ${r.programs.length}(한도 표시 ${r.programs.filter(p => p.amount).length}) · 보호조치 상세 ${Object.keys(r.protections || {}).length} · 기관 ${r.orgs.length} · 최종 확인 ${r.verifiedAt}`);
 }
 
 console.log(`합계 시·군·구 ${total}곳`);
