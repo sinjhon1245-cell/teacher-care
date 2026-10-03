@@ -44,7 +44,7 @@ const warnings = [];
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-const { PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS } = vm.runInContext('({ PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS })', ctx);
+const { PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS, COMPARISONS, SITU_ACTIONS } = vm.runInContext('({ COMPARISONS, SITU_ACTIONS, PAGES, REGIONS, REGION_ORDER, SUPPORT_TYPES, SITUS, SITU_GROUPS, FILTER_DEFS, STAGE_TO_STEP, STEPS, COMMON_PUBLIC_SOURCES, SOURCE_USES, BENEFITS, BENEFIT_FIELDS, BENEFIT_CATEGORIES, EMPLOYMENT_SCOPES, HOME_ENTRIES, HOME_HIGHLIGHTS, RECOVERY_PATH, RECOVERY_NOTE, STEP_LINKS, SITU_BENEFITS })', ctx);
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -264,7 +264,19 @@ function commonTextIssues(tag, text) {
 function misleadingIssues(tag, text) {
   for (const re of MISLEADING) { const m = text.match(re); if (m) errors.push(`${tag}: 자동 적용으로 오해할 수 있는 표현이에요: ${m[0]}`); }
 }
-const benefitText = x => [x.t, x.d, x.scope, x.notice, ...(x.badges || []), ...FIELD_KEYS.map(k => x[k]), ...(x.missed || [])].filter(Boolean).join(' ');
+const benefitText = x => [x.t, x.d, x.scope, x.notice, x.cause, x.recognition, ...(x.badges || []), ...FIELD_KEYS.map(k => x[k]), ...(x.missed || []), ...(x.actions || []).map(a => a.t)].filter(Boolean).join(' ');
+// 행동 체크 목록: 3~5개(상황은 2~5개), id 중복 없음, id 형식(저장 키에 쓰여요)
+const checkActions = (tag, list, min) => {
+  if (!Array.isArray(list)) return;
+  if (list.length < min || list.length > 5) errors.push(`${tag}: 행동 체크는 ${min}~5개로 해 주세요(${list.length}개)`);
+  const ids = new Set();
+  list.forEach(a => {
+    if (!a.id || !/^[a-z]+(?:-[a-z]+)*$/.test(a.id)) errors.push(`${tag}: 행동 id 형식 오류 ${a.id}`);
+    else if (ids.has(a.id)) errors.push(`${tag}: 행동 id 중복 ${a.id}`);
+    ids.add(a.id);
+    if (!a.t) errors.push(`${tag}: 행동 문구가 비어 있어요(${a.id})`);
+  });
+};
 // 배지는 짧은 의미 단위로(긴 막대처럼 보이지 않게)
 const checkBadges = (tag, list) => (list || []).forEach(t => { if (String(t).length > 14) errors.push(`${tag}: 배지가 길어요(14자 이하로 나눠 주세요): ${t}`); });
 const checkCommon = (tag, text) => { commonTextIssues(tag, text); misleadingIssues(tag, text); };
@@ -304,6 +316,8 @@ BENEFITS.forEach((x, i) => {
   if ((x.missed || []).length > 2) errors.push(`${tag} ‘놓치기 쉬워요’는 2개까지예요: ${x.missed.length}개`);
   checkRefs(tag, x.refs);
   checkBadges(tag, x.badges);
+  if (!Array.isArray(x.actions)) errors.push(`${tag} ‘지금 확인해 볼 일’(actions)이 없어요`);
+  checkActions(tag, x.actions, 3);
   if (x.supportLinks) x.supportLinks.types.filter(t => !SUPPORT_IDS.has(t)).forEach(t => errors.push(`${tag} supportLinks에 없는 지원 유형: ${t}`));
   checkCommon(tag, benefitText(x));
 });
@@ -379,6 +393,30 @@ Object.entries(kwCount).filter(([, n]) => n > 4).forEach(([k, n]) => warnings.pu
 const httpsOnly = (tag, url) => { try { if (new URL(url).protocol !== 'https:') errors.push(`${tag} https가 아니에요: ${url}`); } catch (e) { errors.push(`${tag} URL 형식 오류: ${url}`); } };
 COMMON_PUBLIC_SOURCES.forEach((src, i) => httpsOnly(`COMMON_PUBLIC_SOURCES[${i}]`, src.url));
 REGION_ORDER.forEach(id => REGIONS[id].sources.forEach((src, i) => src.url && httpsOnly(`[${id}] sources[${i}]`, src.url)));
+
+// 회복·보호 비교표(COMPARISONS): id 중복, 제도 참조, 같은 제도 중복, 칸 필드
+const cmpIds = new Set();
+COMPARISONS.forEach((c, i) => {
+  const tag = `COMPARISONS[${i}] (${c.t})`;
+  if (!c.id || cmpIds.has(c.id)) errors.push(`${tag}: id가 없거나 중복돼요`);
+  cmpIds.add(c.id);
+  if (!Array.isArray(c.ids) || c.ids.length < 2) errors.push(`${tag}: 비교할 제도가 2개 이상이어야 해요`);
+  if (new Set(c.ids).size !== c.ids.length) errors.push(`${tag}: 같은 제도가 두 번 들어 있어요`);
+  c.ids.filter(id => !BENEFIT_IDS.has(id)).forEach(id => errors.push(`${tag}: 없는 제도 id ${id}`));
+  c.rows.forEach(([key]) => {
+    if (key === 'keyNote' || key === '@return') return;
+    c.ids.map(id => BENEFITS.find(b => b.id === id)).filter(Boolean).forEach(b => { if (!b[key]) errors.push(`${tag}: ${b.id}에 비교 칸 ‘${key}’ 내용이 없어요`); });
+  });
+  if (c.note) checkCommon(`${tag} note`, c.note);
+});
+if (!COMPARISONS.some(c => c.ids.includes('official-disease-leave') && /공무상 요양 승인/.test(c.note || ''))) errors.push('질병휴직 비교에 ‘침해 인정 ≠ 공무상 질병휴직’ 안내(note)가 없어요');
+// 상황별 ‘지금 해볼 일’: 실제 상황 id, 2~5개
+Object.entries(SITU_ACTIONS).forEach(([id, list]) => {
+  if (!SITUS.some(st => st.id === id)) errors.push(`SITU_ACTIONS: 없는 상황 id ${id}`);
+  checkActions(`SITU_ACTIONS[${id}]`, list, 2);
+  checkCommon(`SITU_ACTIONS[${id}]`, list.map(a => a.t).join(' '));
+});
+if (Object.keys(SITU_ACTIONS).length > 12) errors.push('상황별 ‘지금 해볼 일’은 핵심 상황에만(12개 이하) 두세요');
 
 // 지원 유형: 공통 기준(guide)·회복·보호 연결(care)
 SUPPORT_TYPES.forEach((t, i) => {

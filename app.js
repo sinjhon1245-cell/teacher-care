@@ -5,6 +5,8 @@
 
 const STORAGE_REGION = 'teacher-care-region';
 const STORAGE_CHECKS = 'teacher-care-procedure-checks-v1'; // { '단계번호.항목id': true }
+// 회복·보호 ‘지금 확인해 볼 일’과 상황별 ‘지금 해볼 일’의 체크(이 기기에만). { 'benefit:제도id.항목id': true, 'situ:상황id.항목id': true }
+const STORAGE_ACTIONS = 'teacher-care-action-checks-v1';
 // 예전 체크리스트 키. 삭제된 목록의 순번으로 저장돼 새 항목과 맞지 않아 옮기지 않고 지워요
 const LEGACY_CHECK_KEYS = ['teacher-care-checks', 'icn-gyeote-checks'];
 
@@ -23,7 +25,9 @@ const App = {
     related: null,      // { situId: 상황 stable id, ids: [지원 유형 id] }
     faqOpen: null,
     benefit: null,      // 회복·보호에서 펼친 제도 id(BENEFITS[].id)
+    compare: null,      // 회복·보호에서 연 비교표 id(COMPARISONS[].id)
     checks: {},
+    actionChecks: {},   // 행동 체크(STORAGE_ACTIONS)
     onboarding: false   // 첫 방문(저장된 지역·주소의 region 모두 없음)이면 지역 선택 첫 화면을 보여요
   },
 
@@ -31,17 +35,22 @@ const App = {
     this.state.regionId = initialRegionId();
     this.state.onboarding = !this.state.regionId;
     this.state.checks = loadChecks();
+    this.state.actionChecks = loadActionChecks();
+    // 공유 주소: ?page=care&benefit=… 처럼 화면이 정해져 있으면 지역 선택 첫 화면 없이 그 화면으로 바로 가요(잘못된 값은 무시)
+    const linked = applySharedQuery(this.state);
+    if (linked) this.state.onboarding = false;
     this.render();
     // 최초 진입: 지금 화면을 기록만 하고(replace) 새 항목은 만들지 않아요. 스크롤은 우리가 직접 맞춰요
     try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) { /* 무시 */ }
     this.recordHistory('replace');
+    if (linked) this.scrollToTarget();
   },
 
   // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요
   chooseRegion(id) {
     this.state.onboarding = false;
     this.state.page = 'home';
-    this.setRegion(id);
+    this.setRegion(id, true);
     window.scrollTo(0, 0);
   },
 
@@ -53,12 +62,15 @@ const App = {
   // 현재 선택된 지역 데이터(없으면 null)
   get R() { return REGIONS[this.state.regionId] || null; },
 
-  setRegion(id) {
+  // 지역 변경은 기록을 하나 쌓아요(뒤로가기로 이전 지역으로 돌아가요). 지역은 localStorage에도 저장하고, 주소의 region도 바꿔요
+  setRegion(id, replace) {
     const next = REGIONS[id] ? id : null;
     if (next === this.state.regionId) return;
     storeSet(STORAGE_REGION, next);
+    this._navigating = true;
     this.setState({ regionId: next, area: '', supportType: 'all', related: null });
-    this.recordHistory('replace'); // 지역은 기록이 아니라 localStorage가 기억해요. 현재 기록의 지원 유형만 맞춰 둬요
+    this._navigating = false;
+    if (!this._restoring) this.recordHistory(replace ? 'replace' : 'push');
     if (next) this.showToast(REGIONS[next].name + ' 기준으로 안내해요');
   },
 
@@ -72,24 +84,46 @@ const App = {
   nav(page, patch) {
     const changed = page !== this.state.page;
     if (changed) this.saveScroll();
+    this._navigating = true; // 다시 그리는 동안 주소 동기화(syncUrl)가 현재 기록을 덮어쓰지 않게
     this.setState({ page, ...patch });
+    this._navigating = false;
     window.scrollTo(0, 0);
     if (!this._restoring) this.recordHistory(changed ? 'push' : 'replace');
   },
 
-  // ── 브라우저 뒤로가기·앞으로가기(History API) ──
-  // URL은 바꾸지 않아요(?region= 그대로). GitHub Pages에서 새로고침해도 404가 나지 않고, 지역은 지금처럼 localStorage가 기억해요.
-  // 기록에는 메뉴와 그 메뉴에서 펼친 것(대응 절차 단계, 회복·보호 제도, 지원 유형)만 담아요. 검색어·체크는 담지 않아요
+  // ── 브라우저 뒤로가기·앞으로가기(History API) + 공유 주소 ──
+  // 주소(URL) = 공유할 수 있는 핵심 상태만: ?region=&page=&benefit=|situ=|type=|step=|compare= (경로 라우팅 없음 → 새로고침해도 404 없음)
+  // 기록(history.state) = 탐색 중 세부 상태(관련 지원 묶음, 스크롤 위치 등). 검색어·체크·스크롤은 주소에 넣지 않아요
   historyState() {
     const S = this.state;
-    return { tc: 1, page: S.page, step: S.step, benefit: S.benefit, supportType: S.supportType, related: S.related, scrollY: 0 };
+    return { tc: 1, page: S.page, region: S.regionId, step: S.step, benefit: S.benefit, situ: S.situ, compare: S.compare, supportType: S.supportType, related: S.related, scrollY: 0 };
   },
 
   recordHistory(mode) {
     try {
-      if (mode === 'push') history.pushState(this.historyState(), '');
-      else history.replaceState({ ...this.historyState(), scrollY: (history.state && history.state.scrollY) || 0 }, '');
+      const url = shareUrlOf(this.state, true);
+      if (mode === 'push') history.pushState(this.historyState(), '', url);
+      else history.replaceState({ ...this.historyState(), scrollY: (history.state && history.state.scrollY) || 0 }, '', url);
     } catch (e) { /* 기록을 못 남겨도 화면 이동은 그대로 돼요 */ }
+  },
+
+  // 같은 메뉴 안에서 바뀐 공유 상태(제도 펼침·지원 유형 등)는 새 기록 없이 주소만 맞춰요
+  syncUrl() {
+    if (this._navigating || this._restoring || !(history.state && history.state.tc)) return;
+    const url = shareUrlOf(this.state, true);
+    if (url === location.pathname + location.search) return;
+    try { history.replaceState({ ...this.historyState(), scrollY: history.state.scrollY || 0 }, '', url); } catch (e) { /* 무시 */ }
+  },
+
+  // 공유 주소로 들어왔을 때 그 항목이 보이게
+  scrollToTarget() {
+    const S = this.state;
+    const id = S.page === 'care' && S.compare ? 'compare'
+      : S.page === 'care' && S.benefit ? 'bf-' + S.benefit
+      : S.page === 'guide' && S.situ && S.situ.startsWith('situ:') ? 'situ-' + S.situ.slice(5)
+      : S.page === 'support' && S.supportType !== 'all' ? 'support-results' : null;
+    const el = id && document.getElementById(id);
+    if (el) el.scrollIntoView({ block: 'start' });
   },
 
   // 다른 메뉴로 떠나기 전에 지금 위치를 현재 기록에 남겨 두면, 돌아왔을 때 그 자리로 가요
@@ -104,9 +138,17 @@ const App = {
     const page = PAGES.some(([id]) => id === st.page) ? st.page : 'home';
     const step = Number.isInteger(st.step) && st.step >= 0 && st.step < STEPS.length ? st.step : 0;
     this._restoring = true;
+    // 지역도 그 기록의 지역으로 돌려요(저장된 지역도 함께). 지역 기록이 없던 예전 항목은 지금 지역을 그대로 둬요
+    const patch = {};
+    if (st.region !== undefined) {
+      const region = REGIONS[st.region] ? st.region : null;
+      if (region !== this.state.regionId) { storeSet(STORAGE_REGION, region); patch.regionId = region; patch.area = ''; }
+    }
     this.setState({
-      page, step, onboarding: false,
+      ...patch, page, step, onboarding: false,
       benefit: st.benefit && benefitById(st.benefit) ? st.benefit : null,
+      situ: typeof st.situ === 'string' ? st.situ : null,
+      compare: st.compare && COMPARISONS.some(c => c.id === st.compare) ? st.compare : null,
       supportType: typeof st.supportType === 'string' ? st.supportType : 'all',
       related: st.related || null
     });
@@ -332,6 +374,7 @@ const App = {
       <a class="skip-link" href="#main">본문 바로가기</a>
       ${this.renderHeader()}
       <main id="main">
+        <div class="print-head" id="print-head"></div>
         ${S.page === 'home' ? this.renderHome() : ''}
         ${S.page === 'proc' ? this.renderProc() : ''}
         ${S.page === 'guide' ? this.renderGuide() : ''}
@@ -345,6 +388,76 @@ const App = {
     // 회복·보호 검색어가 있으면 다시 그린 뒤에도 같은 결과를 보여 줘요
     if (S.page === 'care' && this._careQuery) this.filterCare(this._careQuery);
     if (S.page === 'support' && this._supQuery) this.filterSupport(this._supQuery);
+    this.syncUrl();
+    // 체크박스를 누른 뒤 다시 그려도 키보드 포커스가 그 자리에 남게
+    if (this._focusId) {
+      const el = document.getElementById(this._focusId);
+      if (el) el.focus({ preventScroll: true });
+      this._focusId = null;
+    }
+  },
+
+  // 비교표를 열면 아래에 펼쳐 둔 제도는 접어요(주소가 지금 보는 비교표를 가리키게)
+  toggleCompare(id) {
+    const on = this.state.compare !== id;
+    this.setState({ compare: on ? id : null, benefit: on ? null : this.state.benefit });
+  },
+
+  // ── 행동 체크(이 기기에만, 체크 여부만 저장) ──
+  toggleAction(key, inputId) {
+    const checks = { ...this.state.actionChecks };
+    if (checks[key]) delete checks[key]; else checks[key] = true;
+    storeSet(STORAGE_ACTIONS, Object.keys(checks).length ? JSON.stringify(checks) : null);
+    this._focusId = inputId;
+    this.setState({ actionChecks: checks });
+  },
+
+  actionList(scope, ownerId, items, title) {
+    if (!items || !items.length) return '';
+    const rows = items.map(a => {
+      const key = `${scope}:${ownerId}.${a.id}`;
+      const inputId = `act-${scope}-${ownerId}-${a.id}`;
+      const done = !!this.state.actionChecks[key];
+      return `<li><label class="check ${done ? 'done' : ''}" for="${inputId}"><input type="checkbox" id="${inputId}" ${done ? 'checked' : ''} onchange="App.toggleAction('${key}', '${inputId}')"><span>${a.t}</span></label></li>`;
+    }).join('');
+    const n = items.filter(a => this.state.actionChecks[`${scope}:${ownerId}.${a.id}`]).length;
+    return `
+      <div class="act-box">
+        <p class="act-title">${title} <span class="muted small">${n}/${items.length}</span></p>
+        <ul class="check-list act-list">${rows}</ul>
+        <p class="muted small">스스로 확인해 볼 항목이에요(제출 서류 목록이 아니에요). 체크는 이 기기에만 저장되고 서버로 보내지 않아요.</p>
+      </div>
+    `;
+  },
+
+  // ── 링크 복사·인쇄 ──
+  // 상세 하단의 작은 도구 묶음. url은 공유 주소(지역·화면·항목만, 개인 체크는 넣지 않아요)
+  shareTools(state, label) {
+    const url = shareUrlOf(state, false);
+    return `
+      <div class="share-row">
+        <button type="button" class="tool-btn" data-url="${escapeAttr(url)}" onclick="App.copyLink(this.dataset.url)" aria-label="${escapeAttr(label)} 링크 복사"><span aria-hidden="true">🔗</span> 링크 복사</button>
+        <button type="button" class="tool-btn" data-title="${escapeAttr(label)}" onclick="App.printTarget(this)" aria-label="${escapeAttr(label)} 인쇄하기"><span aria-hidden="true">🖨</span> 인쇄하기</button>
+      </div>
+    `;
+  },
+
+  async copyLink(url) {
+    try {
+      await navigator.clipboard.writeText(url);
+      this.showToast('링크를 복사했어요.');
+    } catch (e) {
+      if (copyWithSelection(url)) this.showToast('링크를 복사했어요.');
+      else window.prompt('아래 링크를 길게 눌러 복사하세요.', url);
+    }
+  },
+
+  // 이 내용만 인쇄: 버튼이 속한 상세([data-print])만 남기고 형제 영역은 인쇄에서 숨겨요. 상세 안의 접힌 근거도 펼쳐서 인쇄해요
+  printTarget(btn) {
+    const target = btn.closest('[data-print]');
+    if (!target) { window.print(); return; }
+    preparePrint(target, btn.dataset.title);
+    window.print();
   },
 
   // ══════════════ 공통 부품 ══════════════
@@ -791,7 +904,7 @@ const App = {
         <p class="muted">지금 단계를 고르고, 한 일을 체크하며 따라가세요.</p>
         ${this.emergencyNote()}
         <ol class="stepper" aria-label="대응 단계">${stepper}</ol>
-        <div class="proc-panel">
+        <div class="proc-panel" data-print>
           <div class="proc-title-row">
             <h2 class="h2">${s.n}. ${s.title}</h2>
             <span class="badge">${s.org}</span>
@@ -813,6 +926,7 @@ const App = {
           <p class="caution"><strong>주의할 점</strong> ${d.caution.join(' · ')}</p>
           <p class="next-step"><strong>다음 단계</strong> ${d.next}</p>
           ${this.renderStepLinks(i)}
+          ${this.shareTools({ page: 'proc', step: i, regionId: this.state.regionId }, '대응 절차 · ' + s.n + '단계 ' + s.title)}
           <div class="btn-row">
             ${i > 0 ? `<button class="btn btn-secondary" onclick="App.setState({ step: ${i - 1} })">← 이전 단계</button>` : ''}
             ${i < STEPS.length - 1 ? `<button class="btn btn-primary" onclick="App.setState({ step: ${i + 1} }); document.querySelector('.stepper').scrollIntoView({ behavior: 'smooth' })">다음 단계 →</button>` : ''}
@@ -862,12 +976,14 @@ const App = {
             <p class="muted small">${sourceLine(R, local)}</p>
           </div>` : (R ? `<p class="muted small prot-local-none">${R.short}에서 별도로 안내한 세부 기준은 현재 확인되지 않았어요. 공통 기준을 먼저 확인하고, 실제 적용은 소속 학교나 교육(지원)청에 확인하세요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
       </div>
+      ${this.actionList('benefit', x.id, x.actions, '지금 확인해 볼 일')}
       ${refsBox(x.refs, x.basis)}
       ${links.length ? `
         <div class="bf-cross">
           <p class="bf-cross-q">${x.supportLinks.q}</p>
           <div class="bf-list">${links.map(t => supportChip(t, R)).join('')}</div>
         </div>` : ''}
+      ${this.shareTools({ page: 'care', benefit: x.id, regionId: this.state.regionId }, '회복·보호 · ' + x.t)}
     `;
   },
 
@@ -899,7 +1015,7 @@ const App = {
             <span class="action-label bf-head"><span class="bf-title">${b.t}</span><span class="prot-sum">${b.d}</span><span class="bf-badges">${benefitBadges(b)}</span></span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
-          ${open ? `<div class="action-body">${this.benefitDetail(b)}</div>` : ''}
+          ${open ? `<div class="action-body" data-print>${this.benefitDetail(b)}</div>` : ''}
         </li>
       `;
     };
@@ -921,6 +1037,7 @@ const App = {
         <p class="muted">사건 이후 사용할 수 있는 휴가·병가·휴직과 보호 제도를 확인해 보세요.</p>
         <p class="muted small">제도별 적용 대상과 승인 절차는 교원 신분과 상황에 따라 달라질 수 있어요. 상담·치료비·법률·경호 같은 지원은 <button class="link-btn small" onclick="App.nav('support')">지원 찾기</button>에서 확인하세요.</p>
         ${this.renderRecoveryFlow()}
+        ${this.renderCompare()}
         <div class="tool-panel guide-search-panel care-search-panel">
           <label class="guide-search-label" for="care-search">어떤 제도를 찾으세요?</label>
           <div class="guide-search-field">
@@ -937,6 +1054,39 @@ const App = {
         <p class="note" id="care-empty" hidden>검색어에 맞는 제도가 없어요. 상담·치료비·변호사·경호는 <button class="link-btn" onclick="App.nav('support')">지원 찾기</button>에서 찾아보세요.</p>
         ${cats}
         ${this.renderSources('care')}
+      </section>
+    `;
+  },
+
+  // ‘제도 차이가 헷갈리나요?’: 정해 둔 비교 묶음(COMPARISONS). 칸 내용은 BENEFITS에서 그대로 가져와요(같은 숫자를 두 군데 적지 않음).
+  // 넓은 화면은 표, 좁은 화면은 항목별 카드(CSS)로 보여요
+  renderCompare() {
+    const S = this.state;
+    const btns = COMPARISONS.map(c => `<button type="button" class="bf-chip ${S.compare === c.id ? 'active' : ''}" aria-expanded="${S.compare === c.id}" aria-controls="compare-panel" onclick="App.toggleCompare('${c.id}')">${c.t}</button>`).join('');
+    const c = COMPARISONS.find(x => x.id === S.compare);
+    let panel = '';
+    if (c) {
+      const bs = c.ids.map(benefitById);
+      const cell = (b, key) => key === 'keyNote' ? (b.notice || (b.missed || [])[0] || b.caution || '')
+        : key === '@return' ? (benefitById('return-to-work') || {}).limit || '' : b[key] || '';
+      panel = `
+        <div class="cmp-panel" id="compare-panel" data-print>
+          ${c.note ? `<p class="bf-notice"><strong>꼭 확인하세요</strong> ${c.note}</p>` : ''}
+          <table class="cmp-table">
+            <caption>${c.t}: ${bs.map(b => b.t).join(' · ')}</caption>
+            <thead><tr><th scope="col">항목</th>${bs.map(b => `<th scope="col">${b.t}${benefitBadges(b) ? `<span class="bf-badges">${benefitBadges(b)}</span>` : ''}</th>`).join('')}</tr></thead>
+            <tbody>${c.rows.map(([key, label]) => `<tr><th scope="row">${label}</th>${bs.map(b => `<td data-col="${b.t}">${cell(b, key)}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+          <p class="muted small">각 제도의 자세한 내용은 아래 목록에서 펼쳐 보세요. 적용 여부는 교원 신분과 요건·승인 절차에 따라 달라요.</p>
+          <div class="bf-list">${bs.map(b => `<button type="button" class="link-btn small" onclick="App.openBenefit('${b.id}')">${b.t} 자세히</button>`).join('')}</div>
+          ${this.shareTools({ page: 'care', compare: c.id, regionId: S.regionId }, '회복·보호 · ' + c.t)}
+        </div>`;
+    }
+    return `
+      <section class="compare" id="compare">
+        <h2 class="care-cat-title">제도 차이가 헷갈리나요?</h2>
+        <div class="bf-list">${btns}</div>
+        ${panel}
       </section>
     `;
   },
@@ -986,10 +1136,11 @@ const App = {
       ? `<button class="btn btn-secondary" onclick="App.showRelated('${s.id}')">관련 지원 ${types.length}개 보기 →</button>`
       : `<button class="btn btn-secondary" onclick="App.nav('support', { supportType: '${types.length ? types[0].id : 'all'}' })">${types.length ? `관련 지원 보기(${types[0].label})` : '지원 찾기'} →</button>`;
     return `
-      <div class="situ-sub">
+      <div class="situ-sub ${this.state.situ === 'situ:' + s.id ? 'is-target' : ''}" id="situ-${s.id}" data-print>
         ${withTitle ? `<h3 class="sub-title">${s.title} ${urgencyBadge(s.urgency)}</h3>` : ''}
         <p class="muted small">예: ${s.example}</p>
         <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.firstAction}</p></div>
+        ${this.actionList('situ', s.id, SITU_ACTIONS[s.id], '지금 해볼 일')}
         ${this.facts([['학교에 알릴 내용', s.report], ['남겨 두면 좋은 기록', s.evidence], ['주의할 점', s.dont]])}
         ${s.legalCaution ? `<p class="note"><strong>판단 시 주의</strong> ${s.legalCaution}</p>` : ''}
         ${this.situBenefits(s)}
@@ -1002,6 +1153,7 @@ const App = {
           <button class="btn btn-secondary" onclick="App.nav('proc', { step: ${step === undefined ? 0 : step} })">관련 대응 절차 →</button>
           ${supportBtn}
         </div>
+        ${this.shareTools({ page: 'guide', situ: 'situ:' + s.id, regionId: this.state.regionId }, '상황별 도움 · ' + s.title)}
       </div>
     `;
   },
@@ -1061,7 +1213,8 @@ const App = {
         const subs = SITUS.filter(s => s.group === g.id)
           .sort((a, b) => URGENCY_ORDER.indexOf(a.urgency) - URGENCY_ORDER.indexOf(b.urgency));
         const key = 'group:' + g.id;
-        const isOpen = S.situ === key;
+        // 공유 주소로 특정 상황(situ:…)이 정해지면 그 상황이 속한 큰 상황을 펼쳐요
+        const isOpen = S.situ === key || (!!S.situ && subs.some(x => 'situ:' + x.id === S.situ));
         return `
           <li class="action ${g.urgent ? 'urgent' : ''} ${isOpen ? 'open' : ''}">
             <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
@@ -1273,6 +1426,7 @@ const App = {
           </div>
           ${relMode || cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
         </div>
+        <div class="sup-print" data-print>
         ${cur ? this.supportGuideBox(cur) : ''}
         <div class="tool-panel guide-search-panel sup-search-panel">
           <label class="guide-search-label" for="sup-search">찾는 지원이 있나요?</label>
@@ -1284,7 +1438,8 @@ const App = {
           </div>
           <p id="sup-count" class="muted small guide-search-hint" aria-live="polite"></p>
         </div>
-        <ul class="support-list">${items}</ul>
+        <ul class="support-list" id="support-results">${items}</ul>
+        </div>
         <p class="note" id="sup-empty" hidden>검색어에 맞는 지원이 없어요. 위 유형에서 고르거나 대표번호(<a href="${telHref(R.hot)}">${R.hot}</a>)로 문의하세요.</p>
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
@@ -1301,7 +1456,6 @@ const App = {
   supportGuideBox(t) {
     const g = t.guide;
     const careIds = t.care ? t.care.ids.map(benefitById).filter(Boolean) : [];
-    if (!g && !careIds.length && t.id !== 'office') return '';
     return `
       <div class="sup-guide">
         ${g ? `
@@ -1317,6 +1471,7 @@ const App = {
             <div class="bf-list">${careIds.map(b => `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t} 제도 확인</button>`).join('')}</div>
           </div>` : ''}
         ${t.id === 'office' ? `<button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기 →</button>` : ''}
+        ${this.shareTools({ page: 'support', supportType: t.id, regionId: this.state.regionId }, '지원 찾기 · ' + t.label)}
       </div>
     `;
   },
@@ -1549,6 +1704,116 @@ function loadChecks() {
     return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
   } catch (e) { return {}; }
 }
+
+function loadActionChecks() {
+  try {
+    const v = JSON.parse(storeGet(STORAGE_ACTIONS) || '{}');
+    return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+  } catch (e) { return {}; }
+}
+
+// ── 공유 주소 ──
+// ?region=incheon&page=care&benefit=special-leave · ?page=guide&situ=physical-assault · ?page=support&type=legal · ?page=proc&step=2 · ?page=care&compare=leave
+// 화면마다 그 화면의 항목 하나만 넣어요. 검색어·체크·스크롤·사소한 펼침 상태는 넣지 않아요
+function shareParamsOf(st) {
+  const q = new URLSearchParams();
+  if (st.regionId && REGIONS[st.regionId]) q.set('region', st.regionId);
+  const page = st.page || 'home';
+  if (page !== 'home') q.set('page', page);
+  // 회복·보호: 펼친 제도가 더 구체적이라 먼저, 없으면 비교표
+  if (page === 'care' && st.benefit && benefitById(st.benefit)) q.set('benefit', st.benefit);
+  else if (page === 'care' && st.compare && COMPARISONS.some(c => c.id === st.compare)) q.set('compare', st.compare);
+  if (page === 'guide' && typeof st.situ === 'string' && st.situ.startsWith('situ:') && SITUS.some(x => 'situ:' + x.id === st.situ)) q.set('situ', st.situ.slice(5));
+  if (page === 'support' && st.supportType && SUPPORT_TYPES.some(t => t.id === st.supportType)) q.set('type', st.supportType);
+  if (page === 'proc' && Number.isInteger(st.step) && st.step > 0) q.set('step', String(st.step + 1));
+  return q;
+}
+
+// relative: 주소창용(경로 + 쿼리), 아니면 다른 사람에게 보낼 전체 주소
+function shareUrlOf(st, relative) {
+  const qs = shareParamsOf(st).toString();
+  const rel = location.pathname + (qs ? '?' + qs : '');
+  return relative ? rel : location.origin + rel;
+}
+
+// 처음 들어온 주소의 공유 상태를 읽어요. 알 수 없는 값은 무시하고 기본 화면으로. 화면(page)이 정해졌으면 true
+function applySharedQuery(S) {
+  let q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return false; }
+  const page = q.get('page');
+  if (!page || !PAGES.some(([id]) => id === page)) return false;
+  S.page = page;
+  const benefit = q.get('benefit');
+  const compare = q.get('compare');
+  const situ = q.get('situ');
+  const type = q.get('type');
+  const step = parseInt(q.get('step'), 10);
+  if (page === 'care' && compare && COMPARISONS.some(c => c.id === compare)) S.compare = compare;
+  if (page === 'care' && benefit && benefitById(benefit)) S.benefit = benefit;
+  if (page === 'guide' && situ && SITUS.some(x => x.id === situ)) S.situ = 'situ:' + situ;
+  if (page === 'support' && type && SUPPORT_TYPES.some(t => t.id === type)) S.supportType = type;
+  if (page === 'proc' && step >= 1 && step <= STEPS.length) S.step = step - 1;
+  return true;
+}
+
+// Clipboard API를 못 쓸 때(권한·http 등) 선택 후 복사
+function copyWithSelection(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch (e) { return false; }
+}
+
+// ── 인쇄 ──
+// 인쇄 머리: 서비스 이름 · 화면 > 항목 · 지역 기준 · 인쇄 날짜와 공유 주소
+function fillPrintHead(title) {
+  const head = document.getElementById('print-head');
+  if (!head) return;
+  const S = App.state;
+  const R = App.R;
+  const pageLabel = (PAGES.find(([id]) => id === S.page) || [, ''])[1];
+  const today = new Date();
+  head.innerHTML = `
+    <p class="print-brand">선생님 곁에 · 교육활동 보호·대응 가이드</p>
+    <p class="print-title">${title || pageLabel}</p>
+    <p class="print-meta">${R ? R.name + ' 기준' : '전국 공통 기준'} · 2026년 공식 자료 기준 · 인쇄 ${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}.</p>
+    <p class="print-meta print-url">${escapeAttr(shareUrlOf(S, false))}</p>`;
+}
+
+// 이 내용만 인쇄할 때: 대상의 조상마다 형제 요소를 인쇄에서 숨기고, 대상 안의 접힌 상자(근거 등)는 펼쳐요
+function preparePrint(target, title) {
+  cleanupPrint();
+  document.body.classList.add('print-focus');
+  let el = target;
+  while (el && el.id !== 'main' && el.parentElement) {
+    [...el.parentElement.children].forEach(sib => { if (sib !== el && sib.id !== 'print-head') sib.setAttribute('data-print-hide', ''); });
+    el = el.parentElement;
+  }
+  target.querySelectorAll('details:not([open])').forEach(d => { d.open = true; d.setAttribute('data-print-opened', ''); });
+  fillPrintHead(title);
+}
+
+function cleanupPrint() {
+  document.body.classList.remove('print-focus');
+  document.querySelectorAll('[data-print-hide]').forEach(e => e.removeAttribute('data-print-hide'));
+  document.querySelectorAll('[data-print-opened]').forEach(d => { d.open = false; d.removeAttribute('data-print-opened'); });
+}
+
+// 브라우저 메뉴로 인쇄할 때도 머리를 채우고, 펼쳐 둔 상세 안의 접힌 근거는 펼쳐요(닫힌 항목 전체를 펼치지는 않아요)
+window.addEventListener('beforeprint', () => {
+  if (document.body.classList.contains('print-focus')) return;
+  fillPrintHead();
+  document.querySelectorAll('.action.open details:not([open]), .sup-guide details:not([open])').forEach(d => { d.open = true; d.setAttribute('data-print-opened', ''); });
+});
+window.addEventListener('afterprint', cleanupPrint);
 
 // 주소의 ?region=seoul → 저장된 지역 → 미선택 순. 알 수 없는 값은 무시해요.
 function initialRegionId() {

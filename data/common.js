@@ -92,6 +92,7 @@ const QUICK = [
 // - category: BENEFIT_CATEGORIES id · employment: EMPLOYMENT_SCOPES(사용자의 신분은 추정하지 않고 배지로만 알려요)
 // - badges: 짧은 의미 단위 배지(첫째 = 핵심 기간, 나머지 = 조건, 14자 이하) · notice: 상세 맨 위 ‘꼭 확인하세요’ · missed: ‘놓치기 쉬워요’ 2개까지
 // - refs: 공식 근거(COMMON_PUBLIC_SOURCES id) · supportLinks: 지원 찾기로 이어지는 질문과 유형(SUPPORT_TYPES id)
+// - recognition·cause: 비교표(COMPARISONS)에 쓰는 ‘별도 인정 필요 여부’·‘발생 원인’ · actions: ‘지금 확인해 볼 일’(3~5개, 제출 서류 목록이 아니에요)
 // 표현 규칙: ‘자동 승인·지급’, ‘휴직 인정’, ‘특별휴가 10일’처럼 쓰지 않아요. ‘~범위에서 ~할 수 있어요’, ‘검토할 수 있어요’로 써요(점검 도구가 검사)
 const BENEFIT_FIELDS = [
   ['what', '어떤 제도인가요?'], ['who', '누가 사용할 수 있나요?'], ['limit', '기간·범위'], ['when', '언제 사용할 수 있나요?'],
@@ -116,6 +117,8 @@ const BENEFIT_CATEGORIES = [
 
 const BENEFITS = [
   { id: 'special-leave', category: 'rest', t: '특별휴가', e: '🌤️', employment: 'public', badges: ['5일 범위', '해당 시 5일 범위 추가'],
+    recognition: '교육활동 침해 피해 교원이어야 해요. 위원회 심의 전에도 학교장 판단으로 허가할 수 있고, 나중에 침해가 아니라고 판단되면 병가·연가로 정정돼요.',
+    actions: [{ id: 'tell', t: '학교 관리자에게 현재 상황과 회복이 필요하다는 점 알리기' }, { id: 'ask', t: '특별휴가 부여 여부와 사용 시기를 학교장에게 확인하기' }, { id: 'timeline', t: '사건 경과를 시간순으로 정리하기' }, { id: 'proof', t: '신고서·진단서 등 나중에 갖출 증빙 확인하기' }, { id: 'next', t: '회복이 더 필요하면 병가 제도도 확인하기' }],
     keywords: ['특별휴가', '휴가', '마음돌봄휴가', '쉬고 싶어요'],
     notice: '침해를 당했다고 정해진 일수가 자동으로 부여되는 것은 아니에요. 사안과 학교장 승인 절차로 정해져요.',
     scope: '기간은 국·공립학교 교원에게 적용되는 「교원휴가에 관한 예규」, 사용 시기·승인 방법은 전국 공통 「교육활동 보호 매뉴얼」(2026) 안내예요. 사립학교 교원은 학교법인 복무 규정을, 기간제 교원은 학교의 복무 기준을 확인하세요.',
@@ -136,6 +139,8 @@ const BENEFITS = [
     supportLinks: { q: '상담이나 치료도 필요하신가요?', types: ['counsel', 'care-cost'] } },
 
   { id: 'sick-leave', category: 'rest', t: '일반 병가', e: '🏥', employment: 'public', badges: ['연 60일 범위', '연 6일 넘으면 진단서'],
+    recognition: '교육활동 침해나 공무상 인정은 필요 없어요. 질병·부상으로 직무를 수행할 수 없으면 돼요.',
+    actions: [{ id: 'special', t: '교육활동 침해로 쉬는 것이라면 특별휴가 대상인지 먼저 확인하기' }, { id: 'diag', t: '연간 6일을 넘을 것 같으면 진단서 준비하기' }, { id: 'ask', t: '학교에 병가 신청 방법 확인하기' }, { id: 'official', t: '공무상 질병·부상 가능성이 있으면 공무상 병가도 확인하기' }],
     keywords: ['병가', '일반 병가', '진단서', '아파서'],
     scope: '국·공립학교 교원에게 적용되는 「국가공무원 복무규정」 기준이에요. 사립·기간제 교원은 적용 기준이 달라 학교에 확인하세요.',
     d: '질병·부상으로 직무를 수행할 수 없을 때 연 60일 범위에서 승인받을 수 있어요.',
@@ -151,6 +156,8 @@ const BENEFITS = [
     supportLinks: { q: '치료나 상담을 함께 받고 있나요?', types: ['counsel', 'care-cost'] } },
 
   { id: 'official-sick-leave', category: 'rest', t: '공무상 병가', e: '🩹', employment: 'public', badges: ['연 180일 범위', '공무상 판단 필요'],
+    recognition: '공무상 질병·부상인지 판단이 필요해요. 6일을 넘으면 공무상 요양 승인을 거쳐요.',
+    actions: [{ id: 'diag', t: '진단서·소견서 확인하기' }, { id: 'ask', t: '공무상 질병·부상 해당 가능성을 학교에 문의하기' }, { id: 'care', t: '6일을 넘길 것 같으면 공무상 요양 승인 절차 확인하기' }, { id: 'keep', t: '사건 관련 자료 보존하기' }],
     keywords: ['공무상 병가', '공상', '공무상', '병가'],
     notice: '교육활동 침해로 인정됐다고 공무상 병가가 자동으로 승인되는 것은 아니에요. 공무상 질병·부상인지 따로 판단해요.',
     scope: '국·공립학교 교원(교육공무원) 기준이에요. 기간제 교원은 산업재해보상보험법, 사립학교 교원은 사립학교교직원 연금법에 따른 요양급여로 안내돼요.',
@@ -170,6 +177,9 @@ const BENEFITS = [
     supportLinks: { q: '치료비나 공무상 재해 관련 상담이 필요하신가요?', types: ['care-cost', 'legal'] } },
 
   { id: 'disease-leave', category: 'long', t: '질병휴직', e: '🛌', employment: 'check', badges: ['1년 이내', '부득이하면 1년 연장'],
+    cause: '원인과 관계없이 신체·정신상의 장애로 장기요양이 필요할 때',
+    recognition: '공무상 인정은 필요 없어요. 장기요양이 필요하다는 의학적 판단이 필요해요.',
+    actions: [{ id: 'opinion', t: '장기요양이 필요하다는 의사 소견 받기' }, { id: 'status', t: '내 신분(국·공립·사립·기간제)에 맞는 기준 확인하기' }, { id: 'ask', t: '학교에 휴직 신청 절차와 서류 확인하기' }, { id: 'return', t: '복귀 시기와 복직 신고 방법 미리 확인하기' }],
     keywords: ['휴직', '질병휴직', '장기요양', '장기 치료'],
     scope: '국·공립 교원은 교육공무원법, 사립 교원은 사립학교법과 학교법인 정관을 따라요. 기간제 교원에게는 휴직 규정이 적용되지 않아요(교육공무원법 제32조제3항).',
     d: '교육활동 침해 이후 장기간 치료가 필요하다면 질병휴직을 검토할 수 있어요.',
@@ -185,6 +195,9 @@ const BENEFITS = [
     supportLinks: { q: '휴직 중에도 상담·치료 지원을 받을 수 있는지 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
   { id: 'official-disease-leave', category: 'long', t: '공무상 질병휴직', e: '🩺', employment: 'public', badges: ['3년 이내', '조건 충족 시 연장 가능'],
+    cause: '공무수행 과정의 부상·질병(공무상 재해)으로 장기요양이 필요할 때',
+    recognition: '공무원연금공단의 공무상 요양(재요양) 승인이 필요해요. 교육활동 침해 인정만으로는 적용되지 않아요.',
+    actions: [{ id: 'approval', t: '공무상 요양 승인 결정 통지가 있는지 확인하기' }, { id: 'opinion', t: '장기요양이 필요하다는 의사 소견 받기' }, { id: 'ask', t: '학교를 거쳐 휴직 신청 절차 확인하기' }, { id: 'return', t: '복직 신고 방법 미리 확인하기' }],
     keywords: ['공무상 질병휴직', '공상휴직', '공무상 휴직', '휴직', '공무상'],
     notice: '교육활동 침해 인정만으로 자동 적용되는 제도는 아니에요. 공무상 요양 승인을 따로 받아야 해요.',
     scope: '국·공립 교원(교육공무원) 기준이고, 공무상 요양 승인을 받은 경우로 한정돼요.',
@@ -201,6 +214,7 @@ const BENEFITS = [
     supportLinks: { q: '법률 또는 공무상 재해 상담이 필요하신가요?', types: ['legal', 'care-cost'] } },
 
   { id: 'official-medical-care', category: 'care', t: '공무상 요양', e: '📋', employment: 'public', badges: ['3년 안에 청구'],
+    actions: [{ id: 'docs', t: '진단서(요양기간 기재)와 처음 진료한 병원 의무기록 준비하기' }, { id: 'story', t: '재해 경위를 시간순으로 정리하기' }, { id: 'confirm', t: '학교(기관장) 확인 절차 문의하기' }, { id: 'deadline', t: '사유 발생일부터 3년 안에 청구해야 한다는 점 기억하기' }],
     keywords: ['공무상 요양', '요양', '요양급여', '공무원연금공단', '공무상', '공상', '재해', '산재'],
     notice: '교육활동 침해 인정과 공무상 재해 인정은 별개의 판단이에요.',
     scope: '국·공립 교원(공무원) 기준이에요. 사립 교원은 사립학교교직원 연금법, 기간제 교원은 산재보험으로 안내돼요.',
@@ -218,6 +232,7 @@ const BENEFITS = [
     supportLinks: { q: '치료비 지원이나 법률 상담도 확인해 보세요.', types: ['care-cost', 'legal'] } },
 
   { id: 'separation', category: 'protect', t: '즉시 분리', e: '🤝', employment: 'all', badges: ['위원회 결과 전에도'],
+    actions: [{ id: 'tell', t: '분리를 원한다는 뜻을 학교에 바로 알리기' }, { id: 'how', t: '수업·동선에서 바라는 분리 방식 정리하기' }, { id: 'period', t: '분리 기간과 장소를 학교에 확인하기' }],
     keywords: ['분리', '즉시 분리', '마주치기', '가해 학생'],
     d: '원하면 위원회 결과를 기다리지 않고 학교장이 침해 관련자와 즉시 분리해요.',
     what: '교원이 반대하지 않으면 학교장(관할청 포함)이 가해자와 피해 교원을 즉시 분리해야 해요. 쉬는 시간·점심시간 동선 분리도 함께 계획해요.',
@@ -233,6 +248,7 @@ const BENEFITS = [
     supportLinks: { q: '신변 위협이 계속되나요?', types: ['safety'] } },
 
   { id: 'protection-request', category: 'protect', t: '보호조치 요청', e: '🛡️', employment: 'all',
+    actions: [{ id: 'list', t: '필요한 보호조치(상담·치료·휴가 등) 정리하기' }, { id: 'ask', t: '학교장·담당자에게 보호조치 요청하기' }, { id: 'receipt', t: '치료·상담 영수증 보관하기' }],
     keywords: ['보호조치', '보호조치 요청', '치유', '교권 회복'],
     d: '관할청과 학교장은 침해 사실을 알게 되면 즉시 심리상담·치료 등 보호조치를 해야 해요.',
     what: '피해 교원의 치유와 교권 회복을 위해 관할청(교육감 등)과 학교장이 해야 하는 조치예요. 심리상담·조언, 치료·치료를 위한 요양, 그 밖에 치유와 교권 회복에 필요한 조치가 있어요.',
@@ -247,6 +263,7 @@ const BENEFITS = [
     supportLinks: { q: '지역의 상담·치료비 지원을 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
   { id: 'transfer', category: 'work', t: '비정기 전보', e: '🏫', employment: 'check', badges: ['지역별 기준'],
+    actions: [{ id: 'ask', t: '학교장에게 전보 희망 알리기' }, { id: 'rule', t: '지역 인사 기준과 시기 확인하기' }, { id: 'docs', t: '조치결정 통지서 등 처리 결과 보관하기' }],
     keywords: ['전보', '비정기 전보', '비정기전보', '학교 옮기기', '근무지', '인사'],
     d: '희망하면 학교장이 시·도교육청 전보 절차·요건에 따라 전보를 요청할 수 있어요.',
     what: '교육활동 침해 피해 교원의 치유와 교권 회복을 위해, 시·도교육청 인사 기준에 따라 정기전보가 아닌 시기·조건으로 전보를 요청하는 조치예요.',
@@ -260,6 +277,7 @@ const BENEFITS = [
     basis: '교원지위법 시행령 제2조의3제2항제3호, 교육활동 보호 매뉴얼(2026) 71쪽' },
 
   { id: 'return-to-work', category: 'return', t: '복귀 준비(복직)', e: '🌱', employment: 'public', badges: ['30일 이내 신고'],
+    actions: [{ id: 'report', t: '휴직 사유가 없어지면 30일 이내 복직 신고하기' }, { id: 'protect', t: '복귀 뒤 필요한 보호조치(분리 등)를 학교와 상의하기' }, { id: 'support', t: '복귀 뒤에도 이용할 상담·회복 지원 확인하기' }],
     keywords: ['복직', '복귀', '복귀 준비', '출근', '휴직 끝'],
     scope: '국·공립 교원(교육공무원) 기준이에요. 사립 교원은 학교법인 정관을 따르고, 기간제 교원에게는 휴직·복직 규정이 적용되지 않아요.',
     d: '휴직 사유가 없어지거나 기간이 끝나면 30일 이내 신고로 복직하고, 복귀 뒤에도 상담·치료 지원을 이어서 확인할 수 있어요.',
@@ -274,6 +292,26 @@ const BENEFITS = [
     basis: '국가공무원법 제73조제2항·제3항, 교원지위법 제22조제2항제2호',
     supportLinks: { q: '복귀 뒤 상담·회복 프로그램도 확인해 보세요.', types: ['counsel'] } }
 ];
+
+// 회복·보호 ‘제도 차이가 헷갈리나요?’: 정해 둔 비교 묶음. 칸 내용은 모두 BENEFITS에서 가져와요(숫자를 따로 적지 않아요).
+// rows의 key는 BENEFITS 필드 이름이고, 'keyNote'는 notice → missed[0] → caution 순, '@return'은 복귀 준비(return-to-work)의 기간 설명이에요
+const COMPARISONS = [
+  { id: 'leave', t: '휴가·병가 비교', ids: ['special-leave', 'sick-leave', 'official-sick-leave'],
+    rows: [['when', '언제 확인하나요?'], ['who', '적용 대상'], ['limit', '기간·범위'], ['recognition', '별도 인정 필요 여부'], ['apply', '승인·신청'], ['prepare', '준비 자료'], ['keyNote', '핵심 주의사항']] },
+  { id: 'disease', t: '질병휴직 비교', ids: ['disease-leave', 'official-disease-leave'],
+    note: '교육활동 침해로 인정됐다고 공무상 질병휴직이 되는 것은 아니에요. 공무상 요양 승인을 따로 받아야 해요.',
+    rows: [['who', '대상'], ['cause', '발생 원인·장기요양 필요성'], ['recognition', '공무상 인정'], ['limit', '기간·연장'], ['apply', '신청'], ['prepare', '준비 자료'], ['@return', '복직'], ['keyNote', '핵심 주의사항']] }
+];
+
+// 상황별 도움 ‘지금 해볼 일’: 행동으로 옮기기 쉬운 핵심 상황에만(모든 상황에 만들지 않아요). 기존 firstAction·report·evidence에서 뽑았어요
+const SITU_ACTIONS = {
+  'physical-assault': [{ id: 'safe', t: '안전한 곳으로 이동하기(위험이 계속되면 112)' }, { id: 'treat', t: '다친 곳을 치료받고 진단서·진료기록 받기' }, { id: 'tell', t: '관리자에게 누가·언제·어디서·무엇을 했는지 알리기' }, { id: 'evidence', t: '현장 사진·목격자를 기록하고 CCTV 확인 요청하기' }, { id: 'protect', t: '분리·특별휴가 요청 여부 정하기' }],
+  'specific-threat': [{ id: 'call', t: '위협이 급박하면 112에 신고하기' }, { id: 'keep', t: '메시지·통화기록 원본을 지우지 않고 보존하기' }, { id: 'tell', t: '관리자에게 발언 내용·발신자·시간 알리기' }, { id: 'guard', t: '신변 보호(경호) 지원 확인하기' }],
+  'sexual-contact': [{ id: 'safe', t: '접촉 상황에서 벗어나 안전 확보하기' }, { id: 'tell', t: '관리자에게 알리기(급박하면 112)' }, { id: 'record', t: '당시 상황과 목격자 기록하기' }, { id: 'care', t: '필요하면 진료받고 관련 서류 보관하기' }],
+  'child-abuse-report': [{ id: 'tell', t: '관리자에게 바로 알리기' }, { id: 'timeline', t: '해당 교육활동 경위를 시간순으로 정리하기' }, { id: 'rules', t: '지도 근거 규정과 생활지도 기록 모으기' }, { id: 'legal', t: '진술 전에 법률 상담 신청하기' }],
+  'investigator-summons': [{ id: 'read', t: '출석요구서의 기관·일시·사건 확인하기' }, { id: 'files', t: '사건 관련 자료 정리하기' }, { id: 'legal', t: '출석 전에 법률 상담 받기' }, { id: 'facts', t: '사실과 추측을 구분해 진술 준비하기' }],
+  'post-incident-burnout': [{ id: 'counsel', t: '심리상담·치료 지원 신청하기' }, { id: 'protect', t: '학교와 필요한 보호조치 상의하기' }, { id: 'rest', t: '특별휴가·병가 등 회복 제도 확인하기' }, { id: 'docs', t: '치료비 지원에 필요한 진료 서류 보관하기' }]
+};
 
 // 회복·보호 맨 위 ‘회복에 시간이 더 필요하다면’: 차례대로 검토할 수 있는 제도(자동으로 이어지지 않아요)
 const RECOVERY_PATH = [

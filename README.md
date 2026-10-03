@@ -195,11 +195,24 @@ npx serve .
 - 기록에는 메뉴와 그 메뉴에서 펼친 것(대응 절차 단계·회복·보호 제도·지원 유형)과 스크롤 위치만 담아요. 지역은 localStorage, 체크는 체크 저장소가 그대로 맡아요.
 - 뒤로가기로 복원하는 중에는 기록을 쌓지 않아 기록이 꼬이지 않아요. 검색어 입력은 기록을 만들지 않아요(한글 입력 영향 없음).
 
+## 공유 링크·인쇄·비교·행동 체크
+
+- **공유 링크**: 주소에는 공유할 수 있는 핵심 상태만 넣어요(경로 라우팅 없음 → GitHub Pages에서 새로고침해도 404 없음).
+  - `?region=incheon&page=care&benefit=special-leave` (회복·보호 제도) · `?page=care&compare=leave` (비교표)
+  - `?region=seoul&page=guide&situ=physical-assault` (상황) · `?region=gyeonggi&page=support&type=legal` (지원 유형) · `?page=proc&step=2` (대응 절차 단계)
+  - `region`이 없으면 보는 사람이 저장해 둔 지역(없으면 공통)으로 보여요. 알 수 없는 값은 무시하고 기본 화면으로 가요.
+  - 검색어·체크·스크롤·사소한 펼침 상태는 주소에 넣지 않아요(탐색 중 세부 상태는 `history.state`).
+  - 다른 메뉴로 가거나 지역을 바꾸면 기록을 쌓고(`pushState`), 같은 메뉴 안에서 제도를 펼치거나 유형을 바꾸면 주소만 바꿔요(`replaceState`). 뒤로가기 복원 중에는 기록을 쌓지 않아요.
+- **링크 복사·인쇄하기**: 제도·상황·지원 유형·대응 단계 상세 아래의 작은 도구 묶음. 인쇄하기는 그 상세만 A4로 인쇄해요(`@media print`, 상단에 서비스 이름·항목·지역 기준·날짜·공유 주소).
+- **비교표**: `COMPARISONS`(휴가·병가, 질병휴직). 칸 내용은 모두 `BENEFITS`에서 가져와요(숫자를 두 군데 적지 않기). 넓은 화면은 표, 좁은 화면은 항목별 카드.
+- **행동 체크**: 제도의 ‘지금 확인해 볼 일’(`BENEFITS[].actions`)과 핵심 상황의 ‘지금 해볼 일’(`SITU_ACTIONS`). 제출 서류 목록이 아니라 스스로 확인할 항목이에요.
+
 ## 저장하는 정보
 
 사용자 기기의 localStorage에만 저장돼요(서버 전송 없음).
 
 - `teacher-care-region`: 선택한 지역 id(알 수 없는 값이면 무시하고 지워요)
+- `teacher-care-action-checks-v1`: 행동 체크 `{ 'benefit:제도id.항목id': true, 'situ:상황id.항목id': true }`(체크 여부만, 사건 내용은 저장하지 않아요)
 - `teacher-care-procedure-checks-v1`: 대응 절차 진행 체크 `{ '단계번호.항목id': true }`. 항목 id(`STEP_DETAIL[].checks[].id`)는 문구를 고쳐도 바꾸지 마세요.
 - 예전 체크리스트 키(`teacher-care-checks`, `icn-gyeote-checks`)는 삭제된 목록의 순번으로 저장돼 새 항목과 맞지 않아 옮기지 않고 지워요.
 
