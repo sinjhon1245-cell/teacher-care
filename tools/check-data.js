@@ -250,7 +250,9 @@ function commonTextIssues(tag, text) {
 function misleadingIssues(tag, text) {
   for (const re of MISLEADING) { const m = text.match(re); if (m) errors.push(`${tag}: 자동 적용으로 오해할 수 있는 표현이에요: ${m[0]}`); }
 }
-const benefitText = x => [x.t, x.d, x.scope, x.notice, x.badge, ...FIELD_KEYS.map(k => x[k]), ...(x.missed || [])].filter(Boolean).join(' ');
+const benefitText = x => [x.t, x.d, x.scope, x.notice, ...(x.badges || []), ...FIELD_KEYS.map(k => x[k]), ...(x.missed || [])].filter(Boolean).join(' ');
+// 배지는 짧은 의미 단위로(긴 막대처럼 보이지 않게)
+const checkBadges = (tag, list) => (list || []).forEach(t => { if (String(t).length > 14) errors.push(`${tag}: 배지가 길어요(14자 이하로 나눠 주세요): ${t}`); });
 const checkCommon = (tag, text) => { commonTextIssues(tag, text); misleadingIssues(tag, text); };
 
 // 5메뉴: 회복·보호가 지원 찾기 앞에 있어야 해요
@@ -287,6 +289,7 @@ BENEFITS.forEach((x, i) => {
   if (!Object.prototype.hasOwnProperty.call(EMPLOYMENT_SCOPES, x.employment)) errors.push(`${tag} employment 값이 잘못됐어요: ${x.employment}`);
   if ((x.missed || []).length > 2) errors.push(`${tag} ‘놓치기 쉬워요’는 2개까지예요: ${x.missed.length}개`);
   checkRefs(tag, x.refs);
+  checkBadges(tag, x.badges);
   if (x.supportLinks) x.supportLinks.types.filter(t => !SUPPORT_IDS.has(t)).forEach(t => errors.push(`${tag} supportLinks에 없는 지원 유형: ${t}`));
   checkCommon(tag, benefitText(x));
 });
@@ -316,8 +319,10 @@ for (const id of ['official-disease-leave', 'official-sick-leave']) {
 // 회복 흐름
 RECOVERY_PATH.forEach((r, i) => {
   (r.ids || []).filter(id => !BENEFIT_IDS.has(id)).forEach(id => errors.push(`RECOVERY_PATH[${i}] id가 BENEFITS에 없어요: ${id}`));
-  for (const f of ['t', 'period', 'badge', 'd']) if (!r[f]) errors.push(`RECOVERY_PATH[${i}] ${f} 없음`);
-  checkCommon(`RECOVERY_PATH[${i}]`, [r.t, r.period, r.badge, r.d].join(' '));
+  for (const f of ['t', 'scope', 'note', 'd']) if (!r[f]) errors.push(`RECOVERY_PATH[${i}] ${f} 없음`);
+  if (!Array.isArray(r.badges) || !r.badges.length) errors.push(`RECOVERY_PATH[${i}] badges 없음`);
+  checkBadges(`RECOVERY_PATH[${i}]`, r.badges);
+  checkCommon(`RECOVERY_PATH[${i}]`, [r.t, ...(r.badges || []), r.scope, r.note, r.d].join(' '));
 });
 if (!/자동으로 이어지는 것이 아니/.test(RECOVERY_NOTE || '')) errors.push('RECOVERY_NOTE에 ‘자동으로 이어지는 것이 아니며’ 안내가 없어요');
 // 홈
@@ -351,6 +356,16 @@ if (leaveLinked > 4) errors.push(`휴직이 연결된 상황이 너무 많아요
 SITUS.filter(st => ['complaint', 'interference', 'legal'].includes(st.group)).forEach(st => {
   if ((SITU_BENEFITS[st.id] || []).some(id => /leave$/.test(id))) errors.push(`SITU_BENEFITS[${st.id}] 민원·간섭·수사 상황에 휴가·병가·휴직을 연결했어요`);
 });
+if (SUPPORT_IDS.size !== SUPPORT_TYPES.length) errors.push('SUPPORT_TYPES id가 중복돼요');
+// 같은 검색 키워드가 너무 많은 제도에 붙으면 검색 결과가 흐려져요(주의만)
+const kwCount = {};
+BENEFITS.forEach(b => (b.keywords || []).forEach(k => { kwCount[k] = (kwCount[k] || 0) + 1; }));
+Object.entries(kwCount).filter(([, n]) => n > 4).forEach(([k, n]) => warnings.push(`키워드 ‘${k}’가 제도 ${n}개에 붙어 있어요`));
+// 출처 URL: https만(접속 확인은 별도)
+const httpsOnly = (tag, url) => { try { if (new URL(url).protocol !== 'https:') errors.push(`${tag} https가 아니에요: ${url}`); } catch (e) { errors.push(`${tag} URL 형식 오류: ${url}`); } };
+COMMON_PUBLIC_SOURCES.forEach((src, i) => httpsOnly(`COMMON_PUBLIC_SOURCES[${i}]`, src.url));
+REGION_ORDER.forEach(id => REGIONS[id].sources.forEach((src, i) => src.url && httpsOnly(`[${id}] sources[${i}]`, src.url)));
+
 // 지원 유형: 공통 기준(guide)·회복·보호 연결(care)
 SUPPORT_TYPES.forEach((t, i) => {
   const tag = `SUPPORT_TYPES[${i}] (${t.label})`;

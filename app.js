@@ -93,6 +93,33 @@ const App = {
     this.nav('support', { supportType: typeId || 'all', related: null });
   },
 
+  // ── 지원 찾기 검색: 현재 유형 안의 카드만 거르고, 입력창은 다시 그리지 않아요(한글 조합 보호) ──
+  filterSupport(value) {
+    this._supQuery = String(value || '');
+    const terms = guideSearchTerms(this._supQuery);
+    let shown = 0;
+    document.querySelectorAll('[data-sp]').forEach(el => {
+      const hit = !terms.length || terms.every(t => normalizeGuideSearch(el.dataset.sp).includes(t));
+      el.hidden = !hit;
+      if (hit) shown++;
+    });
+    const count = document.getElementById('sup-count');
+    if (count) count.textContent = terms.length ? `지원 ${shown}건을 찾았어요` : '';
+    const empty = document.getElementById('sup-empty');
+    if (empty) empty.hidden = shown > 0;
+    const clear = document.getElementById('sup-search-clear');
+    if (clear) clear.hidden = !terms.length;
+  },
+
+  clearSupportSearch() {
+    const el = document.getElementById('sup-search');
+    if (el) {
+      el.value = '';
+      el.focus({ preventScroll: true });
+    }
+    this.filterSupport('');
+  },
+
   // ── 회복·보호 제도 검색 ──
   // 입력창은 다시 그리지 않고 카드 표시만 바꿔요(한글 조합 중 자모가 흩어지지 않게). 검색어는 이 세션에서만 기억해요
   onCareInput(e) {
@@ -271,6 +298,7 @@ const App = {
     `);
     // 회복·보호 검색어가 있으면 다시 그린 뒤에도 같은 결과를 보여 줘요
     if (S.page === 'care' && this._careQuery) this.filterCare(this._careQuery);
+    if (S.page === 'support' && this._supQuery) this.filterSupport(this._supQuery);
   },
 
   // ══════════════ 공통 부품 ══════════════
@@ -386,9 +414,9 @@ const App = {
     return `
       ${this.renderHero()}
       ${this.renderEntries()}
-      ${this.renderQuick()}
       ${this.renderHighlights()}
       ${this.renderStepsSummary()}
+      ${this.renderQuick()}
       ${this.renderFinder()}
       ${this.renderFaq()}
     `;
@@ -558,7 +586,7 @@ const App = {
         <li class="hl-card">
           <button class="hl-btn" onclick="App.openBenefit('${b.id}')">
             <span class="hl-title"><span aria-hidden="true">${b.e}</span> ${b.t}</span>
-            <span class="hl-badges">${benefitBadges(b)}</span>
+            <span class="bf-badges">${benefitBadges(b)}</span>
             <span class="hl-text">${h.d}</span>
             ${local ? `<span class="hl-local"><strong>${R.short}</strong> ${local}</span>` : ''}
             <span class="hl-more">${h.cta} <span aria-hidden="true">→</span></span>
@@ -772,18 +800,22 @@ const App = {
     const local = R && R.benefits && R.benefits[x.id];
     const links = x.supportLinks ? x.supportLinks.types.map(supportTypeById).filter(Boolean) : [];
     return `
-      ${x.notice ? `<p class="bf-notice"><strong>꼭 확인하세요</strong> ${x.notice}</p>` : ''}
-      ${x.scope ? `<p class="prot-scope">${x.scope}</p>` : ''}
-      ${this.facts(BENEFIT_FIELDS.map(([k, label]) => [label, x[k]]))}
-      ${missedBox(x.missed, '놓치기 쉬워요')}
-      ${local ? `
-        <div class="prot-local">
-          <p class="prot-local-title">${R.short} 기준</p>
-          ${local.program ? `<p class="prot-local-name">${local.program}</p>` : ''}
-          ${this.facts(BENEFIT_FIELDS.map(([k, label]) => [label, local[k] ? linkifyPhone(local[k]) : '']))}
-          ${missedBox(local.missed, R.short + '에서 놓치기 쉬워요')}
-          <p class="muted small">${sourceLine(R, local)}</p>
-        </div>` : (R ? `<p class="muted small prot-local-none">${R.short} 공식 자료에서 따로 정한 기준은 확인되지 않아 공통 기준을 따라요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
+      <div class="bf-detail">
+        ${x.notice ? `<p class="bf-notice"><strong>꼭 확인하세요</strong> ${x.notice}</p>` : ''}
+        ${x.scope ? `<p class="prot-scope">${x.scope}</p>` : ''}
+        ${this.fieldGrid(x)}
+        ${x.caution ? `<p class="bf-caution"><strong>주의할 점</strong> ${x.caution}</p>` : ''}
+        ${missedBox(x.missed, '놓치기 쉬워요')}
+        ${local ? `
+          <div class="prot-local">
+            <p class="prot-local-title">${R.short} 기준</p>
+            ${local.program ? `<p class="prot-local-name">${local.program}</p>` : ''}
+            ${this.fieldGrid(local, true)}
+            ${local.caution ? `<p class="bf-caution"><strong>주의할 점</strong> ${linkifyPhone(local.caution)}</p>` : ''}
+            ${missedBox(local.missed, R.short + '에서 놓치기 쉬워요')}
+            <p class="muted small">${sourceLine(R, local)}</p>
+          </div>` : (R ? `<p class="muted small prot-local-none">${R.short}에서 별도로 안내한 세부 기준은 현재 확인되지 않았어요. 공통 기준을 먼저 확인하고, 실제 적용은 소속 학교나 교육(지원)청에 확인하세요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
+      </div>
       ${refsBox(x.refs, x.basis)}
       ${links.length ? `
         <div class="bf-cross">
@@ -791,6 +823,19 @@ const App = {
           <div class="bf-list">${links.map(t => supportChip(t, R)).join('')}</div>
         </div>` : ''}
     `;
+  },
+
+  // 제도 상세의 필드: 왼쪽(무엇·누가·기간) / 오른쪽(언제·어떻게·준비). 좁은 화면은 한 열로 이어져요. 빈 필드는 숨겨요
+  fieldGrid(x, phone) {
+    const v = k => x[k] ? (phone ? linkifyPhone(x[k]) : x[k]) : '';
+    const col = keys => {
+      const rows = BENEFIT_FIELDS.filter(([k]) => keys.includes(k)).map(([k, label]) => [label, v(k)]).filter(([, val]) => val);
+      return rows.length ? `<dl class="facts bf-col">${rows.map(([k, val]) => `<div><dt>${k}</dt><dd>${val}</dd></div>`).join('')}</dl>` : '';
+    };
+    const left = col(['what', 'who', 'limit']);
+    const right = col(['when', 'apply', 'prepare']);
+    if (!left && !right) return '';
+    return `<div class="bf-grid ${left && right ? '' : 'single'}">${left}${right}</div>`;
   },
 
   // ══════════════ 회복·보호 = 내가 사용할 수 있는 제도 ══════════════
@@ -803,7 +848,7 @@ const App = {
         <li class="action prot ${open ? 'open' : ''}" id="bf-${b.id}" data-bf="${b.id}">
           <button class="action-head" aria-expanded="${open}" onclick="App.toggle('benefit','${b.id}')">
             <span class="prot-icon" aria-hidden="true">${b.e}</span>
-            <span class="action-label">${b.t}${benefitBadges(b)}<span class="prot-sum">${b.d}</span></span>
+            <span class="action-label bf-head"><span class="bf-title">${b.t}</span><span class="prot-sum">${b.d}</span><span class="bf-badges">${benefitBadges(b)}</span></span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
           ${open ? `<div class="action-body">${this.benefitDetail(b)}</div>` : ''}
@@ -853,7 +898,8 @@ const App = {
     const steps = RECOVERY_PATH.map((r, i) => `
       <li class="rec-step">
         <p class="rec-title"><span class="rec-num" aria-hidden="true">${i + 1}</span>${r.t}</p>
-        <p class="rec-period"><span class="bf-badge">${r.period}</span> <span class="bf-badge bf-scope">${r.badge}</span></p>
+        <p class="rec-period bf-badges">${r.badges.map(t => `<span class="bf-badge">${t}</span>`).join('')}<span class="bf-badge bf-scope">${r.scope}</span></p>
+        <p class="rec-note-small">${r.note}</p>
         <p class="rec-text">${r.d}</p>
         <div class="rec-links">${r.ids.map(id => `<button class="link-btn small" onclick="App.openBenefit('${id}')">${benefitById(id).t} 자세히 보기</button>`).join('')}</div>
       </li>
@@ -1141,18 +1187,18 @@ const App = {
     }).join('');
     const programs = R.programs.filter(p => relMode ? relTypes.some(t => inType(p, t)) : (!cur || inType(p, cur)));
     const items = programs.map(p => `
-      <li class="support-item">
+      <li class="support-item" data-sp="${escapeAttr([p.t, p.sum, programAreas(p).join(' '), SUPPORT_TYPES.filter(t => inType(p, t)).map(t => t.label + ' ' + t.desc).join(' '), p.org].join(' '))}">
         <div class="support-head">
           <h3 class="sub-title">${p.t}</h3>
           ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : ''}
         </div>
         <p>${p.sum}</p>
         ${p.amount ? `<p class="support-amount"><span class="support-amount-label">지원 범위 · ${R.short} 기준</span> ${p.amount}</p>` : ''}
-        ${this.facts([
-          ['어디에 신청하나요?', p.apply || UNKNOWN],
+        ${p.apply || p.contact || p.contacts ? this.facts([
+          ['어디에 신청하나요?', p.apply || ''],
           // 용도가 다른 번호(contacts)는 용도별로 나눠 보여 줘요
-          ...(p.contacts ? p.contacts.map(c => [c.label, linkifyPhone(c.value)]) : [['연락처', p.contact ? linkifyPhone(p.contact) : UNKNOWN]])
-        ])}
+          ...(p.contacts ? p.contacts.map(c => [c.label, linkifyPhone(c.value)]) : [['연락처', p.contact ? linkifyPhone(p.contact) : '']])
+        ]) : `<p class="muted small">신청 방법·연락처는 아래 공식 안내나 소속 학교에 확인하세요.</p>`}
         ${this.supportDetail(p)}
         ${actionButtons(programChannels(p))}
         <p class="muted small">${sourceLine(R, p)}</p>
@@ -1180,7 +1226,18 @@ const App = {
           ${relMode || cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
         </div>
         ${cur ? this.supportGuideBox(cur) : ''}
+        <div class="tool-panel guide-search-panel sup-search-panel">
+          <label class="guide-search-label" for="sup-search">찾는 지원이 있나요?</label>
+          <div class="guide-search-field">
+            <input id="sup-search" class="guide-search-input" type="search" value="${escapeAttr(this._supQuery || '')}"
+              placeholder="상담, 치료비, 변호사, 경호, 공제, 민원, 갈등조정..." autocomplete="off" enterkeyhint="search"
+              oninput="App.filterSupport(this.value)" aria-describedby="sup-count">
+            <button type="button" id="sup-search-clear" class="guide-search-clear" onclick="App.clearSupportSearch()" aria-label="검색어 지우기" ${guideSearchTerms(this._supQuery || '').length ? '' : 'hidden'}>지우기</button>
+          </div>
+          <p id="sup-count" class="muted small guide-search-hint" aria-live="polite"></p>
+        </div>
         <ul class="support-list">${items}</ul>
+        <p class="note" id="sup-empty" hidden>검색어에 맞는 지원이 없어요. 위 유형에서 고르거나 대표번호(<a href="${telHref(R.hot)}">${R.hot}</a>)로 문의하세요.</p>
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
           ${directory}
@@ -1202,7 +1259,7 @@ const App = {
         ${g ? `
           <details class="support-more sup-guide-detail">
             <summary>${t.label} 지원, 공통 기준 보기 <span class="muted small">무엇 · 누가 · 언제 · 어디에</span></summary>
-            ${this.facts([['어떤 지원인가요?', g.what], ['누가 받을 수 있나요?', g.who], ['언제 신청하나요?', g.when], ['어디에 신청하나요?', g.apply]])}
+            <div class="bf-grid">${this.facts([['어떤 지원인가요?', g.what], ['누가 받을 수 있나요?', g.who]])}${this.facts([['언제 신청하나요?', g.when], ['어디에 신청하나요?', g.apply]])}</div>
             ${missedBox(g.missed, '놓치기 쉬워요')}
             ${refsBox(g.refs, g.basis)}
           </details>` : ''}
@@ -1303,11 +1360,13 @@ function inType(p, t) {
 // 핵심 범위 배지 + 교원 신분 배지(국·공립 기준 / 신분별 확인). 사용자의 신분을 추정하지 않고 적용 범위만 알려요
 function benefitBadges(b) {
   const scope = EMPLOYMENT_SCOPES[b.employment];
-  return `${b.badge ? ` <span class="bf-badge">${b.badge}</span>` : ''}${scope && scope.badge ? ` <span class="bf-badge bf-scope">${scope.badge}</span>` : ''}`;
+  const own = (b.badges || []).map((t, i) => `<span class="bf-badge ${i ? 'bf-cond' : ''}">${t}</span>`).join('');
+  return own + (scope && scope.badge ? `<span class="bf-badge bf-scope">${scope.badge}</span>` : '');
 }
 
 function benefitChip(b) {
-  return `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t}${b.badge ? ` <span class="bf-badge">${b.badge}</span>` : ''}</button>`;
+  const first = (b.badges || [])[0];
+  return `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t}${first ? ` <span class="bf-badge">${first}</span>` : ''}</button>`;
 }
 
 // 지원 유형 버튼: 지역을 골랐으면 ‘인천 상담·회복 지원’처럼 지역을 붙여요
@@ -1330,7 +1389,7 @@ function refsBox(refs, basis) {
   if (!basis && !srcs.length) return '';
   return `
     <details class="bf-refs">
-      <summary>공식 근거${srcs.length ? ` ${srcs.length}건` : ''}</summary>
+      <summary>공식 근거${srcs.length ? ` ${srcs.length}건 · ${fmtDate(latestDate(srcs))} 확인` : ''}</summary>
       ${basis ? `<p class="muted small">${basis}</p>` : ''}
       ${srcs.length ? `<ul class="source-common">${srcs.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}</a></li>`).join('')}</ul>` : ''}
     </details>`;
@@ -1623,6 +1682,7 @@ document.addEventListener('compositionstart', e => {
 document.addEventListener('compositionend', e => {
   if (e.target.id === 'guide-search') App.guideCompositionEnd(e);
   if (e.target.id === 'care-search') App.filterCare(e.target.value);
+  if (e.target.id === 'sup-search') App.filterSupport(e.target.value);
 });
 
 document.addEventListener('DOMContentLoaded', () => App.init());
