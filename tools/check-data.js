@@ -47,6 +47,13 @@ const warnings = [];
     if (!fs.existsSync(path.join(root, u.split('?')[0]))) errors.push(`index.html: ${u} 파일이 없어요`);
   });
 }
+// 브랜드 이미지: index.html(favicon)·app.js(헤더 로고)가 가리키는 assets/ 파일이 실제로 있는지
+{
+  const appSrc = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  const refs = [...html.matchAll(/href="(assets\/[^"?]+)"/g), ...appSrc.matchAll(/src="(assets\/[^"?]+)"/g)].map(m => m[1]);
+  if (!refs.some(r => r.startsWith('assets/brand/'))) errors.push('index.html·app.js에서 assets/brand 브랜드 이미지를 찾지 못했어요');
+  [...new Set(refs)].forEach(r => { if (!fs.existsSync(path.join(root, r))) errors.push(`${r} 파일이 없어요(브랜드 이미지는 assets/brand/에서 관리해요)`); });
+}
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });

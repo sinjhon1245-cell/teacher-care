@@ -520,6 +520,7 @@ const App = {
     return `<dl class="facts">${rows.filter(([, v]) => v).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>`;
   },
 
+  // 브랜드: PC(1024px~)는 가로형 로고, 그보다 좁으면 심볼 + 글자. 이름은 버튼의 aria-label 하나로만 읽혀요(이미지는 alt="")
   renderHeader() {
     const S = this.state;
     const R = this.R;
@@ -530,7 +531,8 @@ const App = {
       <header class="site-header">
         <div class="header-inner">
           <button class="brand" onclick="App.nav('home')" aria-label="선생님 곁에 홈">
-            <span class="brand-mark" aria-hidden="true">곁</span><span class="brand-name">선생님 곁에</span>
+            <img class="brand-logo" src="assets/brand/logo-horizontal.png" alt="" width="159" height="40">
+            <span class="brand-compact"><img class="brand-symbol" src="assets/brand/logo-symbol.png" alt="" width="32" height="30"><span class="brand-name">선생님 곁에</span></span>
           </button>
           <nav class="main-nav" aria-label="주요 메뉴">${navHtml}</nav>
           ${this.renderRegionSelect()}
@@ -551,7 +553,7 @@ const App = {
     return `
       <main id="main" class="landing">
         <div class="landing-inner">
-          <p class="landing-brand"><span class="brand-mark" aria-hidden="true">곁</span><span class="brand-name">선생님 곁에</span></p>
+          <p class="landing-brand"><img class="brand-symbol" src="assets/brand/logo-symbol.png" alt="" width="32" height="30"><span class="brand-name">선생님 곁에</span></p>
           <h1 class="landing-title">어느 지역의 안내를 볼까요?</h1>
           <p class="landing-sub">${REGION_ORDER.map(id => REGIONS[id].short).join('·')} 중 근무 지역을 선택하세요.</p>
           <ul class="region-cards" aria-label="근무 지역 선택">${cards}</ul>
