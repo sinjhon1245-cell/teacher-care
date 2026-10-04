@@ -17,7 +17,10 @@
 **회복·보호**는 선생님이 스스로 사용하는 제도(휴가·병가·휴직·공무상 요양·분리·보호조치 요청·전보·복직)이고,
 **지원 찾기**는 기관·사업이 주는 지원(상담·치료비·법률·수사·공제·경호·민원·조정)이에요. 두 화면의 데이터와 검색을 섞지 않아요.
 
-빌드 도구·프레임워크 없이 HTML·CSS·바닐라 JS로만 동작하고, GitHub Pages에서 그대로 배포돼요.
+빌드 도구·프레임워크 없이 HTML·CSS·바닐라 JS로만 동작해요(빌드 단계 없이 저장소 파일을 그대로 배포).
+
+- **대표 주소(공유용): https://teacher-care.vercel.app/**
+- 보조 주소(병행 운영): https://sinjhon1245-cell.github.io/teacher-care/
 
 ## 파일 구조
 
@@ -327,6 +330,15 @@ npx serve .
 
 **배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-2` → `20261004-1`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.
 
-배포 순서: `node tools/check-all.js`(데이터·링크·리포트) → `git diff --check` → asset version 올리기 → 커밋 → `main` push → GitHub Pages 배포 확인 → 실제 주소에서 확인.
+배포 순서: `node tools/check-all.js`(데이터·링크·리포트) → `git diff --check` → asset version 올리기 → 커밋 → `main` push → Vercel·GitHub Pages 배포 확인 → 실제 주소에서 확인.
 
-`main` 브랜치가 GitHub Pages로 배포돼요(`.nojekyll` 포함). 작업은 기능 브랜치에서 하고 검토 후 `main`에 합쳐요.
+| 구분 | 주소 | 배포 방식 |
+| --- | --- | --- |
+| Production(대표, 교사에게 공유) | https://teacher-care.vercel.app/ | Vercel 프로젝트 `teacher-care`가 GitHub `main`에 연결돼 있어 push하면 자동 배포 |
+| 병행 운영(fallback) | https://sinjhon1245-cell.github.io/teacher-care/ | GitHub Pages(`main`, `.nojekyll` 포함). 지금도 그대로 유지해요 |
+
+- Vercel 설정: Framework Preset **Other**, Root Directory 저장소 루트, Build Command·Output Directory 없음. `vercel.json`은 두지 않아요(경로 라우팅 없이 `?page=…&region=…` 쿼리만 써서 rewrite가 필요 없어요).
+- 공유 링크·인쇄 머리글·의견 양식의 주소는 지금 열린 주소(`location.origin + location.pathname`)로 만들어요. Vercel에서 복사하면 `https://teacher-care.vercel.app/?region=…`, Pages에서 복사하면 Pages 주소가 돼요(특정 주소를 코드에 적지 않아요).
+- 지역·체크 저장(localStorage)은 주소(origin)마다 따로예요. Pages에서 저장한 값은 Vercel로 옮겨지지 않아요(옮기지 않아요).
+- Vercel의 배포별 주소(`teacher-care-<해시>-….vercel.app`)는 Vercel 기본 보호로 로그인이 필요해요. 공유는 대표 주소만 써요.
+- 작업은 기능 브랜치에서 하고 검토 후 `main`에 합쳐요. force push는 하지 않아요.
