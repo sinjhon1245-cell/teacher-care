@@ -366,7 +366,6 @@ const App = {
   render() {
     const S = this.state;
     const R = this.R;
-    document.title = R ? `선생님 곁에 — ${R.short} 교육활동 보호·대응 가이드` : '선생님 곁에 — 교육활동 보호·대응 가이드';
     document.body.classList.toggle('is-landing', S.onboarding);
     if (S.onboarding) {
       document.getElementById('app').innerHTML = this.renderLanding();
