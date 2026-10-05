@@ -302,6 +302,7 @@ npx serve .
 | `assets/brand/logo-horizontal.png` | PC 헤더(1024px 이상), 높이 40px로 표시 | 636×160, 투명 배경 |
 | `assets/brand/logo-symbol.png` | 모바일·좁은 화면 헤더(1023px 이하)와 지역 선택 첫 화면, 높이 30px + 글자 ‘선생님 곁에’ | 138×128, 투명 배경 |
 | `assets/brand/favicon-32.png` | 브라우저 탭 아이콘(`index.html`의 `<link rel="icon">`) | 32×32, 투명 배경 |
+| `assets/brand/og-share.png` | 카카오톡·SNS 링크 미리보기(Open Graph·Twitter Card, 모든 공유 주소에 같은 카드) | 1200×630 |
 | `assets/brand/source/*.png` | 위 세 파일을 만든 고해상도 원본(사이트는 읽지 않아요) | 2172×724, 1254×1254 |
 
 - 웹용 파일은 원본에서 투명 여백만 잘라 내고(눈에 보이지 않는 알파 5% 미만 잡티 포함) 비율 그대로 줄인 거예요. 로고를 바꾸면 `source/`의 원본을 바꾼 뒤 같은 방법으로 다시 만들어요.

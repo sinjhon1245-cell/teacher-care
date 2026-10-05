@@ -54,6 +54,22 @@ const warnings = [];
   if (!refs.some(r => r.startsWith('assets/brand/'))) errors.push('index.html·app.js에서 assets/brand 브랜드 이미지를 찾지 못했어요');
   [...new Set(refs)].forEach(r => { if (!fs.existsSync(path.join(root, r))) errors.push(`${r} 파일이 없어요(브랜드 이미지는 assets/brand/에서 관리해요)`); });
 }
+// 링크 공유 미리보기(Open Graph·Twitter Card): 처음 받는 HTML에 한 번씩만, 이미지는 절대 https 주소이고 저장소에 실제 파일이 있어야 해요
+{
+  const metaOf = key => [...html.matchAll(new RegExp(`<meta (?:property|name)="${key.replace(/[.:]/g, '\\$&')}" content="([^"]*)">`, 'g'))].map(m => m[1]);
+  ['og:type', 'og:site_name', 'og:title', 'og:description', 'og:url', 'og:image', 'twitter:card', 'twitter:title', 'twitter:description', 'twitter:image'].forEach(k => {
+    const n = metaOf(k).length;
+    if (n !== 1) errors.push(`index.html: ${k} meta가 ${n}개예요(정확히 1개)`);
+  });
+  for (const k of ['og:image', 'twitter:image', 'og:url']) {
+    const v = metaOf(k)[0];
+    if (v && !/^https:\/\//.test(v)) errors.push(`index.html: ${k}는 https 절대 주소여야 해요: ${v}`);
+    if (v && k !== 'og:url') {
+      const local = new URL(v).pathname.replace(/^\//, '');
+      if (!fs.existsSync(path.join(root, local))) errors.push(`index.html: ${k} 이미지 ${local} 파일이 저장소에 없어요`);
+    }
+  }
+}
 const ctx = { console: { error: (...a) => errors.push(a.join(' ')), warn: console.warn, log: console.log } };
 vm.createContext(ctx);
 for (const f of scripts) vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
