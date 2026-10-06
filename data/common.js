@@ -2344,11 +2344,11 @@ const FRESHNESS_DAYS = { stable: 365, volatile: 180 };
 // 임의 주소를 넣지 마세요. 개인 사건 내용·개인정보를 받지 않는 양식이어야 해요(docs/feedback-form-spec.md)
 const FEEDBACK_URL = '';
 // 양식의 ‘미리 채워진 링크’ entry 번호(예: 'entry.1234567890'). 양식을 만든 뒤 여기에만 적어요. 빈 칸은 보내지 않아요.
-// type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·busan·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
+// type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·busan·chungbuk·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
 const FEEDBACK_FIELDS = { type: '', region: '', page: '', item: '', url: '' };
 
 const COMMON_PUBLIC_SOURCES = [
-  { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.cbe.go.kr/upload/dept-26/na/bbs_2019/2026/03/90383C36-8078-4E7F-FA24-E3768E73892E.pdf', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=327&boardSeq=105492&lev=0&searchType=null&statusYN=W&page=1&s=moe&m=0305&opType=N', verifiedAt: '2026-10-06', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'jiwi-decree', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법 시행령 — 제2조의3(전보 등 보호조치)·제17조(분리조치)·제19조(보호조치 비용)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'leave-rule', title: '「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제6조 병가·제8조 특별휴가', url: 'https://www.law.go.kr/행정규칙/교원휴가에관한예규', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-27', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },

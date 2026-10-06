@@ -10,7 +10,7 @@
 // HEAD를 막는 서버가 많아 처음부터 GET으로 요청하고, HTML은 앞부분만 읽어 soft 404 문구를 찾아요(PDF 등은 헤더만 봐요).
 //
 // 옵션
-//   --only=seoul|gyeonggi|incheon|busan|common   해당 파일의 링크만
+//   --only=seoul|gyeonggi|incheon|busan|chungbuk|common   해당 파일의 링크만
 //   --timeout=15000                         요청당 제한 시간(ms)
 //   --json=파일경로                          결과를 JSON으로도 저장(정기 점검 기록용)
 
