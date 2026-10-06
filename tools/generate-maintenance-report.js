@@ -165,7 +165,7 @@ const gapTable = [
   ...G.areas.map(a => `| ${a.label} | ${regs.map(id => { const x = gaps.rows.find(r => r.region === id && r.area === a.id); return x ? G.statuses[x.status] : '—'; }).join(' | ')} |`)
 ].join('\n');
 const gapCounts = regs.map(id => `${short(id)}: ${Object.keys(G.statuses).map(s => `${G.statuses[s]} ${gaps.rows.filter(r => r.region === id && r.status === s).length}`).join(' · ')}`);
-const gapDetail = gaps.open.map(x => `- **${short(x.region)} · ${x.label}** — ${G.statuses[x.status]}: ${x.note}  \n  다음 확인: ${x.todo}`);
+const gapDetail = gaps.open.map(x => `- **${short(x.region)} · ${x.label}** — ${G.statuses[x.status]}: ${x.note}\\\n  다음 확인: ${x.todo}`);
 
 // ── 8) 문서 ──
 const summaryRows = [

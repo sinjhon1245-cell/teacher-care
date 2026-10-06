@@ -671,7 +671,7 @@ const App = {
     `;
   },
 
-  // 공통 모드: 서울·경기·인천 외 지역 교사를 위한 짧은 안내
+  // 공통 모드: 등록된 지역 외 교사를 위한 짧은 안내
   renderOutsideNote() {
     const names = REGION_ORDER.map(id => REGIONS[id].short).join('·');
     return `

@@ -1,4 +1,4 @@
-// 서울·경기·인천 정보 깊이(gap) — 내부 audit 데이터. 사이트(index.html)는 이 파일을 읽지 않아요.
+// 서울·경기·인천·부산 정보 깊이(gap) — 내부 audit 데이터. 사이트(index.html)는 이 파일을 읽지 않아요.
 // 이 파일 한곳에서만 고쳐요. docs/maintenance-report.md의 ‘지역별 gap’ 표와 ‘다음 점검 항목’이 여기서 만들어져요.
 // node tools/check-data.js가 모든 지역 × 영역이 있는지, 상태 값과 근거(evidence)가 실제 데이터를 가리키는지 확인해요.
 //
@@ -64,10 +64,23 @@ module.exports = {
       mediation: { status: 'complete', evidence: ['교육활동 관련 갈등중재 지원'], note: '중재지원단 절차·동의 조건·공제 분쟁조정 구분' },
       transfer: { status: 'partial', evidence: ['benefits:transfer'], note: '대상·요청 주체는 있지만 신청 시기·요건 세부가 없어요', todo: '인천 비정기 전보 신청 시기·요건 확인' },
       recovery: { status: 'partial', evidence: ['치유·회복 프로그램'], note: '별도 카드는 있지만 일정·대상별 신청 방법이 없어요', todo: '인천 치유·회복 프로그램 일정·대상별 신청 방법 확인' }
+    },
+    busan: {
+      counseling: { status: 'complete', evidence: ['개인 심리상담(교육활동보호센터)'], note: '기본 10회·연장 5회·전문의 6회, 대상(모든 희망 교원)·신청 경로' },
+      treatment: { status: 'complete', evidence: ['치료비·심리상담비·치유비 지원'], note: '치료비·상담비·소진 치료비·치유비 한도, 청구 기한, 공문 절차, 제외 조건' },
+      legal: { status: 'complete', evidence: ['교원법률지원단(법률상담·변호사 선임)'], note: '법률상담 건당 20만 원(12회, 총 200만 원), 사전 논의 조건, 온라인 신청' },
+      litigation: { status: 'complete', evidence: ['교원법률지원단(법률상담·변호사 선임)', '교원보호공제(부산광역시학교안전공제회 위탁)'], note: '형사 심급별 1,000만 원·수사 종결 330만 원·고소 330만 원·민사 소송물가액별, 환수 조건' },
+      mutual: { status: 'complete', evidence: ['교원보호공제(부산광역시학교안전공제회 위탁)'], note: '2026 표준약관 운영기간·보장 범위·한도·청구 서류·시효(3년)' },
+      safety: { status: 'complete', evidence: ['위협 대처 보호 서비스(긴급 경호)'], note: '대상·서류·기간(20일, 2인 10일)·제외 비용' },
+      complaints: { status: 'partial', evidence: ['학교민원대응팀·학교민원대응지원팀·악성민원 법률 대응'], note: '단계별 대응과 민원 해결 요청 게시판은 있지만 교육지원청 학교민원대응지원팀 연락처가 없어요', todo: '부산 교육지원청별 학교민원대응지원팀 연락 경로 확인(공식 게시물로 확인될 때만)' },
+      mediation: { status: 'complete', evidence: ['분쟁조정 서비스(교원보호공제)'], note: '공제 분쟁조정 범위·제외·서류, 지역교권보호위원회 분쟁조정과 구분' },
+      transfer: { status: 'partial', evidence: ['benefits:transfer'], note: '긴급 전보가 교육(지원)청 심의로 결정된다는 것만 있고 신청 시기·요건이 없어요', todo: '부산 피해 교원 긴급 전보 신청 시기·요건 확인' },
+      recovery: { status: 'partial', evidence: ['치유·회복 프로그램'], note: '프로그램 목록·시기는 있지만 회차별 일정·신청 방법은 공문 안내로만 나와요', todo: '부산 치유·회복 프로그램 2026 하반기 일정·신청 방법 확인' }
     }
   },
   // 위 10개 영역 밖이지만 함께 보는 항목
   extras: [
-    { region: 'gyeonggi', label: '교육지원청 연락처(내 교육지원청 찾기)', status: 'partial', note: '교육지원청별 교권 직통 번호를 2026 공식 자료에서 확인하지 못했어요(대표 1600-8787·교육지원청 홈페이지로 안내)', todo: '경기 교육지원청별 경기교권보호지원센터 연락처 확인(공식 게시물로 확인될 때만)' }
+    { region: 'gyeonggi', label: '교육지원청 연락처(내 교육지원청 찾기)', status: 'partial', note: '교육지원청별 교권 직통 번호를 2026 공식 자료에서 확인하지 못했어요(대표 1600-8787·교육지원청 홈페이지로 안내)', todo: '경기 교육지원청별 경기교권보호지원센터 연락처 확인(공식 게시물로 확인될 때만)' },
+    { region: 'busan', label: '교육활동보호센터 업무별 내선', status: 'partial', note: '업무별 내선 번호가 2026 계획·매뉴얼과 센터 누리집에서 서로 달라(예: 치료비 8번 / 6번) 대표번호 051-862-1122로만 안내해요. 심리상담(내선 3~4)만 일치해요', todo: '부산 교육활동보호센터 업무별 내선 최신 안내 확인(공식 게시물로 확인될 때만 contacts로 추가)' }
   ]
 };

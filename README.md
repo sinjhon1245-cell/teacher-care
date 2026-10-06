@@ -2,7 +2,7 @@
 
 교육활동 중 문제가 생긴 선생님이 **지금 무엇을 해야 하는지** 빠르게 판단하도록 돕는 정적 웹서비스예요.
 대응 절차·상황별 도움은 전국 공통으로 두고, 대표번호·교육지원청·지원(제도와 기관 연락처)은
-근무 지역(현재 서울·경기·인천 베타)의 공식 자료를 바탕으로 보여 줘요.
+근무 지역(현재 서울·경기·인천·부산 베타)의 공식 자료를 바탕으로 보여 줘요.
 
 화면은 다섯 개이고, 각각 선생님의 질문 하나에 답해요.
 
@@ -34,12 +34,13 @@ data/
     seoul.js            서울특별시
     gyeonggi.js         경기도
     incheon.js          인천광역시
+    busan.js            부산광역시
 tools/
   check-data.js         데이터 점검(배포 전 실행): 형식·출처·관할·번호·최신성·공유 주소
   check-links.js        공식 링크 접속 점검(배포 전·정기 점검): 200·이동·404·403·시간 초과
   generate-maintenance-report.js  운영 점검 리포트 만들기 → docs/maintenance-report.md
   check-all.js          위 세 가지를 한 번에(일상 점검)
-  data/regional-gaps.js 서울·경기·인천 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
+  data/regional-gaps.js 서울·경기·인천·부산 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
   lib/                  점검 도구가 함께 쓰는 계산(최신성·gap·데이터 읽기)
 docs/
   maintenance-report.md        운영 점검 리포트(자동 생성, 직접 고치지 않기)
@@ -138,15 +139,17 @@ docs/
 - 링크는 https + 공식 기관 도메인(`*.go.kr`, 시·도 학교안전공제회, 경기 교육지원청 도메인, KEDI, 공식 자료가 안내한 카카오톡 채널)만 허용되고,
   `tools/check-data.js`가 검사해요. 새 기관 도메인은 공식 출처를 확인한 뒤 `OFFICIAL_HOSTS`에 추가하세요.
 
-## 새 시·도 추가하기(예: 부산)
+## 새 시·도 추가하기(예: 충북)
 
-1. `data/regions/incheon.js`를 복사해 `data/regions/busan.js`를 만들고 `id: 'busan'`, 이름·교육청을 바꿔요.
+1. `data/regions/busan.js`를 복사해 `data/regions/chungbuk.js`를 만들고 `id: 'chungbuk'`, 이름·교육청을 바꿔요.
 2. 시·도교육청 공식 자료로 확인한 내용만 채워요. `sources`에 출처를, `verifiedAt`에 확인한 날짜를 적어요.
    확인하지 못한 번호·사업·기한은 비워 둬요(추측해서 채우지 않기).
 3. `offices`에 교육지원청과 관할 시·군·구(`areas`)를 적고 `expectedAreas`에 공식 행정구역 수를 적어요.
    관할 근거는 아래 ‘교육지원청 관할 근거’를 보세요.
-4. `index.html`의 지역 스크립트 목록에 `<script src="data/regions/busan.js"></script>` 한 줄을 추가해요(적은 순서 = 선택 목록 순서).
-5. `node tools/check-data.js`로 점검하고, 로컬에서 부산을 선택해 대표번호·교육지원청 찾기·지원 찾기 화면을 확인해요.
+4. `index.html`의 지역 스크립트 목록에 `<script src="data/regions/chungbuk.js?v=…"></script>` 한 줄을 추가해요(적은 순서 = 선택 목록 순서, `?v=`는 asset-version과 같게).
+5. `tools/check-data.js`의 `REGION_BRANDS`에 그 지역 사업명을, `tools/data/regional-gaps.js`에 10개 영역 gap을 추가해요.
+   새 공제회 등 `.go.kr`이 아닌 공식 도메인을 쓰면 `OFFICIAL_HOSTS`에도 추가해요.
+6. `node tools/check-all.js`로 점검하고, 로컬에서 새 지역을 선택해 대표번호·교육지원청 찾기·지원 찾기 화면을 확인해요.
 
 `app.js`와 `data/common.js`는 고칠 필요가 없어요.
 
@@ -160,6 +163,7 @@ docs/
 | 서울 | 종전 시행령 [별표 2] | 11개 교육지원청 · 25개 자치구 |
 | 경기 | 「경기도교육청 행정기구 설치 조례」 [별표 9] | 25개 교육지원청 · 31개 시·군. 통합 교육지원청 분리 추진 중 |
 | 인천 | 종전 시행령 [별표 2]를 2026. 7. 1. 개편 구역에 적용 | 5개 교육지원청 · 2군 9구(아래) |
+| 부산 | 종전 시행령 [별표 2](「부산광역시교육청 행정기구 설치 조례」 현행본은 2023. 3. 1. 시행으로 관할 조항 없음) | 5개 교육지원청 · 15구 1군 |
 
 인천은 2026. 7. 1. 행정체제 개편으로 중구·동구·서구가 없어지고 제물포구·영종구·서해구·검단구가 생겼어요.
 
