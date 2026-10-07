@@ -15,8 +15,8 @@ registerRegion({
   verifiedAt: '2026-10-06',
   reviewStatus: 'verified',
   // 대표번호·교육지원청 연락처·기관 연락처(orgs)를 마지막으로 확인한 날 / 교육지원청 관할(areas)을 마지막으로 확인한 날
-  contactsVerifiedAt: '2026-10-06',
-  areasVerifiedAt: '2026-10-06',
+  contactsVerifiedAt: '2026-10-07',
+  areasVerifiedAt: '2026-10-07',
   // 2026학년도 계획·매뉴얼과 교원보호공제 공제기간(2026. 3. 1.~2027. 2. 28.)이 끝나면 전체를 다시 확인해요
   reviewBy: '2027-03-01',
   // 충청북도 시·군 수(3시 8군)
@@ -30,8 +30,8 @@ registerRegion({
     { title: '「2026. 교원심리상담 및 심리치료지원 계획」(교육활동보호센터 정보모음, 2026. 4. 23. 게시)', url: 'https://www.cbe.go.kr/dept-26/na/ntt/selectNttInfo.do?nttSn=1571643&mi=14407', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-04-23', region: 'chungbuk', uses: ['support'] },
     { title: '2026. 하반기 상담협력기관 및 위촉 상담전문가 현황(7월 기준, 2026. 7. 15. 게시)', url: 'https://www.cbe.go.kr/dept-26/na/ntt/selectNttInfo.do?nttSn=1576024&mi=14407', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-07-15', region: 'chungbuk', uses: ['support'] },
     { title: '충청북도교육청 교육활동보호센터 — 교육활동보호(원스톱 종합지원 시스템·2026년 교원보호공제 사업, 2026. 7. 15. 갱신)', url: 'https://www.cbe.go.kr/dept-26/cm/cntnts/cntntsView.do?mi=14403&cntntsId=36358', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-07-15', region: 'chungbuk', uses: ['procedure', 'support'] },
-    { title: '충청북도교육청 교육활동보호센터 업무분장(교원119·043-1395·교원보호공제 / 마음클리닉)', url: 'https://www.cbe.go.kr/cbe/ad/ofcrk/ofcrkDeptInfo.do?mi=11733&deptSn=915', verifiedAt: '2026-10-06', region: 'chungbuk', uses: ['support'] },
-    { title: '충청북도학교안전공제회 — 교원보호공제(보장 내용·청구 절차·보상 문의)', url: 'https://chungbuk.ssif.or.kr/compensation/teacher.php', verifiedAt: '2026-10-06', region: 'chungbuk', uses: ['procedure', 'support'] },
+    { title: '충청북도교육청 교육활동보호센터 업무분장(교원119·043-1395·교원보호공제 / 마음클리닉)', url: 'https://www.cbe.go.kr/cbe/ad/ofcrk/ofcrkDeptInfo.do?mi=11733&deptSn=915', verifiedAt: '2026-10-07', region: 'chungbuk', uses: ['support'] },
+    { title: '충청북도학교안전공제회 — 교원보호공제(보장 내용·청구 절차·보상 문의)', url: 'https://chungbuk.ssif.or.kr/compensation/teacher.php', verifiedAt: '2026-10-07', region: 'chungbuk', uses: ['procedure', 'support'] },
     { title: '지방교육자치에 관한 법률 시행령 부칙(대통령령 제36292호) 제2조 — 조례 제정 전까지 종전 [별표 2] 관할 적용', url: 'https://www.law.go.kr/법령/지방교육자치에관한법률시행령', verifiedAt: '2026-10-06', region: 'chungbuk', uses: ['finder'] },
     { title: '종전 [별표 2] 교육지원청의 명칭·위치 및 관할구역(2023. 6. 27. 개정) — 충북 10개 교육지원청(괴산증평: 괴산군·증평군)', url: 'https://www.law.go.kr/LSW/flDownload.do?flSeq=129700305&bylClsCd=110201', verifiedAt: '2026-10-06', sourceUpdatedAt: '2023-06-27', region: 'chungbuk', uses: ['finder'] },
     { title: '충청북도교육청 기관 안내 — 교육지원청(누리집 주소)', url: 'https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?mi=11749&cntntsId=35649', verifiedAt: '2026-10-06', region: 'chungbuk', uses: ['finder'] },

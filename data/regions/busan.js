@@ -14,8 +14,8 @@ registerRegion({
   verifiedAt: '2026-10-06',
   reviewStatus: 'verified',
   // 대표번호·교육지원청 연락처·기관 연락처(orgs)를 마지막으로 확인한 날 / 교육지원청 관할(areas)을 마지막으로 확인한 날
-  contactsVerifiedAt: '2026-10-06',
-  areasVerifiedAt: '2026-10-06',
+  contactsVerifiedAt: '2026-10-07',
+  areasVerifiedAt: '2026-10-07',
   // 2026학년도 계획·매뉴얼과 교원보호공제 운영기간(2026. 3. 1.~2027. 2. 28.)이 끝나면 전체를 다시 확인해요
   reviewBy: '2027-03-01',
   // 부산광역시 15구 1군
@@ -23,7 +23,7 @@ registerRegion({
   sources: [
     { title: '부산광역시교육청 「2026 교육활동 보호 매뉴얼」·「2026 학교민원 처리 매뉴얼」(교육활동보호센터 자료실, 2026. 3. 26. 게시)', url: 'https://home.pen.go.kr/forteacher/na/ntt/selectNttInfo.do?mi=18208&nttSn=986253', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-03-26', region: 'busan', uses: ['guide', 'procedure', 'care', 'support'] },
     { title: '부산광역시교육청 「2026학년도 교육활동 보호 계획」(교육활동보호센터 자료실, 2026. 3. 26. 게시)', url: 'https://home.pen.go.kr/forteacher/na/ntt/selectNttInfo.do?mi=18208&nttSn=986321', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-03-26', region: 'busan', uses: ['guide', 'procedure', 'care', 'support'] },
-    { title: '부산광역시교육청 교육활동보호센터 — 교육지원청 교육활동보호센터 소개(2026. 9. 1. 설치, 현장 지원·사안 심의 연락처)', url: 'https://home.pen.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=18480&cntntsId=4215', verifiedAt: '2026-10-06', region: 'busan', uses: ['support', 'finder'] },
+    { title: '부산광역시교육청 교육활동보호센터 — 교육지원청 교육활동보호센터 소개(2026. 9. 1. 설치, 현장 지원·사안 심의 연락처)', url: 'https://home.pen.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=18480&cntntsId=4215', verifiedAt: '2026-10-07', region: 'busan', uses: ['support', 'finder'] },
     { title: '부산광역시교육청 보도자료(2026. 8. 12.) — 교육지원청마다 ‘교육활동보호센터’ 9월부터 운영', url: 'https://www.pen.go.kr/main/na/ntt/selectNttInfo.do?mi=30397&bbsId=2286&nttSn=1177765', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-08-12', region: 'busan', uses: ['support'] },
     { title: '부산광역시교육청 교육활동보호센터 — 개인심리상담 지원', url: 'https://home.pen.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=18202&cntntsId=4093', verifiedAt: '2026-10-06', region: 'busan', uses: ['support'] },
     { title: '부산광역시교육청 교육활동보호센터 — 치료비·치유비(재산상 피해·위협 대처·분쟁조정 포함)', url: 'https://home.pen.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=18214&cntntsId=4101', verifiedAt: '2026-10-06', region: 'busan', uses: ['procedure', 'support'] },

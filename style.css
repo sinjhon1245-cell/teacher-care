@@ -255,6 +255,8 @@ summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; 
 }
 .panel-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .panel-actions .btn { flex: 1 1 130px; }
+/* 역할별 대표 연락처(hotContacts)가 있는 지역: 번호마다 한 줄 버튼 */
+.panel-actions-split .btn-primary { flex: 1 1 100%; }
 .hotline-menu { margin: -6px 0 14px 20px; font-size: 14.5px; color: var(--muted); display: grid; gap: 3px; }
 .hotline-menu strong { color: var(--text); }
 .emergency-note {
@@ -869,6 +871,8 @@ body.is-landing { padding-bottom: 0; }
   .hero .region-panel .panel-actions { grid-column: 2; grid-row: 1 / span 2; }
   .hero .region-panel .panel-actions .btn-secondary { display: none; }
   .hero .region-panel .panel-actions .btn { min-height: 44px; padding: 8px 14px; flex: none; }
+  .hero .region-panel .panel-actions-split { grid-column: 1 / -1; grid-row: auto; margin-top: 8px; }
+  .hero .region-panel .panel-actions-split .btn-primary { flex: 1 1 100%; }
   .hero .region-panel .region-picker { grid-column: 1 / -1; }
   .hero .region-picker-title { font-size: 14.5px; margin-bottom: 8px; }
   .hero .region-pick { min-height: 44px; }

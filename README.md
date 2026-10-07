@@ -116,6 +116,7 @@ docs/
 | `sources` | 공식 출처 목록 `{ title, url, verifiedAt, sourceUpdatedAt?, uses }`. `uses`는 이 자료를 근거로 보여 줄 화면이에요: `guide`(상황별 도움), `procedure`(대응 절차), `care`(회복·보호), `support`(지원 찾기), `finder`(교육지원청 찾기) |
 | `hot`, `hotName`, `hotSummary` | 대표번호와 이름·한 줄 설명 |
 | `menu` 또는 `menuNote` | 확인된 ARS 메뉴 목록. 모르면 `menuNote` 한 줄만 |
+| `hotContacts`(선택) | 대표번호 하나로 모든 교원을 연결할 수 없을 때(예: 강원 학교급별 사안 담당) `[{ label, value }]` 2개 이상. 홈 패널·지원 찾기 허브에 역할별 전화 버튼으로 나오고, `hot`은 그중 하나여야 해요(헤더 버튼) |
 | `links` | 지원 찾기 상단 ‘지역 지원 허브’의 바로 이용하기 `{ type: 'apply' | 'kakao' | 'guide', label, url }`. 시·도교육청 홈페이지(`officeUrl`)는 자동으로 붙어요 |
 | `terms` | 위 토큰 값. 확인 못 한 항목은 **빼 두기**(중립 문구로 표시돼요) |
 | `offices` | 교육지원청 `{ name, dept?, areas: [시·군·구], contact?, hours?, url?(홈페이지), guideUrl?(교육활동보호 안내 페이지) }` |
@@ -267,7 +268,7 @@ git diff --check
 ‘자동 승인·지급’ 같은 오해 표현, 특별휴가 ‘범위에서 부여’·휴직 ‘검토’ 표현, 상황 → 권리 연결·회복 경로·홈 카드 id,
 지역 `benefits`·`highlights`의 id·출처, 숫자 정보의 출처, 다른 지역 사업명 혼입, 출처의 `region`,
 5메뉴 순서, 회복·보호에 외부 지원이 섞였는지, 제도 묶음·공식 근거 id, 단계별 바로가기·홈 입구 id, 지원 유형의 공통 기준·회복·보호 연결, 지원 항목 area(배열 포함)를 검사해요.
-문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에 있어요.
+문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에 있어요.
 
 ## 로컬에서 확인하기
 

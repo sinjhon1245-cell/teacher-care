@@ -1,8 +1,9 @@
 // 강원특별자치도 — 지역 데이터
 // 공식 자료로 확인한 내용만 적어요. 확인하지 못한 값은 비워 두면 화면에서 그 칸을 숨겨요(다른 지역 값으로 채우지 않아요).
 // 내용을 고치면 그 항목의 verifiedAt(및 해당 sources 항목)을 함께 갱신하세요. 최신성 필드 설명은 data/common.js ‘최신성 관리’에 있어요.
-// 연락처는 정책기획과 교육활동보호팀 업무분장(조직도) 기준이에요. 033-258-5342 유·초·특 사안·센터 / 5341 중·고 사안 / 5343 교권전담 변호사 /
+// 연락처는 정책기획과 교육활동보호팀 업무분장(조직도, 2026. 10. 7. 재확인) 기준이에요. 033-258-5342 유·초·특 사안·센터 / 5341 중·고 사안 / 5343 교권전담 변호사 /
 // 5344 교권전담 상담사 / 5345 교원보호공제·원스톱 법률 동행·분쟁조정지원단·마음건강치료비. 서로 다른 창구라 한 카드로 합치지 마세요.
+// 센터 소개 표는 5345를 ‘학교 행정업무 경감 담당’으로 적고 있지만, 조직도에서 그 업무는 5347이고 교원보호공제사업 안내도 담당을 258-5345로 적어요(소개 표가 옛 정보).
 // 강원이 게시한 2026 교육활동보호 매뉴얼·학교민원 처리 매뉴얼은 교육부 전국 매뉴얼과 같은 파일이에요(공통 내용은 common.js에 있어요).
 // 업무분장의 ‘(가칭) 동행콜’, 접수 채널명 ‘동행on’은 공식 안내가 확정되지 않아 화면에 넣지 않았어요.
 
@@ -16,8 +17,8 @@ registerRegion({
   verifiedAt: '2026-10-06',
   reviewStatus: 'verified',
   // 대표번호·교육지원청 연락처·기관 연락처(orgs)를 마지막으로 확인한 날 / 교육지원청 관할(areas)을 마지막으로 확인한 날
-  contactsVerifiedAt: '2026-10-06',
-  areasVerifiedAt: '2026-10-06',
+  contactsVerifiedAt: '2026-10-07',
+  areasVerifiedAt: '2026-10-07',
   // 2026년 사업 계획(정신건강증진·원스톱 법률·마음 건강 치료비)은 2026년 단위예요. 2027년 계획이 나오면 전체를 다시 확인해요
   reviewBy: '2027-03-01',
   // 강원특별자치도 시·군 수(7시 11군)
@@ -26,24 +27,29 @@ registerRegion({
     { title: '「2026 원스톱 변호사 법률 지원 계획」(교육활동보호센터 자료마당, 2026. 4. 3. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50814', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-04-03', region: 'gangwon', uses: ['procedure', 'support'] },
     { title: '「2026년 교원 정신건강증진사업 시행계획」(2026. 1., 교육활동보호센터 자료마당 2026. 4. 3. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50789', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-04-03', region: 'gangwon', uses: ['support'] },
     { title: '「2026 마음 건강 치료비 지원 신청서」(교육활동보호센터 자료마당, 2026. 4. 3. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50815', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-04-03', region: 'gangwon', uses: ['support'] },
-    { title: '강원특별자치도교육청 교육활동보호센터 — 교원보호공제사업(보장 내용·신청 절차, 「교원보호공제 표준약관」 2026. 5. 1. 시행본 첨부)', url: 'https://www.gwe.go.kr/main/content.do?key=m2509291752067', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-05-01', region: 'gangwon', uses: ['procedure', 'support'] },
-    { title: '강원특별자치도교육청 교육활동보호센터 — 교육활동보호센터 소개(교육활동보호팀 구성)', url: 'https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTExNjUyODQ=', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['support'] },
+    { title: '강원특별자치도교육청 교육활동보호센터 — 교원보호공제사업(보장 내용·신청 절차, 「교원보호공제 표준약관」 2026. 5. 1. 시행본 첨부)', url: 'https://www.gwe.go.kr/main/content.do?key=m2509291752067', verifiedAt: '2026-10-07', sourceUpdatedAt: '2026-05-01', region: 'gangwon', uses: ['procedure', 'support'] },
+    { title: '강원특별자치도교육청 교육활동보호센터 — 교육활동보호센터 소개(교육활동보호팀 구성)', url: 'https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTExNjUyODQ=', verifiedAt: '2026-10-07', region: 'gangwon', uses: ['support'] },
     { title: '강원특별자치도교육청 교육활동보호센터 — 법률지원(대상·신청 방법)', url: 'https://www.gwe.go.kr/main/content.do?key=m2307211167055', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['support'] },
     { title: '강원특별자치도교육청 교육활동보호센터 — 심리상담지원(긴급 상담·개인(심층) 상담)', url: 'https://www.gwe.go.kr/main/content.do?key=m2307211170671', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['support'] },
-    { title: '강원특별자치도교육청 조직도 — 정책기획과 교육활동보호팀 업무분장', url: 'https://www.gwe.go.kr/main/orgnzt/list.do?key=m2307211202580', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['support'] },
+    { title: '강원특별자치도교육청 조직도 — 정책기획과 교육활동보호팀 업무분장', url: 'https://www.gwe.go.kr/main/orgnzt/list.do?key=m2307211202580', verifiedAt: '2026-10-07', region: 'gangwon', uses: ['support'] },
     { title: '강원특별자치도교육청 교육활동보호센터 — 교육활동보호지원(교육활동 침해 사안 처리 흐름)', url: 'https://www.gwe.go.kr/main/content.do?key=m2307211166152', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['guide', 'procedure', 'support'] },
     { title: '2026 교육활동보호 매뉴얼(교육부 「교육활동 보호 매뉴얼」 2026 일부개정본, 교육활동보호센터 자료마당 2026. 3. 10. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50033', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-03-10', region: 'gangwon', uses: ['guide', 'procedure', 'care', 'support'] },
     { title: '2026 학교민원처리 매뉴얼 안내(교육부 「학교민원 처리 매뉴얼」, 교육활동보호센터 자료마당 2026. 3. 10. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50047', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-03-10', region: 'gangwon', uses: ['guide', 'support'] },
-    { title: '「강원특별자치도교육청 행정기구 설치조례」 제2조의2·[별표 2] 교육지원청의 명칭·위치 및 관할구역(2026. 10. 2. 신설·시행)', url: 'https://www.law.go.kr/자치법규/강원특별자치도교육청행정기구설치조례', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-10-02', region: 'gangwon', uses: ['finder'] },
+    { title: '「강원특별자치도교육청 행정기구 설치조례」 제2조의2·[별표 2] 교육지원청의 명칭·위치 및 관할구역(2026. 10. 2. 신설·시행)', url: 'https://www.law.go.kr/자치법규/강원특별자치도교육청행정기구설치조례', verifiedAt: '2026-10-07', sourceUpdatedAt: '2026-10-02', region: 'gangwon', uses: ['finder'] },
     { title: '강원특별자치도교육청 — 교육지원청 안내(누리집 주소)', url: 'https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDY0NTg%3D', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['finder'] }
   ],
 
   // 2026 공식 자료에서 교육활동보호 전용 단일 대표번호는 확인되지 않았어요(강원 게시 매뉴얼은 교육부 전국본).
   // 033-258-5342: 센터 소개의 ‘교육활동보호센터 담당’이자 유·초·특 사안 접수·지원, 법률지원단·정신건강증진사업·학교민원 대응 담당(업무분장).
-  // 중·고 사안 접수·지원은 033-258-5341이라 hotSummary·terms.HOT2·programs에 함께 적어요
+  // 중·고 사안 접수·지원은 033-258-5341이에요. 대표 전화 버튼 하나로는 한쪽 학교급만 연결돼서 hotContacts로 두 번호를 나란히 보여 줘요
+  // (헤더 전화 버튼은 hot = 센터 담당 5342로 걸려요)
   hot: '033-258-5342',
-  hotName: '강원 교육활동보호센터 담당',
-  hotSummary: '유·초·특수학교 교육활동 침해 사안 접수·지원은 033-258-5342, 중·고등학교는 033-258-5341이에요. 법률상담은 교권전담 변호사(033-258-5343), 심리상담은 교권전담 상담사(033-258-5344), 교원보호공제·원스톱 법률 동행·분쟁조정·마음 건강 치료비는 033-258-5345예요.',
+  hotName: '강원 교육활동보호팀 — 학교급별 사안 담당',
+  hotContacts: [
+    { label: '유·초·특수학교', value: '033-258-5342' },
+    { label: '중·고등학교', value: '033-258-5341' }
+  ],
+  hotSummary: '하나의 대표번호로 모든 지원이 해결되지 않아요. 교육활동 침해 사안 접수·지원은 학교급에 따라 유·초·특수학교 033-258-5342, 중·고등학교 033-258-5341로 걸어요. 법률상담은 교권전담 변호사(033-258-5343), 심리상담은 교권전담 상담사(033-258-5344), 교원보호공제·원스톱 법률 동행·분쟁조정·마음 건강 치료비는 033-258-5345예요.',
   // 지원 찾기 '지역 지원 허브'의 바로 이용하기(시·도교육청 홈페이지는 officeUrl로 자동 추가)
   links: [
     { type: 'guide', label: '교육활동보호센터 소개', url: 'https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTExNjUyODQ=' },

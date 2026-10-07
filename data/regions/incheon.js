@@ -12,15 +12,15 @@ registerRegion({
   verifiedAt: '2026-10-03',
   reviewStatus: 'verified',
   // 대표번호·교육지원청 연락처·기관 연락처(orgs)를 마지막으로 확인한 날 / 교육지원청 관할(areas)을 마지막으로 확인한 날
-  contactsVerifiedAt: '2026-09-25',
-  areasVerifiedAt: '2026-09-24',
+  contactsVerifiedAt: '2026-10-07',
+  areasVerifiedAt: '2026-10-07',
   areasReviewBy: '2027-03-01', // 2027. 3. 1. 영종·검단교육지원청 신설 예고 → 시행되면 offices를 고치세요
   // 2026학년도 매뉴얼·시행계획·공제 약관은 2027. 2.까지예요. 새 학년도 자료가 나오면 전체를 다시 확인해요
   reviewBy: '2027-03-01',
   // 2026. 7. 1. 행정체제 개편 후 2군 9구(인천광역시 행정구역 안내)
   expectedAreas: 11,
   sources: [
-    { title: '인천광역시교육청 「2026 교육활동보호 매뉴얼」', url: 'https://www.ice.go.kr/upload/ice/na/bbs_1711/2026/04/0ecf770cd5d1443260ec865a554c116b.pdf', verifiedAt: '2026-10-03', region: 'incheon', uses: ['guide', 'procedure', 'care', 'support'] },
+    { title: '인천광역시교육청 「2026 교육활동보호 매뉴얼」', url: 'https://www.ice.go.kr/upload/ice/na/bbs_1711/2026/04/0ecf770cd5d1443260ec865a554c116b.pdf', verifiedAt: '2026-10-07', region: 'incheon', uses: ['guide', 'procedure', 'care', 'support'] },
     { title: '「2026년 인천 교육활동 보호 시행계획」(2026. 2. 13. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3360999', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-13', region: 'incheon', uses: ['guide', 'procedure', 'care', 'support'] },
     { title: '인천광역시교육청 부서안내 — 교육활동보호담당관', url: 'https://www.ice.go.kr/ice/ad/ofcrk/ofcrkDeptInfo.do?mi=12097&deptSn=1120', verifiedAt: '2026-09-24', region: 'incheon', uses: ['support'] },
     { title: '인천광역시 행정구역(2026. 7. 1. 2군 9구)', url: 'https://www.incheon.go.kr/IC040102', verifiedAt: '2026-09-24', sourceUpdatedAt: '2026-07-01', region: 'incheon', uses: ['finder'] },
@@ -33,7 +33,9 @@ registerRegion({
     // 2026-10-03 추가: 보호조치 비용 한도 200만 원 → 300만 원(2026. 4. 30. 시행). 매뉴얼(4월)·시행계획(2월)의 200만 원보다 우선해요
     { title: '인천광역시교육청 고시 제2026-200호 「교육활동 침해행위 보호조치 비용부담 및 구상권 행사에 관한 고시」 일부개정(2026. 4. 30. 시행, 2026. 5. 6. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3370378&mi=11822', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-04-30', region: 'incheon', uses: ['guide', 'procedure', 'support'] },
     { title: '인천광역시교육청 「2026학년도 교육활동 보호조치 비용 지원 수정 계획」(2026. 5.)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3369621&mi=11822', verifiedAt: '2026-10-03', region: 'incheon', uses: ['procedure', 'support'] },
-    { title: '인천광역시학교안전공제회 「2026년 교원보호공제 약관」(2026. 3.~2027. 2.)', url: 'https://incheon.ssif.or.kr/sub/pop_print_insurance.php', verifiedAt: '2026-10-03', region: 'incheon', uses: ['procedure', 'support'] }
+    { title: '인천광역시학교안전공제회 「2026년 교원보호공제 약관」(2026. 3.~2027. 2.)', url: 'https://incheon.ssif.or.kr/sub/pop_print_insurance.php', verifiedAt: '2026-10-07', region: 'incheon', uses: ['procedure', 'support'] },
+    // 2026-10-07 추가: 교육지원청 교육활동 보호 담당 직통번호(각 교육지원청 조직도 업무분장과도 일치). 종전 offices 번호는 교육지원청 대표전화였어요
+    { title: '인천광역시교육청 교육활동보호담당관 구성현황 — 교육지원청 교육활동 보호 담당자 연락처(2026. 6. 30. 갱신)', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11821&cntntsId=857', verifiedAt: '2026-10-07', sourceUpdatedAt: '2026-06-30', region: 'incheon', uses: ['support', 'finder'] }
   ],
 
   // 대표번호와 ARS 안내(2026 교육활동보호 매뉴얼)
@@ -59,14 +61,16 @@ registerRegion({
   },
 
   // 교육지원청(신고·사안 조사·지역교권보호위원회). areas는 '내 교육지원청 찾기' 선택지가 돼요.
-  // 관할: 종전 시행령 [별표 2]를 2026. 7. 1. 개편 구역(중구·동구 → 제물포구·영종구, 서구 → 서해구·검단구)에 맞춰 적용.
+  // 연락처: 교육지원청 교육활동 보호 담당 직통번호(구성현황 2026. 6. 30.·각 교육지원청 업무분장, 2026. 10. 7. 확인) + 032-1395 ARS(매뉴얼 53쪽).
+  // 교육지원청 대표전화(762-7361 등)를 담당 번호처럼 쓰지 마세요.
+  // 관할: 「인천광역시교육청 행정기구 설치 조례」 현행본(2026. 10. 6. 시행, 기관 주소 변경)에도 관할 조항이 없어 종전 시행령 [별표 2]를 2026. 7. 1. 개편 구역(중구·동구 → 제물포구·영종구, 서구 → 서해구·검단구)에 맞춰 적용.
   // 2027. 3. 1. 영종·검단교육지원청 신설, 서부 → 서해교육지원청 개칭이 입법예고 중이에요. 시행되면 이 목록을 고치세요.
   offices: [
-    { name: '남부교육지원청', dept: '초등교육과', areas: ['미추홀구', '제물포구', '영종구', '옹진군'], contact: '032-762-7361 · 032-1395(2-1번)', hours: '평일 근무 시간', url: 'https://nambu.ice.go.kr' },
-    { name: '북부교육지원청', dept: '초등교육과', areas: ['부평구', '계양구'], contact: '032-524-9631 · 032-1395(2-2번)', hours: '평일 근무 시간', url: 'https://bukbu.ice.go.kr' },
-    { name: '동부교육지원청', dept: '초등교육과', areas: ['남동구', '연수구'], contact: '032-460-6000 · 032-1395(2-3번)', hours: '평일 근무 시간', url: 'https://dongbu.ice.go.kr' },
-    { name: '서부교육지원청', dept: '초등교육과', areas: ['서해구', '검단구'], contact: '032-560-6600 · 032-1395(2-4번)', hours: '평일 근무 시간', url: 'https://seobu.ice.go.kr' },
-    { name: '강화교육지원청', dept: '교육지원과', areas: ['강화군'], contact: '032-930-7777 · 032-1395(2-5번)', hours: '평일 근무 시간', url: 'https://ganghwa.ice.go.kr' }
+    { name: '남부교육지원청', dept: '초등교육과', areas: ['미추홀구', '제물포구', '영종구', '옹진군'], contact: '교육활동 보호 담당 032-627-1261 · 032-1395(2-1번)', hours: '평일 근무 시간', url: 'https://nambu.ice.go.kr' },
+    { name: '북부교육지원청', dept: '초등교육과', areas: ['부평구', '계양구'], contact: '교육활동 보호 담당 032-510-6104 · 032-1395(2-2번)', hours: '평일 근무 시간', url: 'https://bukbu.ice.go.kr' },
+    { name: '동부교육지원청', dept: '초등교육과', areas: ['남동구', '연수구'], contact: '교육활동 보호 담당 032-455-4650 · 032-1395(2-3번)', hours: '평일 근무 시간', url: 'https://dongbu.ice.go.kr' },
+    { name: '서부교육지원청', dept: '초등교육과', areas: ['서해구', '검단구'], contact: '교육활동 보호 담당 032-560-6618 · 032-1395(2-4번)', hours: '평일 근무 시간', url: 'https://seobu.ice.go.kr' },
+    { name: '강화교육지원청', dept: '교육지원과', areas: ['강화군'], contact: '교육활동 보호 담당 032-930-7773 · 032-1395(2-5번)', hours: '평일 근무 시간', url: 'https://ganghwa.ice.go.kr' }
   ],
   areaNote: '2026. 7. 1. 행정체제 개편 후 구역 기준이에요. 2027. 3. 1.부터 영종·검단교육지원청 신설이 예고되어 있어요(입법예고 중).',
 

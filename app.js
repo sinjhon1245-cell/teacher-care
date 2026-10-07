@@ -506,6 +506,13 @@ const App = {
       : '';
   },
 
+  // 대표번호 하나로 모든 교원을 연결할 수 없는 지역(학교급별 담당 등)은 hotContacts로 역할별 전화 버튼을 보여 줘요
+  hotContactButtons(R) {
+    return R.hotContacts.map(c =>
+      `<a href="${telHref(c.value)}" class="btn btn-primary" aria-label="${R.short} ${c.label} ${c.value} 전화 걸기"><span aria-hidden="true">☎</span> ${c.label} <span class="btn-sub">${c.value}</span></a>`
+    ).join('');
+  },
+
   emergencyNote() {
     return `<p class="emergency-note"><span class="emergency-icon" aria-hidden="true">!</span><span>폭행·협박·난입 등 지금 위험하다면 현장을 벗어나 <a href="tel:112">112</a>에 먼저 신고하세요.</span></p>`;
   },
@@ -523,6 +530,8 @@ const App = {
   renderHeader() {
     const S = this.state;
     const R = this.R;
+    // hotContacts가 있는 지역은 헤더 버튼이 어느 담당으로 걸리는지 읽어 줘요
+    const hotLabel = R && R.hotContacts && (R.hotContacts.find(c => c.value === R.hot) || {}).label;
     const navHtml = PAGES.map(([id, label]) =>
       `<button class="nav-btn ${S.page === id ? 'active' : ''}" ${S.page === id ? 'aria-current="page"' : ''} onclick="App.nav('${id}')">${label}</button>`
     ).join('');
@@ -535,7 +544,7 @@ const App = {
           </button>
           <nav class="main-nav" aria-label="주요 메뉴">${navHtml}</nav>
           ${this.renderRegionSelect()}
-          ${R ? `<a href="{TEL}" class="header-call" aria-label="${R.short} 교육활동 보호 대표번호 {HOT} 전화 걸기"><span aria-hidden="true">☎</span> {HOT}</a>` : ''}
+          ${R ? `<a href="{TEL}" class="header-call" aria-label="${R.short} ${hotLabel || '교육활동 보호 대표번호'} {HOT} 전화 걸기"><span aria-hidden="true">☎</span> {HOT}</a>` : ''}
         </div>
       </header>
     `;
@@ -595,9 +604,9 @@ const App = {
       <aside class="region-panel" aria-label="현재 지역 연락처">
         <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
         <p class="panel-hot-label">${R.hotName}</p>
-        <a href="{TEL}" class="panel-hot">{HOT}</a>
-        <div class="panel-actions">
-          <a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화하기</a>
+        ${R.hotContacts ? '' : '<a href="{TEL}" class="panel-hot">{HOT}</a>'}
+        <div class="panel-actions${R.hotContacts ? ' panel-actions-split' : ''}">
+          ${R.hotContacts ? this.hotContactButtons(R) : '<a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화하기</a>'}
           <button class="btn btn-secondary" onclick="App.nav('support')">지원 방법 보기</button>
         </div>
       </aside>
@@ -1358,11 +1367,13 @@ const App = {
         <div class="hub-main">
           <p class="hub-region">${R.short} 교육활동 보호 지원</p>
           <p class="panel-hot-label">${R.hotName}</p>
-          <a href="{TEL}" class="panel-hot">{HOT}</a>
+          ${R.hotContacts ? '' : '<a href="{TEL}" class="panel-hot">{HOT}</a>'}
           ${R.menu
             ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
             : `<p class="muted small">${R.hotSummary || R.menuNote || ''}</p>`}
-          <a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화 상담 {HOT}</a>
+          ${R.hotContacts
+            ? `<div class="panel-actions panel-actions-split">${this.hotContactButtons(R)}</div>`
+            : '<a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화 상담 {HOT}</a>'}
         </div>
         <div class="hub-links">
           <p class="hub-links-title">바로 이용하기</p>

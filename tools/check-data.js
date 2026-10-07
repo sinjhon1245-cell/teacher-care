@@ -93,7 +93,7 @@ const phonesIn = text => String(text).match(PHONE_CANDIDATE) || [];
 
 // 지역 데이터에서 번호가 들어가는 필드(대표번호, 토큰 값, 연락처, 신청 방법)만 모아요
 function contactTexts(r) {
-  const out = [['hot', r.hot], ...Object.entries(r.terms).map(([k, v]) => ['terms.' + k, v])];
+  const out = [['hot', r.hot], ...(r.hotContacts || []).map((c, i) => [`hotContacts[${i}] (${c.label})`, c.value]), ...Object.entries(r.terms).map(([k, v]) => ['terms.' + k, v])];
   for (const key of ['offices', 'programs', 'orgs']) {
     (r[key] || []).forEach((item, i) => {
       for (const f of ['contact', 'apply', 'amount', 'timing', 'documents', 'caution', 'eligibility']) if (item[f]) out.push([`${key}[${i}].${f} (${item.name || item.t})`, item[f]]);
@@ -571,6 +571,18 @@ for (const id of REGION_ORDER) {
     errors.push(`${tag} 시·군·구 수가 달라요: 데이터 ${seen.size}곳, 기대 ${r.expectedAreas}곳`);
   }
   total += seen.size;
+
+  // 역할별 대표 연락처(선택): 라벨·번호가 모두 있어야 하고, 헤더 버튼이 거는 hot은 그중 하나여야 해요
+  if (r.hotContacts !== undefined) {
+    if (!Array.isArray(r.hotContacts) || r.hotContacts.length < 2) errors.push(`${tag} hotContacts는 2개 이상인 배열이어야 해요`);
+    else {
+      r.hotContacts.forEach((c, i) => {
+        if (!c.label || !c.value) errors.push(`${tag} hotContacts[${i}] label·value가 필요해요`);
+        else if (!isValidPhone(c.value)) errors.push(`${tag} hotContacts[${i}] 번호는 전화번호 하나만 적어요: ${c.value}`);
+      });
+      if (!r.hotContacts.some(c => c.value === r.hot)) errors.push(`${tag} hot(${r.hot})이 hotContacts에 없어요`);
+    }
+  }
 
   // 전화번호 형식
   for (const [field, value] of contactTexts(r)) {
