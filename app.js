@@ -11,6 +11,9 @@ const STORAGE_CHECKS = 'teacher-care-procedure-checks-v1'; // { '단계번호.�
 const STORAGE_ACTIONS = 'teacher-care-action-checks-v1';
 // 예전 체크리스트 키. 삭제된 목록의 순번으로 저장돼 새 항목과 맞지 않아 옮기지 않고 지워요
 const LEGACY_CHECK_KEYS = ['teacher-care-checks', 'icn-gyeote-checks'];
+// 업데이트 알림(data/updates.js): 마지막으로 연 업데이트 내역의 최신 id / 닫은 상단 안내바의 업데이트 id만 저장해요(개인 정보·서버 전송 없음)
+const STORAGE_UPDATE_SEEN = 'teacher-care-update-seen';
+const STORAGE_UPDATE_BANNER = 'teacher-care-update-banner-closed';
 
 const App = {
   state: {
@@ -375,6 +378,7 @@ const App = {
     document.getElementById('app').innerHTML = T(`
       <a class="skip-link" href="#main">본문 바로가기</a>
       ${this.renderHeader()}
+      ${UpdateUI.strip()}
       <main id="main">
         <div class="print-head" id="print-head"></div>
         ${S.page === 'home' ? this.renderHome() : ''}
@@ -544,6 +548,7 @@ const App = {
           </button>
           <nav class="main-nav" aria-label="주요 메뉴">${navHtml}</nav>
           ${this.renderRegionSelect()}
+          ${UpdateUI.chip()}
           ${R ? `<a href="{TEL}" class="header-call" aria-label="${R.short} ${hotLabel || '교육활동 보호 대표번호'} {HOT} 전화 걸기"><span aria-hidden="true">☎</span> {HOT}</a>` : ''}
         </div>
       </header>
@@ -1547,7 +1552,7 @@ const App = {
             <p>교사를 위한 교육활동 보호·대응 가이드예요.</p>
             <p>공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.</p>
             <p>실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.</p>
-            <p>선택한 지역과 체크 상태(대응 절차·행동 체크)만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
+            <p>선택한 지역, 체크 상태(대응 절차·행동 체크), 업데이트 알림 확인 여부만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
           </div>
           <div class="footer-side">
             <div class="footer-official">
@@ -1557,6 +1562,7 @@ const App = {
                 : `<p>공통 안내는 교육부 「교육활동 보호 매뉴얼」과 관련 법령을 바탕으로 해요. 근무 지역을 고르면 그 시·도교육청 안내를 함께 보여 줘요.</p>`}
               <p>화면마다 아래쪽 ‘안내 근거’에 그 화면에 쓴 공식 자료를 적어 두었어요.</p>
             </div>
+            ${UpdateUI.footerBlock()}
             ${this.feedbackCard()}
           </div>
         </div>
@@ -2033,6 +2039,174 @@ function linkifyPhone(text) {
   });
 }
 
+// ── 업데이트 알림(data/updates.js 하나로 헤더 표시·상단 안내바·내역 창·푸터를 만들어요) ──
+// 자동으로 뜨는 창은 없어요. 내역 창은 누를 때만 열고, 주소(URL)·기록(history)은 바꾸지 않아요.
+// 창은 #app 밖(body)에 두어 화면을 다시 그려도 닫히지 않아요. 저장이 막힌 브라우저에서도 이번 방문 동안은 메모리로 동작해요
+const UpdateUI = {
+  _seen: null,          // 저장이 실패해도 이번 방문에서는 읽음·닫음을 기억해요
+  _bannerClosed: null,
+  _trigger: null,
+
+  list() { return typeof UPDATES !== 'undefined' && Array.isArray(UPDATES) ? UPDATES : []; },
+  latest() { return this.list()[0] || null; },
+  seenId() { return this._seen || storeGet(STORAGE_UPDATE_SEEN); },
+  unread() { const u = this.latest(); return !!u && this.seenId() !== u.id; },
+  day(iso) { const [y, m, d] = iso.split('-'); return { full: `${y}.${m}.${d}`, short: `${m}.${d}` }; },
+  today() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }, // 한국 날짜
+
+  // 상단 안내바: showBanner인 가장 최근 업데이트 하나. 닫았거나, 그 뒤(또는 그) 업데이트 내역을 이미 열어 봤거나, 기간이 지나면 숨겨요
+  banner() {
+    const list = this.list();
+    const b = list.find(u => u.showBanner);
+    if (!b || (b.bannerUntil && this.today() > b.bannerUntil)) return null;
+    if (this._bannerClosed === b.id || storeGet(STORAGE_UPDATE_BANNER) === b.id) return null;
+    const seen = list.findIndex(u => u.id === this.seenId());
+    if (seen !== -1 && seen <= list.indexOf(b)) return null;
+    return b;
+  },
+
+  // PC 헤더: 지역 선택 옆의 작은 글자 버튼(880px 이하에서는 CSS로 숨기고 strip·푸터로 안내해요)
+  chip() {
+    const u = this.latest();
+    if (!u) return '';
+    const isNew = this.unread();
+    return `<button type="button" class="update-chip${isNew ? ' is-new' : ''}" id="update-chip" aria-haspopup="dialog" onclick="UpdateUI.open('update-chip')">${isNew ? '<span class="update-dot" aria-hidden="true"></span>새 ' : ''}업데이트 ${this.day(u.date).short}<span class="sr-only"> 내역 보기</span></button>`;
+  },
+
+  // 헤더 바로 아래 한 줄: 큰 업데이트면 안내바(모든 폭), 아니면 880px 이하에서만 ‘새 업데이트’ 한 줄(읽으면 사라져요)
+  strip() {
+    const b = this.banner();
+    if (b) {
+      return `<div class="update-banner" id="update-strip" role="region" aria-label="새 소식">
+        <div class="update-banner-inner">
+          <p><span class="update-banner-label">새 소식</span> ${b.banner || b.title}</p>
+          <button type="button" class="update-banner-more" id="update-banner-more" aria-haspopup="dialog" onclick="UpdateUI.open('update-banner-more')">자세히 보기</button>
+          <button type="button" class="update-banner-close" aria-label="새 소식 안내 닫기" onclick="UpdateUI.closeBanner()"><span aria-hidden="true">×</span></button>
+        </div>
+      </div>`;
+    }
+    const u = this.latest();
+    if (!u || !this.unread()) return '';
+    return `<div class="update-line" id="update-strip">
+      <button type="button" class="update-line-btn" id="update-line-btn" aria-haspopup="dialog" onclick="UpdateUI.open('update-line-btn')">
+        <span class="update-dot" aria-hidden="true"></span><span class="update-line-text">새 업데이트 ${this.day(u.date).short} · ${u.title}</span><span aria-hidden="true">›</span>
+      </button>
+    </div>`;
+  },
+
+  // 공통 하단(서비스 안내): 최근 업데이트 한 건과 지원 지역 수, 전체 내역 열기
+  footerBlock() {
+    const u = this.latest();
+    if (!u) return '';
+    return `<div class="footer-update">
+      <p class="footer-side-title">최근 업데이트</p>
+      <p><span class="footer-update-date">${this.day(u.date).full}</span> ${u.title}</p>
+      <p class="footer-update-meta">${this.day(u.date).full} 기준 · ${REGION_ORDER.length}개 시·도 안내</p>
+      <button type="button" class="link-btn small" id="footer-update-btn" aria-haspopup="dialog" onclick="UpdateUI.open('footer-update-btn')">전체 업데이트 보기 <span aria-hidden="true">→</span></button>
+    </div>`;
+  },
+
+  dialogHtml() {
+    const items = this.list().map(u => `
+      <li class="update-item">
+        <p class="update-meta"><time datetime="${u.date}">${this.day(u.date).full}</time><span class="update-type">${u.type}</span></p>
+        <h3 class="update-title">${u.title}</h3>
+        <p class="update-summary">${u.summary}</p>
+        ${u.details && u.details.length ? `<ul class="update-details">${u.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+      </li>`).join('');
+    return `<div class="update-dialog-body">
+      <div class="update-dialog-head">
+        <h2 class="update-dialog-title" id="update-dialog-title" tabindex="-1">업데이트 내역</h2>
+        <button type="button" class="update-dialog-close" aria-label="업데이트 내역 닫기" onclick="UpdateUI.close()"><span aria-hidden="true">×</span></button>
+      </div>
+      <p class="update-dialog-note">선생님 곁에에서 달라진 점을 최신순으로 알려 드려요.</p>
+      <ol class="update-list">${items}</ol>
+      <div class="update-dialog-foot"><button type="button" class="btn btn-secondary" onclick="UpdateUI.close()">닫기</button></div>
+    </div>`;
+  },
+
+  open(triggerId) {
+    if (!this.list().length) return;
+    this._trigger = triggerId;
+    let d = document.getElementById('update-dialog');
+    if (!d) {
+      d = document.createElement('dialog');
+      d.id = 'update-dialog';
+      d.className = 'update-dialog';
+      d.setAttribute('aria-labelledby', 'update-dialog-title');
+      d.addEventListener('close', () => UpdateUI.afterClose());
+      // 창 바깥(배경)을 누르면 닫아요
+      d.addEventListener('click', e => { if (e.target === d) UpdateUI.close(); });
+      document.body.appendChild(d);
+    }
+    d.innerHTML = this.dialogHtml();
+    if (!d.open) {
+      if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+    }
+    const title = document.getElementById('update-dialog-title');
+    if (title) title.focus();
+    this.markSeen();
+  },
+
+  close() {
+    const d = document.getElementById('update-dialog');
+    if (!d || !d.open) return;
+    if (typeof d.close === 'function') d.close(); else { d.removeAttribute('open'); this.afterClose(); }
+  },
+
+  // 닫으면 연 버튼으로 포커스를 돌려줘요. 그 버튼이 사라졌으면(안내바·모바일 한 줄) 보이는 업데이트 버튼이나 본문으로
+  // 브라우저가 닫힘 처리를 끝낸 뒤에 옮겨야 포커스가 덮어써지지 않아요
+  afterClose() {
+    const trigger = this._trigger;
+    this._trigger = null;
+    setTimeout(() => {
+      const visible = el => el && el.offsetParent !== null;
+      const target = [trigger, 'update-chip'].map(id => id && document.getElementById(id)).find(visible);
+      if (target) target.focus();
+      else {
+        const main = document.getElementById('main');
+        if (main) { main.setAttribute('tabindex', '-1'); main.focus({ preventScroll: true }); }
+      }
+    }, 0);
+  },
+
+  // 최신 업데이트를 읽음으로 표시하고, 다시 그리지 않고 헤더 표시·한 줄 안내만 바꿔요(스크롤·입력 상태 유지)
+  markSeen() {
+    const u = this.latest();
+    if (!u) return;
+    this._seen = u.id;
+    storeSet(STORAGE_UPDATE_SEEN, u.id);
+    this.swap('update-chip', this.chip());
+    this.swap('update-strip', this.strip());
+  },
+
+  closeBanner() {
+    const b = this.banner();
+    if (!b) return;
+    this._bannerClosed = b.id;
+    storeSet(STORAGE_UPDATE_BANNER, b.id);
+    this.swap('update-strip', this.strip());
+    const next = ['update-chip', 'update-line-btn'].map(id => document.getElementById(id)).find(el => el && el.offsetParent !== null);
+    if (next) next.focus();
+  },
+
+  swap(id, html) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!html) { el.remove(); return; }
+    const t = document.createElement('template');
+    t.innerHTML = html.trim();
+    const next = t.content.firstElementChild;
+    // 같은 종류의 요소면 그 자리에서 내용만 바꿔요(포커스·연 버튼이 그대로 남아요)
+    if (next.tagName === el.tagName) {
+      [...el.attributes].forEach(a => el.removeAttribute(a.name));
+      [...next.attributes].forEach(a => el.setAttribute(a.name, a.value));
+      el.innerHTML = next.innerHTML;
+    }
+    else el.replaceWith(next);
+  }
+};
+
 // ── 헤더 지역 선택 목록(listbox) ──
 // 열림 상태는 화면을 다시 그리지 않고 DOM에서만 바꿔요. 지역을 고르면 App.setRegion()이 저장·렌더링을 맡아요.
 // 키보드: 버튼에서 Enter·Space·↓·↑로 열기, 목록에서 ↑↓·Home·End로 이동, Enter·Space로 선택, Esc·Tab으로 닫기
@@ -2118,6 +2292,7 @@ document.addEventListener('compositionend', e => {
 });
 
 // 브라우저 뒤로가기·앞으로가기 → 기록에 담아 둔 메뉴로 복원(이때는 새 기록을 쌓지 않아요)
-window.addEventListener('popstate', e => App.restoreHistory(e.state));
+// 업데이트 내역 창은 기록을 쌓지 않으므로, 뒤로가기를 누르면 창을 닫고 이전 화면으로 돌아가요
+window.addEventListener('popstate', e => { UpdateUI.close(); App.restoreHistory(e.state); });
 
 document.addEventListener('DOMContentLoaded', () => App.init());

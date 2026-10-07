@@ -20,6 +20,7 @@
 //     확인 뒤 개정된 근거·다시 확인 필요 항목은 ‘주의’로 알려요. 기준일은 CHECK_TODAY=2027-06-01 처럼 바꿔 미리 볼 수 있어요
 // 13) 공유 주소: 지역 id(‘common’은 공통 예약어), 주소에 들어가는 id 형식, app.js의 공유 주소 만들기 → 읽기 왕복(모든 지역 × 화면 × 항목)
 // 14) 지역 gap 데이터(tools/data/regional-gaps.js): 지역 × 영역 누락, 상태 값, todo, 근거가 실제 데이터를 가리키는지
+// 15) 업데이트 내역(data/updates.js): id 형식·중복, 실제 날짜·최신순, type 값, 제목·설명, 상단 안내바(showBanner·banner·bannerUntil), 전화번호 없음
 // 옵션: --json=파일 → 오류·주의·요약을 JSON으로도 저장(운영 리포트·check-all이 읽어요)
 // 문제가 있으면 종료 코드 1로 끝나요. 링크 접속 확인은 node tools/check-links.js 로 따로 해요.
 
@@ -600,6 +601,37 @@ for (const id of REGION_ORDER) {
 }
 
 console.log(`합계 시·군·구 ${total}곳`);
+
+// ══════════════ 15) 업데이트 내역 ══════════════
+// 헤더 ‘업데이트 MM.DD’·상단 안내바·내역 창·푸터가 모두 이 목록의 맨 위 항목을 쓰므로 순서와 형식이 중요해요
+{
+  const { UPDATES, UPDATE_TYPES } = vm.runInContext('({ UPDATES: typeof UPDATES === "undefined" ? undefined : UPDATES, UPDATE_TYPES: typeof UPDATE_TYPES === "undefined" ? undefined : UPDATE_TYPES })', ctx);
+  const { isRealDate } = require('./lib/freshness');
+  if (!Array.isArray(UPDATES) || !UPDATES.length) errors.push('업데이트 내역(UPDATES)이 없어요 — index.html에 data/updates.js를 넣었는지 확인하세요');
+  else {
+    const ids = new Set();
+    UPDATES.forEach((u, i) => {
+      const tag = `[업데이트 ${u.id || i}]`;
+      if (!/^\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(u.id || '')) errors.push(`${tag} id는 ‘YYYY-MM-DD-영문-요약’ 형식이어야 해요`);
+      if (ids.has(u.id)) errors.push(`${tag} id가 중복돼요`);
+      ids.add(u.id);
+      if (!ISO.test(u.date || '') || !isRealDate(u.date)) errors.push(`${tag} date 형식 오류: ${u.date}`);
+      else if (u.id && !u.id.startsWith(u.date)) errors.push(`${tag} id 앞부분이 date(${u.date})와 달라요`);
+      // 아직 반영하지 않은 작업을 미리 적지 않도록 미래 날짜는 오류예요
+      if (isRealDate(u.date || '') && u.date > (process.env.CHECK_TODAY || require('./lib/freshness').kstToday())) errors.push(`${tag} 미래 날짜예요(반영된 날을 적어요): ${u.date}`);
+      if (i > 0 && UPDATES[i - 1].date < u.date) errors.push(`${tag} 최신순이 아니에요(새 업데이트는 맨 위에 적어요)`);
+      if (!(UPDATE_TYPES || []).includes(u.type)) errors.push(`${tag} type은 ${(UPDATE_TYPES || []).join('·')} 중 하나여야 해요: ${u.type}`);
+      if (!u.title || !u.summary) errors.push(`${tag} title·summary가 필요해요`);
+      if (u.details !== undefined && (!Array.isArray(u.details) || u.details.some(d => typeof d !== 'string' || !d))) errors.push(`${tag} details는 문장 배열이어야 해요`);
+      if (u.showBanner && !u.banner) errors.push(`${tag} showBanner면 banner(안내바 한 줄)가 필요해요`);
+      if (!u.showBanner && (u.banner || u.bannerUntil)) errors.push(`${tag} banner·bannerUntil은 showBanner와 함께 써요`);
+      if (u.bannerUntil && (!ISO.test(u.bannerUntil) || !isRealDate(u.bannerUntil) || u.bannerUntil < u.date)) errors.push(`${tag} bannerUntil 형식 오류이거나 date보다 빨라요: ${u.bannerUntil}`);
+      const text = [u.title, u.summary, u.banner, ...(u.details || [])].join(' ');
+      if (phonesIn(text).length) errors.push(`${tag} 업데이트 문장에 전화번호를 적지 않아요(번호는 지역 화면에서 안내): ${phonesIn(text).join(', ')}`);
+    });
+    console.log(`업데이트 내역: ${UPDATES.length}건 · 최신 ${UPDATES[0].date} ${UPDATES[0].title} · 안내바 후보 ${UPDATES.filter(u => u.showBanner).length}`);
+  }
+}
 
 // ══════════════ 12) 최신성 ══════════════
 // 계산 규칙은 tools/lib/freshness.js에 있어요(운영 리포트와 같은 규칙). CHECK_TODAY=YYYY-MM-DD로 바꾸면 앞으로 뜰 주의를 미리 볼 수 있어요

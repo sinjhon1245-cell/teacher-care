@@ -150,6 +150,51 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 }
 .header-call:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-hover); }
 
+/* ── 업데이트 알림(data/updates.js): 메뉴보다 눈에 띄지 않는 작은 글자 버튼 · 큰 변경용 얇은 안내바 · 내역 창 ── */
+/* 새 업데이트는 점(모양)과 ‘새’ 글자로 함께 알려요(색만으로 구분하지 않아요). 움직임·깜빡임 없음 */
+.update-chip {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 6px;
+  border: none; background: none; border-radius: var(--radius-sm); cursor: pointer; white-space: nowrap;
+  font-family: var(--font-ui); font-size: 13.5px; color: var(--muted);
+}
+.update-chip:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.update-chip.is-new { color: var(--primary); font-weight: 600; }
+.update-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+.update-banner { background: var(--primary-soft); border-bottom: 1px solid var(--border); font-family: var(--font-ui); font-size: 14px; }
+.update-banner-inner { max-width: var(--wide); margin: 0 auto; padding: 4px 16px 4px 24px; display: flex; align-items: center; gap: 10px; }
+.update-banner-inner p { margin: 0; flex: 1; min-width: 0; color: var(--text); line-height: 1.5; }
+.update-banner-label { font-weight: 700; color: var(--primary); margin-right: 4px; }
+.update-banner-more {
+  flex: none; border: none; background: none; cursor: pointer; padding: 6px 4px; min-height: 36px;
+  color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
+}
+.update-banner-close, .update-dialog-close {
+  flex: none; width: 36px; height: 36px; border: none; background: none; border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 22px; line-height: 1; color: var(--muted);
+}
+.update-banner-close:hover, .update-dialog-close:hover { background: rgba(29, 92, 87, .07); color: var(--text); }
+.update-line { display: none; }
+.update-dialog {
+  width: min(560px, calc(100vw - 32px)); max-height: min(80vh, 680px); padding: 0;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text);
+  box-shadow: var(--shadow-float);
+}
+.update-dialog::backdrop { background: rgba(31, 42, 44, .38); }
+.update-dialog-body { padding: 18px 22px 20px; }
+.update-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.update-dialog-title { margin: 0; font-size: 21px; font-weight: 400; }
+.update-dialog-title:focus { outline: none; }
+.update-dialog-title:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.update-dialog-note { margin: 4px 0 14px; color: var(--muted); font-size: 14.5px; }
+.update-list { list-style: none; display: grid; gap: 0; }
+.update-item { padding: 14px 0; border-top: 1px solid var(--border); }
+.update-meta { margin: 0 0 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--font-ui); font-size: 13.5px; color: var(--muted); }
+.update-type { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-weight: 600; font-size: 12.5px; }
+.update-title { margin: 0 0 4px; font-size: 17px; font-weight: 400; }
+.update-summary { margin: 0; font-size: 15px; color: var(--text); }
+.update-details { margin: 8px 0 0 18px; font-size: 14.5px; color: var(--muted); display: grid; gap: 2px; }
+.update-dialog-foot { display: flex; justify-content: flex-end; padding-top: 14px; border-top: 1px solid var(--border); }
+
 /* ── 버튼·공통 ── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -613,6 +658,9 @@ body.is-landing { padding-bottom: 0; }
 .footer-side { display: grid; gap: 16px; align-content: start; }
 .footer-official p { margin: 0 0 6px; }
 .footer-side-title { font-weight: 700; color: var(--text); }
+.footer-update p { margin: 0 0 4px; }
+.footer-update-date { font-family: var(--font-ui); font-weight: 600; color: var(--text); margin-right: 4px; }
+.footer-update-meta { font-family: var(--font-ui); font-size: 13px; color: var(--faint); }
 @media (min-width: 1024px) {
   .footer-grid { grid-template-columns: minmax(0, 1.45fr) minmax(300px, .85fr); gap: 36px; }
   .footer-side { border-left: 1px solid var(--border); padding-left: 32px; }
@@ -845,11 +893,28 @@ body.is-landing { padding-bottom: 0; }
   .support-list { grid-template-columns: 1fr; }
 }
 
+/* 업데이트 표시(880px 이하): 헤더에 메뉴·지역·전화 버튼이 함께 들어가지 않는 폭이라 헤더 버튼은 숨기고,
+   새 업데이트가 있을 때만 헤더 아래 한 줄로 알려요(읽으면 사라지고 공통 하단에서 언제든 열어요) */
+@media (max-width: 880px) {
+  .update-chip { display: none; }
+  .update-line { display: block; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .update-line-btn {
+    display: flex; align-items: center; gap: 6px; width: 100%; max-width: var(--wide); min-height: 36px; margin: 0 auto; padding: 4px 24px;
+    border: none; background: none; cursor: pointer; text-align: left;
+    font-family: var(--font-ui); font-size: 13.5px; color: var(--primary); font-weight: 600;
+  }
+  .update-line-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
 /* ══════════════ 모바일(768px 이하): 하단 메뉴 사용 ══════════════ */
 @media (max-width: 768px) {
   body { font-size: 15.5px; padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
   .header-inner { padding: 8px 16px; gap: 8px; }
   .main-nav { display: none; }
+  .update-line-btn { padding: 4px 16px; }
+  .update-banner { font-size: 13.5px; }
+  .update-banner-inner { padding: 2px 4px 2px 16px; gap: 4px; }
+  .update-dialog-body { padding: 16px 16px 18px; }
   .section { padding: 26px 16px; }
   .page { padding-top: 24px; }
   .page-title { font-size: 25px; }
@@ -1016,7 +1081,7 @@ body.is-landing { padding-bottom: 0; }
   body { padding: 0 !important; font-size: 10.5pt; }
   .site-header, .bottom-nav, .site-footer, .skip-link, .toast, .region-dd, .header-call, .emergency-note,
   .guide-search-panel, .filter-panel, .tool-panel, .share-row, .btn-row, .channel-row, .chevron, .stepper,
-  .fb-card, .fb-line, .finder-hint,
+  .fb-card, .fb-line, .finder-hint, .update-banner, .update-line, .update-dialog,
   .bf-cross, .sup-chip, .rec-links, .link-btn, .bf-list .bf-chip, .check-note, .progress-row, .landing { display: none !important; }
   [data-print-hide] { display: none !important; }
   .print-head { display: block; margin: 0 0 10pt; padding-bottom: 6pt; border-bottom: 1.5pt solid #111; }
