@@ -1564,6 +1564,7 @@ const App = {
             </div>
             ${UpdateUI.footerBlock()}
             ${this.feedbackCard()}
+            ${authorCredit()}
           </div>
         </div>
       </footer>
@@ -2039,6 +2040,15 @@ function linkifyPhone(text) {
   });
 }
 
+// ── 만든 사람(data/common.js SITE_AUTHOR) ──
+// 공통 하단 서비스 안내의 맨 끝과 업데이트 내역 창 맨 아래에만 한 줄로 작게 보여요. 헤더·첫 화면·하단 메뉴에는 넣지 않아요.
+// 블로그는 새 창으로 열고(지금 화면은 그대로), 화면 읽기 프로그램에는 ‘진진쌤 블로그(새 창에서 열기)’로 읽혀요
+function authorCredit() {
+  const A = typeof SITE_AUTHOR === 'object' && SITE_AUTHOR;
+  if (!A || !A.name || !/^https:\/\//.test(A.blogUrl || '')) return '';
+  return `<p class="author-credit">만든 사람 · <a href="${A.blogUrl}" target="_blank" rel="noopener noreferrer">${A.name}<span class="sr-only"> 블로그(새 창에서 열기)</span> <span aria-hidden="true">↗</span></a></p>`;
+}
+
 // ── 업데이트 알림(data/updates.js 하나로 헤더 표시·상단 안내바·내역 창·푸터를 만들어요) ──
 // 자동으로 뜨는 창은 없어요. 내역 창은 누를 때만 열고, 주소(URL)·기록(history)은 바꾸지 않아요.
 // 창은 #app 밖(body)에 두어 화면을 다시 그려도 닫히지 않아요. 저장이 막힌 브라우저에서도 이번 방문 동안은 메모리로 동작해요
@@ -2121,7 +2131,7 @@ const UpdateUI = {
       </div>
       <p class="update-dialog-note">선생님 곁에에서 달라진 점을 최신순으로 알려 드려요.</p>
       <ol class="update-list">${items}</ol>
-      <div class="update-dialog-foot"><button type="button" class="btn btn-secondary" onclick="UpdateUI.close()">닫기</button></div>
+      <div class="update-dialog-foot">${authorCredit()}<button type="button" class="btn btn-secondary" onclick="UpdateUI.close()">닫기</button></div>
     </div>`;
   },
 

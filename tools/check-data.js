@@ -656,6 +656,17 @@ REGION_ORDER.forEach(id => {
 if (!(STEPS.length >= 1 && STEPS.length <= 9)) errors.push(`STEPS는 1~9단계여야 해요(공유 주소 step=1~9): ${STEPS.length}`);
 if (typeof FEEDBACK_URL !== 'string') errors.push('FEEDBACK_URL은 문자열이어야 해요(없으면 빈 문자열)');
 else if (FEEDBACK_URL && !/^https:\/\/(docs\.google\.com\/forms|forms\.gle)\//.test(FEEDBACK_URL)) errors.push(`FEEDBACK_URL은 관리하는 Google 설문 주소(https)만 넣어요: ${FEEDBACK_URL}`);
+// 만든 사람 표시: 공개 별칭과 https 블로그 주소 두 칸만(다른 개인 정보 칸은 두지 않아요)
+{
+  const SITE_AUTHOR = vm.runInContext('typeof SITE_AUTHOR === "undefined" ? undefined : SITE_AUTHOR', ctx);
+  if (!SITE_AUTHOR || typeof SITE_AUTHOR !== 'object') errors.push('data/common.js에 SITE_AUTHOR가 없어요');
+  else {
+    const extra = Object.keys(SITE_AUTHOR).filter(k => !['name', 'blogUrl'].includes(k));
+    if (extra.length) errors.push(`SITE_AUTHOR에는 name·blogUrl만 적어요: ${extra.join(', ')}`);
+    if (typeof SITE_AUTHOR.name !== 'string' || !SITE_AUTHOR.name.trim()) errors.push('SITE_AUTHOR.name이 비어 있어요');
+    if (!/^https:\/\/[^\s"'<>]+$/.test(SITE_AUTHOR.blogUrl || '')) errors.push(`SITE_AUTHOR.blogUrl은 https 주소여야 해요: ${SITE_AUTHOR.blogUrl}`);
+  }
+}
 // 의견 양식 미리 채우기 칸: 정해진 다섯 칸만, 값은 비어 있거나 entry.숫자.
 // 칸을 채우려면 양식 주소가 docs.google.com/forms/d/e/…/viewform 이어야 해요(forms.gle 짧은 주소는 미리 채우기가 안 돼요)
 {

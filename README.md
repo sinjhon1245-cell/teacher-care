@@ -358,6 +358,16 @@ npx serve .
   - 이 기기의 localStorage `teacher-care-update-banner-closed`: 닫은 안내바 id
 - `node tools/check-data.js`가 id·날짜(최신순, 미래 날짜 금지)·type·안내바 필드·전화번호를 확인해요.
 
+## 만든 사람 표시
+
+공통 하단 서비스 안내의 맨 끝과 업데이트 내역 창 맨 아래에만 ‘만든 사람 · 진진쌤 ↗’ 한 줄을 작은 글자로 보여 줘요. 누르면 블로그가 새 창으로 열려요.
+
+- 별칭·주소는 `data/common.js`의 `SITE_AUTHOR` 한 곳에서만 고쳐요(두 위치가 함께 바뀌어요).
+- 헤더·첫 화면·하단 메뉴에는 넣지 않아요. 프로필·소개·홍보 문구도 두지 않아요.
+- 공개 별칭과 공개 블로그 주소만 적어요. 실명·학교·연락처·계정 정보는 넣지 않아요.
+- 이 표시를 바꾸는 것만으로는 업데이트 내역에 항목을 추가하지 않아요.
+- `node tools/check-data.js`가 `SITE_AUTHOR`에 `name`·`blogUrl`(https)만 있는지 확인해요.
+
 ## 배포
 
 **배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-2` → `20261004-1`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.

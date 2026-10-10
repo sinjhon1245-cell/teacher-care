@@ -2347,6 +2347,10 @@ const FEEDBACK_URL = '';
 // type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·busan·chungbuk·gangwon·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
 const FEEDBACK_FIELDS = { type: '', region: '', page: '', item: '', url: '' };
 
+// 만든 사람 표시(공통 하단 서비스 안내 맨 끝 · 업데이트 내역 창 맨 아래에만 작은 글자로). 헤더·첫 화면·하단 메뉴에는 넣지 않아요.
+// 공개 별칭과 공개 블로그 주소만 적어요(실명·학교·연락처·계정 정보는 넣지 않아요). 주소를 바꿀 때는 여기 한 곳만 고쳐요
+const SITE_AUTHOR = { name: '진진쌤', blogUrl: 'https://blog.naver.com/jinjinssem' };
+
 const COMMON_PUBLIC_SOURCES = [
   { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=327&boardSeq=105492&lev=0&searchType=null&statusYN=W&page=1&s=moe&m=0305&opType=N', verifiedAt: '2026-10-06', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
