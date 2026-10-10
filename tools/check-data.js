@@ -607,6 +607,7 @@ console.log(`합계 시·군·구 ${total}곳`);
 {
   const { UPDATES, UPDATE_TYPES } = vm.runInContext('({ UPDATES: typeof UPDATES === "undefined" ? undefined : UPDATES, UPDATE_TYPES: typeof UPDATE_TYPES === "undefined" ? undefined : UPDATE_TYPES })', ctx);
   const { isRealDate } = require('./lib/freshness');
+  const realDay = d => { try { return isRealDate(d); } catch (e) { return false; } }; // 13월처럼 없는 날짜도 오류 없이 false로
   if (!Array.isArray(UPDATES) || !UPDATES.length) errors.push('업데이트 내역(UPDATES)이 없어요 — index.html에 data/updates.js를 넣었는지 확인하세요');
   else {
     const ids = new Set();
@@ -616,7 +617,8 @@ console.log(`합계 시·군·구 ${total}곳`);
       if (ids.has(u.id)) errors.push(`${tag} id가 중복돼요`);
       ids.add(u.id);
       if (!ISO.test(u.date || '') || !isRealDate(u.date)) errors.push(`${tag} date 형식 오류: ${u.date}`);
-      else if (u.id && !u.id.startsWith(u.date)) errors.push(`${tag} id 앞부분이 date(${u.date})와 달라요`);
+      // id 앞 날짜는 처음 공개한 날이에요. 나중에 date를 고쳐도 읽음 상태가 유지되도록 id는 그대로 두므로, date보다 늦지만 않으면 돼요
+      else if (u.id && !(realDay(u.id.slice(0, 10)) && u.id.slice(0, 10) <= u.date)) errors.push(`${tag} id 앞 날짜가 date(${u.date})보다 늦거나 날짜가 아니에요`);
       // 아직 반영하지 않은 작업을 미리 적지 않도록 미래 날짜는 오류예요
       if (isRealDate(u.date || '') && u.date > (process.env.CHECK_TODAY || require('./lib/freshness').kstToday())) errors.push(`${tag} 미래 날짜예요(반영된 날을 적어요): ${u.date}`);
       if (i > 0 && UPDATES[i - 1].date < u.date) errors.push(`${tag} 최신순이 아니에요(새 업데이트는 맨 위에 적어요)`);

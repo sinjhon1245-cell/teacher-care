@@ -353,7 +353,7 @@ npx serve .
   - 전화번호 한 건·오탈자·링크·CSS·내부 정리는 내역에만 적어요.
   - `bannerUntil`로 안내바 기간을 정할 수 있어요.
 - 실제로 반영한 날짜만 적고, 끝나지 않은 작업을 미리 적지 않아요. 전화번호는 내역 문장에 적지 않아요.
-- 한 번 공개한 `id`는 바꾸지 않아요. 읽음·닫음 상태가 `id`로 저장돼요.
+- 한 번 공개한 `id`는 바꾸지 않아요. 읽음·닫음 상태가 `id`로 저장돼요. 나중에 `date`나 문구를 고쳐도 `id`는 그대로 둬요(그래야 이미 읽은 사람에게 ‘새 업데이트’가 다시 뜨지 않아요).
   - 이 기기의 localStorage `teacher-care-update-seen`: 마지막으로 연 최신 id
   - 이 기기의 localStorage `teacher-care-update-banner-closed`: 닫은 안내바 id
 - `node tools/check-data.js`가 id·날짜(최신순, 미래 날짜 금지)·type·안내바 필드·전화번호를 확인해요.
