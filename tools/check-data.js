@@ -290,7 +290,8 @@ const REGION_BRANDS = {
   incheon: ['아이스톡', '교육활동보호담당관', '학교민원 SOS', '중재지원단', '학교 변호사 ON'],
   busan: ['One-Stop 지원단', '교원법률지원단', '교원 힐링캠프', '교원 힐링 아카데미', '민원 해결 요청 게시판'],
   chungbuk: ['교원119', '마음클리닉', '현장지원119', '갈등조정지원관'],
-  gangwon: ['동:행 119', '원스톱 변호사 법률지원', '이음톡']
+  gangwon: ['동:행 119', '원스톱 변호사 법률지원', '이음톡'],
+  ulsan: ['안녕! 내 마음', '단짝캠프', '응급심리자문협의체', '교육활동심의협의체', '피해교원 추수 프로그램']
 };
 const regionWords = () => REGION_ORDER.flatMap(id => [REGIONS[id].short, REGIONS[id].name, REGIONS[id].office, ...(REGION_BRANDS[id] || [])]);
 function commonTextIssues(tag, text) {

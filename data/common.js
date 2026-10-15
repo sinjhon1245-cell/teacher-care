@@ -2344,7 +2344,7 @@ const FRESHNESS_DAYS = { stable: 365, volatile: 180 };
 // 임의 주소를 넣지 마세요. 개인 사건 내용·개인정보를 받지 않는 양식이어야 해요(docs/feedback-form-spec.md)
 const FEEDBACK_URL = '';
 // 양식의 ‘미리 채워진 링크’ entry 번호(예: 'entry.1234567890'). 양식을 만든 뒤 여기에만 적어요. 빈 칸은 보내지 않아요.
-// type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·busan·chungbuk·gangwon·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
+// type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·busan·chungbuk·gangwon·ulsan·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
 const FEEDBACK_FIELDS = { type: '', region: '', page: '', item: '', url: '' };
 
 // 만든 사람 표시(공통 하단 서비스 안내 맨 끝 · 업데이트 내역 창 맨 아래에만 작은 글자로). 헤더·첫 화면·하단 메뉴에는 넣지 않아요.

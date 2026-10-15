@@ -2,7 +2,7 @@
 
 교육활동 중 문제가 생긴 선생님이 **지금 무엇을 해야 하는지** 빠르게 판단하도록 돕는 정적 웹서비스예요.
 대응 절차·상황별 도움은 전국 공통으로 두고, 대표번호·교육지원청·지원(제도와 기관 연락처)은
-근무 지역(현재 서울·경기·인천·부산·충북·강원 베타)의 공식 자료를 바탕으로 보여 줘요.
+근무 지역(현재 서울·경기·인천·부산·충북·강원·울산 베타)의 공식 자료를 바탕으로 보여 줘요.
 
 화면은 다섯 개이고, 각각 선생님의 질문 하나에 답해요.
 
@@ -37,17 +37,19 @@ data/
     busan.js            부산광역시
     chungbuk.js         충청북도
     gangwon.js          강원특별자치도
+    ulsan.js            울산광역시
 tools/
   check-data.js         데이터 점검(배포 전 실행): 형식·출처·관할·번호·최신성·공유 주소
   check-links.js        공식 링크 접속 점검(배포 전·정기 점검): 200·이동·404·403·시간 초과
   generate-maintenance-report.js  운영 점검 리포트 만들기 → docs/maintenance-report.md
   check-all.js          위 세 가지를 한 번에(일상 점검)
-  data/regional-gaps.js 서울·경기·인천·부산·충북·강원 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
+  data/regional-gaps.js 서울·경기·인천·부산·충북·강원·울산 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
   lib/                  점검 도구가 함께 쓰는 계산(최신성·gap·데이터 읽기)
 docs/
   maintenance-report.md        운영 점검 리포트(자동 생성, 직접 고치지 않기)
   annual-maintenance-checklist.md  연례 갱신 체크리스트·업데이트 절차
   regional-gap-audit-2026.md  지역 gap 판정 기준과 기록(현재 표는 maintenance-report.md)
+  ulsan-regional-accuracy-audit.md  울산 연락처·금액·관할 정확도 감사(2026-10-15)
   usability-test-teachers.md  교사 사용성 테스트 가이드(시나리오 6개)
   usability-results-template.md  사용성 테스트 결과 빈 양식
   feedback-form-spec.md       의견 받기 양식 명세(현재 비활성)
@@ -170,6 +172,7 @@ docs/
 | 부산 | 종전 시행령 [별표 2](「부산광역시교육청 행정기구 설치 조례」 현행본은 2023. 3. 1. 시행으로 관할 조항 없음) | 5개 교육지원청 · 15구 1군 |
 | 충북 | 종전 시행령 [별표 2](「충청북도교육청 행정기구 설치 조례」 현행본은 2024. 5. 17. 시행으로 관할 조항 없음) | 10개 교육지원청 · 3시 8군(괴산증평 = 괴산군·증평군) |
 | 강원 | 「강원특별자치도교육청 행정기구 설치조례」 제2조의2·[별표 2](2026. 10. 2. 신설·시행, 종전 [별표 2]와 같음) | 17개 교육지원청 · 7시 11군(속초양양 = 속초시·양양군) |
+| 울산 | 종전 시행령 [별표 2](「울산광역시교육청 행정기구 설치 조례」 현행본은 2026. 7. 1. 시행으로 관할 조항 없음) | 2개 교육지원청 · 4구 1군(강북 = 중구·동구·북구, 강남 = 남구·울주군) |
 
 인천은 2026. 7. 1. 행정체제 개편으로 중구·동구·서구가 없어지고 제물포구·영종구·서해구·검단구가 생겼어요.
 
@@ -259,6 +262,8 @@ git diff --check
 
 - `check-data.js`: 아래 항목 + 최신성(날짜 형식·미래 날짜·오래된 확인·재확인일·`reviewStatus`) + 공유 주소(지역 id, 주소에 쓰는 id 형식, 모든 지역 × 화면 × 항목의 ‘주소 만들기 → 읽기’ 왕복, 받는 사람의 저장 지역 유지, 잘못된 값 무시) + asset version 일치. 마지막 ‘요약’ 줄에서 상황 38·그룹 11·오류·주의 수를 한 번에 봐요.
 - `check-links.js`: 데이터에 적힌 모든 https 주소에 접속해요. 정상·이동(redirect)·확인 필요(401·403·5xx·시간 초과 — 공공기관 서버가 자동 접속을 막는 경우가 많아 브라우저로 확인)·끊김(404·410·없는 도메인·‘존재하지 않는 게시물’ 안내 페이지)으로 나눠요. 끊김이 있으면 종료 코드 1. `--only=incheon`, `--timeout=20000`, `--json=결과.json` 옵션이 있어요.
+  - 일부 기관 서버(울산 `use.go.kr`, 인천 `seobu.ice.go.kr` 등)는 중간 인증서를 보내지 않아 Node가 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`로 ‘확인 필요’를 표시해요(브라우저·curl은 정상).
+    그 서버 인증서의 ‘CA Issuers’ 주소에서 받은 Sectigo 중간 인증서(PEM)를 `NODE_EXTRA_CA_CERTS=파일 node tools/check-all.js`로 넘기면 실제 상태를 확인할 수 있어요. 검사 규칙은 바꾸지 않아요.
 - `git diff --check`: 공백 오류 확인.
 - 세 가지를 한 번에: `node tools/check-all.js`(위 ‘운영자용: 일상 점검’).
 
@@ -268,7 +273,7 @@ git diff --check
 ‘자동 승인·지급’ 같은 오해 표현, 특별휴가 ‘범위에서 부여’·휴직 ‘검토’ 표현, 상황 → 권리 연결·회복 경로·홈 카드 id,
 지역 `benefits`·`highlights`의 id·출처, 숫자 정보의 출처, 다른 지역 사업명 혼입, 출처의 `region`,
 5메뉴 순서, 회복·보호에 외부 지원이 섞였는지, 제도 묶음·공식 근거 id, 단계별 바로가기·홈 입구 id, 지원 유형의 공통 기준·회복·보호 연결, 지원 항목 area(배열 포함)를 검사해요.
-문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에 있어요.
+문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에, 울산 추가 검증은 `docs/ulsan-regional-accuracy-audit.md`에 있어요.
 
 ## 로컬에서 확인하기
 
