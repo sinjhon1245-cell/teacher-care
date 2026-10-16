@@ -17,6 +17,8 @@
   --primary-soft: #E6F0EC;
   --accent: #A8622C;
   --accent-soft: #F7E8D8;
+  /* accent-soft 위의 작은 글자(배지)용: --accent는 3.93:1이라 4.5:1을 넘는 진한 값(5.43:1)을 써요 */
+  --accent-text: #8A4F22;
   --danger: #B42318;
   --danger-hover: #912018;
   --danger-soft: #FEF3F2;
@@ -147,6 +149,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
   flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 40px;
   padding: 8px 13px; border-radius: var(--radius-sm); background: var(--surface); color: var(--primary);
   border: 1px solid var(--border-strong); font-weight: 600; font-size: 14.5px; text-decoration: none; white-space: nowrap;
+  cursor: pointer; font-family: var(--font-ui);
 }
 .header-call:hover { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-hover); }
 
@@ -249,7 +252,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
   display: inline-flex; align-items: center; flex: none; font-size: 13px; font-weight: 600; line-height: 1.4;
   padding: 3px 9px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); white-space: nowrap;
 }
-.badge-accent { background: var(--accent-soft); color: var(--accent); }
+.badge-accent { background: var(--accent-soft); color: var(--accent-text); }
 .tel-link { font-weight: 600; white-space: nowrap; }
 
 /* 펼침 표시 */
@@ -289,8 +292,7 @@ summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; 
   background: rgba(255, 255, 255, .78); border: 1px solid var(--border); border-radius: 14px;
   padding: 20px 22px;
 }
-.region-panel .panel-hot { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
-.region-panel .panel-actions .btn { min-height: 44px; font-weight: 600; font-size: 15px; }
+.region-panel .panel-hot { font-size: 28px; font-weight: 700; }
 .region-panel .region-picker { border: none; padding: 0; margin: 0; }
 .panel-label { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
 .panel-label strong { color: var(--text); font-size: 15px; margin-left: 4px; }
@@ -299,10 +301,35 @@ summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; 
   display: block; font-size: 32px; font-weight: 800; color: var(--text); text-decoration: none;
   letter-spacing: 0.01em; line-height: 1.25; margin: 2px 0 14px;
 }
-.panel-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.panel-actions .btn { flex: 1 1 130px; }
-/* 역할별 대표 연락처(hotContacts)가 있는 지역: 번호마다 한 줄 버튼 */
-.panel-actions-split .btn-primary { flex: 1 1 100%; }
+/* ── 지역 연락처(홈 카드·지원 찾기 허브 공통): 대표 블록 + 학교급별 묶음 ──
+   번호가 1개·2개·3개여도 칸 모양은 같고 줄만 늘어요. 지역 이름이 들어간 규칙은 두지 않아요 */
+.cc { display: grid; gap: 12px; }
+.cc .panel-hot-label { margin: 0 0 -4px; }
+/* 대표 블록: 역할·큰 번호 왼쪽, 전화하기 오른쪽(좁아서 안 들어가면 전화하기가 아래 줄로) */
+.cc-main { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.cc-id { flex: 1 1 auto; min-width: 0; }
+.cc-role { margin: 0; font-family: var(--font-ui); font-size: 14px; color: var(--muted); }
+.cc-main .panel-hot { margin: 0; white-space: nowrap; }
+.cc-call { flex: none; min-height: 46px; font-size: 15px; font-weight: 600; }
+.cc-group-title { margin: 0 0 6px; font-family: var(--font-ui); font-size: 14px; color: var(--muted); }
+/* 학교급별 묶음: 줄마다 ‘라벨 ··· ☎ 번호’. 번호는 줄바꿈하지 않고, 칸이 좁으면 라벨과 번호 사이에서만 줄이 바뀌어요 */
+.cc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.cc-line {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 10px;
+  min-height: 46px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid transparent;
+  background: var(--primary); color: #fff; font-family: var(--font-ui); text-decoration: none;
+}
+.cc-line:hover { background: var(--primary-hover); color: #fff; }
+.cc-line-label { font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.cc-line-num { font-size: 16px; font-weight: 700; line-height: 1.3; letter-spacing: 0.01em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* 주 버튼(진한 녹색)은 한 층만: 대표가 있으면 학교급별 직통은 옅은 면의 보조 층(크기·글자 대비·터치 영역은 같음) */
+.cc.has-main .cc-line { background: var(--primary-soft); color: var(--primary-hover); border-color: var(--primary); }
+.cc.has-main .cc-line:hover { background: var(--surface); color: var(--primary-hover); }
+/* 지원 방법 보기: 번호 개수와 관계없이 카드 마지막 줄, 전체 너비 */
+.cc-more { width: 100%; min-height: 44px; margin-top: 12px; font-size: 15px; font-weight: 600; }
+/* 빠른 대응의 전화 버튼: 라벨은 줄바꿈될 수 있지만 번호는 붙여 둬요 */
+.btn-call { white-space: normal; text-align: center; }
+.btn-num { white-space: nowrap; }
 .hotline-menu { margin: -6px 0 14px 20px; font-size: 14.5px; color: var(--muted); display: grid; gap: 3px; }
 .hotline-menu strong { color: var(--text); }
 .emergency-note {
@@ -464,9 +491,10 @@ body.is-landing { padding-bottom: 0; }
   border-radius: 14px; box-shadow: var(--shadow-soft); margin: 4px 0 18px; overflow: hidden;
 }
 .hub-main { padding: 20px 22px; }
-.hub-main .panel-hot { margin-bottom: 10px; }
-.hub-main .hotline-menu { margin: 0 0 14px 20px; }
-.hub-main .muted { margin-bottom: 14px; }
+/* 허브: 전화(연락처)가 먼저, 설명·ARS 메뉴는 그 아래(설명 속 번호는 줄바꿈 없는 전화 링크) */
+.hub-main .cc { margin-bottom: 14px; }
+.hub-main .hotline-menu { margin: 0 0 0 20px; }
+.hub-main .hub-summary { margin: 0; }
 .hub-region { margin: 0 0 10px; font-size: 20px; color: var(--text); }
 .hub-links { background: var(--bg); border-left: 1px solid var(--border); padding: 18px 20px; }
 .hub-links-title { margin: 0 0 10px; font-weight: 700; font-size: 14.5px; color: var(--muted); }
@@ -478,7 +506,7 @@ body.is-landing { padding-bottom: 0; }
 }
 .hub-link:hover { border-color: var(--primary); color: var(--primary); }
 .hub-link-type {
-  flex: none; font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft);
+  flex: none; font-size: 12px; font-weight: 700; color: var(--accent-text); background: var(--accent-soft);
   border-radius: 6px; padding: 2px 7px;
 }
 .hub-link-label { flex: 1; min-width: 0; }
@@ -765,7 +793,7 @@ body.is-landing { padding-bottom: 0; }
   background: var(--warm); color: var(--text); border: 1px solid var(--border);
   font-size: 13px; font-weight: 600; line-height: 1.6; white-space: nowrap; max-width: 100%;
 }
-.bf-badge.bf-cond { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.bf-badge.bf-cond { background: var(--accent-soft); color: var(--accent-text); border-color: transparent; }
 .bf-badge.bf-scope { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .bf-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .bf-badges .bf-badge { margin-left: 0; }
@@ -932,18 +960,18 @@ body.is-landing { padding-bottom: 0; }
   .hero-actions { margin-bottom: 10px; }
   .hero-actions .btn { flex: 1 1 140px; min-height: 44px; }
   .emergency-note { font-size: 14px; padding: 8px 10px; }
-  /* 모바일 지역 패널: 번호 + 전화 버튼 한 줄 */
+  /* 모바일 지역 패널: 연락처만 — 대표는 번호 + 전화하기 한 줄, 학교급별 번호는 한 줄씩.
+     지원 방법 보기는 히어로 ‘내 교육지원청 찾기’와 하단 메뉴 ‘지원 찾기’가 맡아요 */
   .region-panel { padding: 12px 14px; }
-  .hero .region-panel { order: -1; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0 10px; }
-  .hero .region-panel .panel-label { display: none; }
-  .hero .region-panel .panel-hot-label { grid-column: 1; font-size: 13px; }
-  .hero .region-panel .panel-hot { grid-column: 1; font-size: 21px; margin: 0; }
-  .hero .region-panel .panel-actions { grid-column: 2; grid-row: 1 / span 2; }
-  .hero .region-panel .panel-actions .btn-secondary { display: none; }
-  .hero .region-panel .panel-actions .btn { min-height: 44px; padding: 8px 14px; flex: none; }
-  .hero .region-panel .panel-actions-split { grid-column: 1 / -1; grid-row: auto; margin-top: 8px; }
-  .hero .region-panel .panel-actions-split .btn-primary { flex: 1 1 100%; }
-  .hero .region-panel .region-picker { grid-column: 1 / -1; }
+  .hero .region-panel { order: -1; }
+  .hero .region-panel .panel-label, .hero .region-panel .cc-more, .hero .cc-group-title { display: none; }
+  .hero .region-panel .panel-hot-label { font-size: 13px; margin: 0; }
+  .hero .region-panel .panel-hot { font-size: 21px; }
+  .cc { gap: 8px; }
+  .cc-role { font-size: 13px; }
+  .cc-call { min-height: 44px; padding: 8px 14px; }
+  .cc-line { min-height: 44px; padding: 8px 12px; }
+  .cc-line-label { font-size: 14px; }
   .hero .region-picker-title { font-size: 14.5px; margin-bottom: 8px; }
   .hero .region-pick { min-height: 44px; }
   .panel-hot { font-size: 26px; }
@@ -998,7 +1026,7 @@ body.is-landing { padding-bottom: 0; }
   .bn-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     min-height: 60px; padding: 6px 4px; border: none; background: none; cursor: pointer;
-    color: var(--faint); font-size: 12.5px;
+    color: var(--muted); font-size: 12.5px;
   }
   .bn-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .bn-btn.active { color: var(--primary); }
@@ -1065,7 +1093,7 @@ body.is-landing { padding-bottom: 0; }
 .cmp-table thead th .bf-badges { margin-top: 6px; }
 .cmp-table tbody th { width: 11em; color: var(--muted); font-weight: 600; font-size: 14.5px; }
 .cmp-table td { max-width: 40ch; }
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .cmp-table, .cmp-table tbody, .cmp-table tr, .cmp-table th, .cmp-table td { display: block; width: auto; max-width: none; }
   .cmp-table { border: none; background: none; }
   .cmp-table caption { display: block; width: auto; }

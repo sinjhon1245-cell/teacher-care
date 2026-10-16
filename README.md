@@ -118,7 +118,7 @@ docs/
 | `sources` | 공식 출처 목록 `{ title, url, verifiedAt, sourceUpdatedAt?, uses }`. `uses`는 이 자료를 근거로 보여 줄 화면이에요: `guide`(상황별 도움), `procedure`(대응 절차), `care`(회복·보호), `support`(지원 찾기), `finder`(교육지원청 찾기) |
 | `hot`, `hotName`, `hotSummary` | 대표번호와 이름·한 줄 설명 |
 | `menu` 또는 `menuNote` | 확인된 ARS 메뉴 목록. 모르면 `menuNote` 한 줄만 |
-| `hotContacts`(선택) | 대표번호 하나로 모든 교원을 연결할 수 없을 때(예: 강원 학교급별 사안 담당) `[{ label, value }]` 2개 이상. 홈 패널·지원 찾기 허브에 역할별 전화 버튼으로 나오고, `hot`은 그중 하나여야 해요(헤더 버튼) |
+| `hotContacts`(선택) | 대표번호 하나로 모든 교원을 연결할 수 없을 때(예: 강원 학교급별 사안 담당) `[{ label, value, role? }]` 2개 이상. `hot`은 그중 하나여야 해요. 학교급과 관계없는 대표번호가 따로 있으면 그 항목에 `role: 'main'`(하나만, 값은 `hot`과 같게)을 붙여요(예: 울산 052-1395). 화면은 CSS 수정 없이 데이터만으로 정해져요: 대표가 있으면 연락처 카드 첫 줄(큰 번호 + 전화하기)과 헤더 ☎·빠른 대응이 대표를 쓰고 나머지는 아래 ‘학교급별 직통’ 줄로, 대표가 없으면 모든 번호를 같은 무게의 줄로 보여 주고 헤더 ☎은 홈 연락처 카드로 옮겨요(한 담당 번호로 걸지 않아요) |
 | `links` | 지원 찾기 상단 ‘지역 지원 허브’의 바로 이용하기 `{ type: 'apply' | 'kakao' | 'guide', label, url }`. 시·도교육청 홈페이지(`officeUrl`)는 자동으로 붙어요 |
 | `terms` | 위 토큰 값. 확인 못 한 항목은 **빼 두기**(중립 문구로 표시돼요) |
 | `offices` | 교육지원청 `{ name, dept?, areas: [시·군·구], contact?, hours?, url?(홈페이지), guideUrl?(교육활동보호 안내 페이지) }` |

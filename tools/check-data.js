@@ -583,6 +583,13 @@ for (const id of REGION_ORDER) {
         else if (!isValidPhone(c.value)) errors.push(`${tag} hotContacts[${i}] 번호는 전화번호 하나만 적어요: ${c.value}`);
       });
       if (!r.hotContacts.some(c => c.value === r.hot)) errors.push(`${tag} hot(${r.hot})이 hotContacts에 없어요`);
+      // 대표(role: 'main')는 0~1개. 있으면 헤더 ☎·빠른 대응이 거는 번호라 hot과 같아야 해요
+      r.hotContacts.forEach((c, i) => {
+        if (c.role !== undefined && c.role !== 'main') errors.push(`${tag} hotContacts[${i}] role은 'main'만 쓸 수 있어요: ${c.role}`);
+      });
+      const mains = r.hotContacts.filter(c => c.role === 'main');
+      if (mains.length > 1) errors.push(`${tag} hotContacts의 role: 'main'은 하나만 둘 수 있어요`);
+      else if (mains.length === 1 && mains[0].value !== r.hot) errors.push(`${tag} 대표(role: 'main') 번호(${mains[0].value})가 hot(${r.hot})과 달라요`);
     }
   }
 

@@ -267,6 +267,18 @@ const App = {
     });
   },
 
+  // 대표번호 없이 학교급별 번호만 있는 지역의 헤더 ☎: 홈 연락처 카드로 옮기고 첫 번호에 초점을 둬요(학교급을 고르게)
+  goContacts() {
+    if (this.state.page !== 'home') this.nav('home');
+    requestAnimationFrame(() => {
+      const el = document.getElementById('contacts');
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const first = el.querySelector('a[href^="tel:"]');
+      if (first) first.focus({ preventScroll: true });
+    });
+  },
+
   // ── 대응 절차 체크 ──
   toggleCheck(step, id) {
     const key = step + '.' + id;
@@ -504,17 +516,48 @@ const App = {
     `;
   },
 
-  callButton(cls) {
-    return this.R
-      ? `<a href="{TEL}" class="btn ${cls || 'btn-primary'}"><span aria-hidden="true">☎</span> {HOT}</a>`
-      : '';
+  // ── 지역 연락처: 홈 카드·지원 찾기 허브·빠른 대응·헤더·문장 속 번호가 모두 contactModel(R) 하나를 써요 ──
+  // 빠른 대응의 전화 버튼: 대표가 있으면 대표 하나, 없으면(학교급별 지역) 학교급별 번호를 모두.
+  // 번호가 여러 개인 지역(hotContacts)은 어느 번호인지 라벨을 함께 보여 줘요
+  callButtons(cls) {
+    const R = this.R;
+    if (!R) return '';
+    const { main, levels } = contactModel(R);
+    return (main ? [main] : levels).map(c =>
+      `<a href="${telHref(c.value)}" class="btn ${cls} btn-call" aria-label="${callAria(R, c)}"><span aria-hidden="true">☎</span> ${R.hotContacts ? c.label + ' ' : ''}<span class="btn-num">${c.value}</span></a>`
+    ).join('');
   },
 
-  // 대표번호 하나로 모든 교원을 연결할 수 없는 지역(학교급별 담당 등)은 hotContacts로 역할별 전화 버튼을 보여 줘요
-  hotContactButtons(R) {
-    return R.hotContacts.map(c =>
-      `<a href="${telHref(c.value)}" class="btn btn-primary" aria-label="${R.short} ${c.label} ${c.value} 전화 걸기"><span aria-hidden="true">☎</span> ${c.label} <span class="btn-sub">${c.value}</span></a>`
-    ).join('');
+  // 대표 블록: 역할(번호 하나인 지역은 기관명) · 큰 번호 · ☎ 전화하기
+  contactMain(R, main) {
+    return `<div class="cc-main">
+      <div class="cc-id"><p class="cc-role">${main.label}</p><a href="${telHref(main.value)}" class="panel-hot">${main.value}</a></div>
+      <a href="${telHref(main.value)}" class="btn btn-primary cc-call" aria-label="${callAria(R, main)}"><span aria-hidden="true">☎</span> 전화하기</a>
+    </div>`;
+  },
+
+  // 학교급별 묶음: 줄마다 ‘라벨 ··· ☎ 번호’. 줄바꿈은 라벨과 번호 사이에서만 일어나요
+  contactLines(R, list) {
+    return `<div class="cc-grid">${list.map(c =>
+      `<a href="${telHref(c.value)}" class="cc-line" aria-label="${callAria(R, c)}"><span class="cc-line-label">${c.label}</span><span class="cc-line-num"><span aria-hidden="true">☎</span> ${c.value}</span></a>`
+    ).join('')}</div>`;
+  },
+
+  // 카드 본문: 대표 블록(있으면) + 학교급별 묶음(있으면). 진한 녹색 주 버튼은 한 층만 —
+  // 대표가 있으면 대표만, 없으면 학교급별 번호 전부(has-main이면 학교급별 줄은 옅은 보조 층)
+  contactBlock(R) {
+    const { main, levels } = contactModel(R);
+    return `<div class="cc${main && levels.length ? ' has-main' : ''}">
+      ${main ? this.contactMain(R, main) : `<p class="panel-hot-label">${R.hotName}</p>`}
+      ${levels.length ? `<div class="cc-group">${main ? '<p class="cc-group-title">학교급별 직통</p>' : ''}${this.contactLines(R, levels)}</div>` : ''}
+    </div>`;
+  },
+
+  // 문장 속 연락처: 대표가 있으면 그 번호 하나, 없으면 학교급별 번호를 라벨과 함께
+  inlineContacts(R) {
+    const { main, levels } = contactModel(R);
+    const link = c => `<a href="${telHref(c.value)}" class="tel-link">${c.value}</a>`;
+    return main ? link(main) : levels.map(c => `${c.label} ${link(c)}`).join(' · ');
   },
 
   emergencyNote() {
@@ -534,8 +577,12 @@ const App = {
   renderHeader() {
     const S = this.state;
     const R = this.R;
-    // hotContacts가 있는 지역은 헤더 버튼이 어느 담당으로 걸리는지 읽어 줘요
-    const hotLabel = R && R.hotContacts && (R.hotContacts.find(c => c.value === R.hot) || {}).label;
+    // 헤더 ☎: 대표가 있으면 대표 번호로 바로 걸고(화면 읽기에는 어느 번호인지 읽어 줘요),
+    // 대표 없이 학교급별 번호만 있는 지역은 한 담당으로 걸지 않고 홈 연락처 카드로 옮겨요
+    const main = R && contactModel(R).main;
+    const headerCall = !R ? ''
+      : main ? `<a href="${telHref(main.value)}" class="header-call" aria-label="${callAria(R, main)}"><span aria-hidden="true">☎</span> ${main.value}</a>`
+      : `<button type="button" class="header-call" onclick="App.goContacts()" aria-label="${R.short} 학교급별 전화번호 보기"><span aria-hidden="true">☎</span> 학교급별 번호</button>`;
     const navHtml = PAGES.map(([id, label]) =>
       `<button class="nav-btn ${S.page === id ? 'active' : ''}" ${S.page === id ? 'aria-current="page"' : ''} onclick="App.nav('${id}')">${label}</button>`
     ).join('');
@@ -549,7 +596,7 @@ const App = {
           <nav class="main-nav" aria-label="주요 메뉴">${navHtml}</nav>
           ${this.renderRegionSelect()}
           ${UpdateUI.chip()}
-          ${R ? `<a href="{TEL}" class="header-call" aria-label="${R.short} ${hotLabel || '교육활동 보호 대표번호'} {HOT} 전화 걸기"><span aria-hidden="true">☎</span> {HOT}</a>` : ''}
+          ${headerCall}
         </div>
       </header>
     `;
@@ -605,15 +652,12 @@ const App = {
     const R = this.R;
     const regionNames = REGION_ORDER.map(id => REGIONS[id].short).join('·');
     // 오른쪽 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
+    // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역 → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
     const panel = `
-      <aside class="region-panel" aria-label="현재 지역 연락처">
+      <aside class="region-panel" id="contacts" aria-label="현재 지역 연락처">
         <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
-        <p class="panel-hot-label">${R.hotName}</p>
-        ${R.hotContacts ? '' : '<a href="{TEL}" class="panel-hot">{HOT}</a>'}
-        <div class="panel-actions${R.hotContacts ? ' panel-actions-split' : ''}">
-          ${R.hotContacts ? this.hotContactButtons(R) : '<a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화하기</a>'}
-          <button class="btn btn-secondary" onclick="App.nav('support')">지원 방법 보기</button>
-        </div>
+        ${this.contactBlock(R)}
+        <button class="btn btn-secondary cc-more" onclick="App.nav('support')">지원 방법 보기</button>
       </aside>
     `;
     return `
@@ -709,8 +753,8 @@ const App = {
     const rows = QUICK.map(q => {
       const open = S.quick === q.id;
       const actions = q.urgent
-        ? `<a href="tel:112" class="btn btn-danger"><span aria-hidden="true">☎</span> 112 신고</a>${this.callButton('btn-secondary')}`
-        : `${this.callButton('btn-primary')}<button class="btn btn-secondary" onclick="App.nav('proc')">대응 절차 보기</button>`;
+        ? `<a href="tel:112" class="btn btn-danger"><span aria-hidden="true">☎</span> 112 신고</a>${this.callButtons('btn-secondary')}`
+        : `${this.callButtons('btn-primary')}<button class="btn btn-secondary" onclick="App.nav('proc')">대응 절차 보기</button>`;
       return `
         <li class="action ${q.urgent ? 'urgent' : ''} ${open ? 'open' : ''}">
           <button class="action-head" aria-expanded="${open}" onclick="App.toggle('quick','${q.id}')">
@@ -998,7 +1042,7 @@ const App = {
             ${local.caution ? `<p class="bf-caution"><strong>주의할 점</strong> ${linkifyPhone(local.caution)}</p>` : ''}
             ${missedBox(local.missed, R.short + '에서 놓치기 쉬워요')}
             <p class="muted small">${sourceLine(R, local)}</p>
-          </div>` : (R ? `<p class="muted small prot-local-none">${R.short}에서 별도로 안내한 세부 기준은 현재 확인되지 않았어요. 공통 기준을 먼저 확인하고, 실제 적용은 소속 학교나 교육(지원)청에 확인하세요.${R.hot ? ` 문의 <a href="${telHref(R.hot)}">${R.hot}</a>` : ''}</p>` : '')}
+          </div>` : (R ? `<p class="muted small prot-local-none">${R.short}에서 별도로 안내한 세부 기준은 현재 확인되지 않았어요. 공통 기준을 먼저 확인하고, 실제 적용은 소속 학교나 교육(지원)청에 확인하세요.${R.hot ? ` 문의 ${this.inlineContacts(R)}` : ''}</p>` : '')}
       </div>
       ${this.actionList('benefit', x.id, x.actions, '지금 확인해 볼 일')}
       ${refsBox(x.refs, x.basis, x.verifiedAt)}
@@ -1371,14 +1415,10 @@ const App = {
       <div class="hub">
         <div class="hub-main">
           <p class="hub-region">${R.short} 교육활동 보호 지원</p>
-          <p class="panel-hot-label">${R.hotName}</p>
-          ${R.hotContacts ? '' : '<a href="{TEL}" class="panel-hot">{HOT}</a>'}
+          ${this.contactBlock(R)}
           ${R.menu
             ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
-            : `<p class="muted small">${R.hotSummary || R.menuNote || ''}</p>`}
-          ${R.hotContacts
-            ? `<div class="panel-actions panel-actions-split">${this.hotContactButtons(R)}</div>`
-            : '<a href="{TEL}" class="btn btn-primary"><span aria-hidden="true">☎</span> 전화 상담 {HOT}</a>'}
+            : `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`}
         </div>
         <div class="hub-links">
           <p class="hub-links-title">바로 이용하기</p>
@@ -1474,7 +1514,7 @@ const App = {
         </div>
         <ul class="support-list" id="support-results">${items}</ul>
         </div>
-        <p class="note" id="sup-empty" hidden>검색어에 맞는 지원이 없어요. 위 유형에서 고르거나 대표번호(<a href="${telHref(R.hot)}">${R.hot}</a>)로 문의하세요.</p>
+        <p class="note" id="sup-empty" hidden>검색어에 맞는 지원이 없어요. 위 유형에서 고르거나 ${contactModel(R).main ? '대표번호' : '학교급별 번호'}(${this.inlineContacts(R)})로 문의하세요.</p>
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
           ${directory}
@@ -1996,6 +2036,19 @@ function fmtDate(iso) {
 
 function telHref(num) {
   return 'tel:' + String(num).replace(/\(.*?\)/g, '').replace(/[^0-9]/g, '');
+}
+
+// 지역 연락처 모델: 대표(main) 0~1개 + 학교급별(levels) 번호. hotContacts가 없으면 hot 하나가 대표(라벨은 hotName)예요.
+// hotContacts에서는 role: 'main'인 항목이 대표, 나머지는 학교급별 직통이에요. 대표가 없는 지역(예: 강원)은 학교급별 번호만 있어요
+function contactModel(R) {
+  if (!R.hotContacts) return { main: { label: R.hotName, value: R.hot }, levels: [] };
+  const main = R.hotContacts.find(c => c.role === 'main') || null;
+  return { main, levels: R.hotContacts.filter(c => c !== main) };
+}
+
+// 전화 버튼의 화면 읽기 이름: ‘{지역} {역할} {번호} 전화 걸기’(역할이 지역 이름으로 시작하면 지역은 한 번만)
+function callAria(R, c) {
+  return `${c.label.startsWith(R.short) ? '' : R.short + ' '}${c.label} ${c.value} 전화 걸기`;
 }
 
 function escapeAttr(text) {
