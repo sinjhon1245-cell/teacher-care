@@ -159,7 +159,9 @@ docs/
 5. `tools/check-data.js`의 `REGION_BRANDS`에 그 지역 사업명을, `tools/data/regional-gaps.js`에 10개 영역 gap을 추가해요.
    새 공제회 등 `.go.kr`이 아닌 공식 도메인을 쓰면 `OFFICIAL_HOSTS`에도 추가해요.
    공통 근거(`COMMON_PUBLIC_SOURCES`)가 새 지역 교육청 도메인에 있으면 검사가 막아요. 같은 자료의 교육부 등 원게시처 주소로 바꿔요.
-6. `node tools/check-all.js`로 점검하고, 로컬에서 새 지역을 선택해 대표번호·교육지원청 찾기·지원 찾기 화면을 확인해요.
+6. `node tools/check-all.js`로 점검하고, 로컬에서 새 지역을 선택해 대표번호·교육지원청 찾기·지원 찾기 화면을 확인해요. `tools/ui-check.js`를 9개 너비에서 실행해요(지역 수 × 5메뉴).
+7. 운영 문서: `docs/annual-maintenance-checklist.md`의 지역 표(시행계획·공제기간·연락처·관할)에 한 줄씩 추가하고, 정확도 감사 문서(`docs/<지역>-regional-accuracy-audit.md`)를 남겨요.
+   `data/updates.js`에 ‘지역 확대’ 항목을 맨 위에 추가해요(상단 안내바는 여러 지역을 함께 추가할 때만. 예전 ‘지역 확대’ 안내바는 더 새 지역 확대 항목이 생기면 자동으로 숨겨져요).
 
 `app.js`와 `data/common.js`는 고칠 필요가 없어요.
 
@@ -270,6 +272,7 @@ git diff --check
 - `check-links.js`: 데이터에 적힌 모든 https 주소에 접속해요. 정상·이동(redirect)·확인 필요(401·403·5xx·시간 초과 — 공공기관 서버가 자동 접속을 막는 경우가 많아 브라우저로 확인)·끊김(404·410·없는 도메인·‘존재하지 않는 게시물’ 안내 페이지)으로 나눠요. 끊김이 있으면 종료 코드 1. `--only=incheon`, `--timeout=20000`, `--json=결과.json` 옵션이 있어요.
   - 일부 기관 서버(울산 `use.go.kr`, 인천 `seobu.ice.go.kr` 등)는 중간 인증서를 보내지 않아 Node가 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`로 ‘확인 필요’를 표시해요(브라우저·curl은 정상).
     그 서버 인증서의 ‘CA Issuers’ 주소에서 받은 Sectigo 중간 인증서(PEM)를 `NODE_EXTRA_CA_CERTS=파일 node tools/check-all.js`로 넘기면 실제 상태를 확인할 수 있어요. 검사 규칙은 바꾸지 않아요.
+  - 경남 교육지원청 누리집처럼 처음 접속하면 SSO 확인 주소로 보냈다가 쿠키를 받은 뒤 돌려보내는 곳이 있어요. 그래서 이동(redirect)은 최대 10번까지 직접 따라가며 **그 한 번의 확인 안에서 받은 쿠키만** 다시 보내요(인증서 검증은 그대로).
 - `git diff --check`: 공백 오류 확인.
 - 세 가지를 한 번에: `node tools/check-all.js`(위 ‘운영자용: 일상 점검’).
 
@@ -279,7 +282,7 @@ git diff --check
 ‘자동 승인·지급’ 같은 오해 표현, 특별휴가 ‘범위에서 부여’·휴직 ‘검토’ 표현, 상황 → 권리 연결·회복 경로·홈 카드 id,
 지역 `benefits`·`highlights`의 id·출처, 숫자 정보의 출처, 다른 지역 사업명 혼입, 출처의 `region`,
 5메뉴 순서, 회복·보호에 외부 지원이 섞였는지, 제도 묶음·공식 근거 id, 단계별 바로가기·홈 입구 id, 지원 유형의 공통 기준·회복·보호 연결, 지원 항목 area(배열 포함)를 검사해요.
-문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에, 울산 추가 검증은 `docs/ulsan-regional-accuracy-audit.md`에 있어요.
+문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역(서울~강원) 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에, 그 뒤 추가한 지역의 검증은 `docs/ulsan-regional-accuracy-audit.md`·`docs/jeonbuk-regional-accuracy-audit.md`·`docs/gyeongnam-regional-accuracy-audit.md`에 있어요(감사 문서는 그 시점의 기록이라 고쳐 쓰지 않아요). 9개 지역 연례 갱신 절차와 경남 미확인·충돌 항목 추적은 `docs/annual-maintenance-checklist.md`에 있어요.
 
 ## 로컬에서 확인하기
 

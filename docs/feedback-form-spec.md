@@ -21,7 +21,7 @@
 | # | 문항 | 유형 | 선택지·안내 | 필수 |
 | --- | --- | --- | --- | --- |
 | 1 | 이 안내가 도움이 되었나요? | 객관식 | 도움이 되었어요 / 조금 도움이 되었어요 / 도움이 되지 않았어요 | 예 |
-| 2 | 어떤 정보를 보셨나요? | 체크박스 | 홈 / 대응 절차 / 상황별 도움 / 회복·보호 / 지원 찾기 / 잘 모르겠어요 + **지역**(서울 / 경기 / 인천 / 공통) | 아니요 |
+| 2 | 어떤 정보를 보셨나요? | 체크박스 | 홈 / 대응 절차 / 상황별 도움 / 회복·보호 / 지원 찾기 / 잘 모르겠어요 + **지역**(서울 / 경기 / 인천 / 부산 / 충북 / 강원 / 울산 / 전북 / 경남 / 공통 — 사이트의 지역 선택 순서와 같게) | 아니요 |
 | 3 | 찾으려던 정보를 찾으셨나요? | 객관식 | 찾았어요 / 일부만 찾았어요 / 찾지 못했어요 | 아니요 |
 | 4 | 이해하기 어려웠던 부분이 있나요? | 장문 | 안내: “어느 화면의 어떤 문구였는지 적어 주세요. 사건 내용은 적지 마세요.” | 아니요 |
 | 5 | 잘못되었거나 바뀐 정보를 발견했나요? | 장문 | 안내: “어느 화면·어느 항목인지, 공식 안내 주소(있다면)를 적어 주세요. 개인정보·사건 내용은 적지 마세요.” | 아니요 |
@@ -36,10 +36,10 @@
 | 칸(FEEDBACK_FIELDS) | 문항 제목 | 들어가는 값(예) |
 | --- | --- | --- |
 | `type` | (자동 입력) 의견 종류 | `helpful`(도움이 되었어요) · `needs-improvement`(보완이 필요해요) · `general`(의견 보내기) |
-| `region` | (자동 입력) 지역 | `seoul` · `gyeonggi` · `incheon` · `common` |
+| `region` | (자동 입력) 지역 | `seoul` · `gyeonggi` · `incheon` · `busan` · `chungbuk` · `gangwon` · `ulsan` · `jeonbuk` · `gyeongnam` · `common`(`REGION_ORDER` + 공통) |
 | `page` | (자동 입력) 화면 | `home` · `proc` · `guide` · `care` · `support` |
 | `item` | (자동 입력) 항목 | 제도 id(`special-leave`), 상황 id(`physical-assault`), 지원 유형(`legal`), 비교(`leave`), 단계(`step-3`) — 없으면 비어 있어요 |
-| `url` | (자동 입력) 보던 주소 | 공유 주소(예: `…/teacher-care/?region=incheon&page=care&benefit=special-leave`) |
+| `url` | (자동 입력) 보던 주소 | 공유 주소(예: `https://teacher-care.vercel.app/?region=incheon&page=care&benefit=special-leave` — 보조 주소 GitHub Pages에서 보냈다면 그 주소) |
 
 검색어, 체크 상태, 사용자가 입력한 내용은 어떤 칸에도 보내지 않아요.
 

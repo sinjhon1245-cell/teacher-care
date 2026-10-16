@@ -2,33 +2,44 @@
 
 매년(새 학년도 전후) 이 문서를 복사해 그해 기록으로 쓰세요(예: `docs/maintenance-log-2027.md`). 항목마다 □를 ☑로 바꾸고, 바뀐 것이 있으면 옆에 한 줄로 적어요.
 
-- 지금 할 일 목록: `node tools/check-all.js` → `docs/maintenance-report.md`의 **다음 점검 항목**
-- 데이터 위치: 공통 `data/common.js` · 지역 `data/regions/seoul.js`, `gyeonggi.js`, `incheon.js` · 지역 gap `tools/data/regional-gaps.js`
+- 지금 할 일 목록: `node tools/check-all.js` → `docs/maintenance-report.md`의 **다음 점검 항목**(리포트는 이 도구로만 다시 만들어요. 직접 고치지 않아요)
+- 대상 지역(9곳, `index.html` 순서): 서울·경기·인천·부산·충북·강원·울산·전북·경남
+- 데이터 위치: 공통 `data/common.js` · 지역 `data/regions/seoul.js`, `gyeonggi.js`, `incheon.js`, `busan.js`, `chungbuk.js`, `gangwon.js`, `ulsan.js`, `jeonbuk.js`, `gyeongnam.js` · 지역 gap `tools/data/regional-gaps.js` · 업데이트 내역 `data/updates.js`
+- 배포 주소: **대표(교사에게 공유) https://teacher-care.vercel.app/** · 병행 운영 https://sinjhon1245-cell.github.io/teacher-care/ (둘 다 `main` push로 반영)
 - 원칙: **공식 원문으로 확인한 것만** 고쳐요. 한 지역 자료가 없다고 다른 지역 값을 옮겨 적지 않아요. 확인하지 못한 칸은 비워 두면 화면에서 숨겨져요.
+- 날짜 원칙: `verifiedAt`·`sourceUpdatedAt`·`reviewBy`는 **실제로 다시 확인했을 때만** 바꿔요. 점검 도구의 ‘주의’를 없애려고 날짜만 올리지 않아요.
+- 지역별 정확도 감사 문서(`docs/*-regional-accuracy-audit.md`, `regional-accuracy-audit-2026-10-07.md`)는 그 시점의 기록이에요. 새로 확인한 내용은 그해 기록(이 문서 사본)이나 새 감사 문서에 적고, 지난 감사 문서를 고쳐 쓰지 않아요.
 
 ## 업데이트 절차(항목 하나를 고칠 때마다)
 
-1. **공식 원문 확인** — 교육부·국가법령정보센터·시·도교육청·학교안전공제회 게시물(개인 블로그·카페 글은 근거로 쓰지 않아요)
+1. **공식 원문 확인** — 교육부·국가법령정보센터·시·도교육청·교육지원청·학교안전공제회 게시물(개인 블로그·카페 글은 근거로 쓰지 않아요)
 2. **기존 데이터 비교** — 해당 항목(`programs[]`, `benefits`, `BENEFITS`, `offices`)과 원문을 한 줄씩 대조
 3. **데이터 수정** — 바뀐 값만 고치기. 새 출처는 `sources` 배열 **끝에만** 추가(중간에 넣으면 `source` 번호가 어긋나요)
 4. **verifiedAt 수정** — 확인한 항목과 그 출처의 `verifiedAt`을 확인한 날로. 연락처는 `contactsVerifiedAt`, 관할은 `areasVerifiedAt`
 5. **sourceUpdatedAt 수정** — 원문의 게시·시행일을 알면 출처와 항목에 적기(공통 제도는 근거 중 가장 최근 시행일)
-6. **reviewStatus 수정** — 확인 끝 `verified` · 바뀐 것으로 보여 다시 봐야 함 `review-needed` · 원문이 사라짐 `source-unavailable`. 새 학년도 자료가 나오면 지역 `reviewBy`도 다음 해 3월 1일로
-7. **점검**
+6. **reviewStatus·재확인일 수정** — 확인 끝 `verified` · 바뀐 것으로 보여 다시 봐야 함 `review-needed` · 원문이 사라짐 `source-unavailable`.
+   새 학년도 자료로 다시 확인했으면 지역 `reviewBy`를 다음 재확인일로(대개 다음 해 3월 1일, 경남은 공제기간에 맞춰 2월 1일)
+7. **기간이 정해진 지원(연도 사업·공제기간)** — `programs[].validUntil`(공식 안내의 기간 마지막 날, 지나면 화면에 ‘기간 확인 필요’)과 `reviewBy`(운영자 재확인일)를 새 자료 기준으로 함께 고쳐요.
+   새 자료가 아직 없으면 날짜를 올리지 않고 기간 안내가 보이게 둬요. 앞날짜 미리 보기: `CHECK_TODAY=2027-01-01 node tools/check-data.js`
+8. **점검**
 
    ```bash
    node tools/check-all.js
    ```
 
    `STATUS PASS`가 아니면 멈추고 출력과 `docs/maintenance-report.md`를 보고 고쳐요.
-8. **browser smoke test** — 로컬 정적 서버로 서울·경기·인천·공통을 바꿔 가며 고친 화면(지원 찾기 카드·회복·보호 상세·교육지원청 찾기)과 전화 버튼, 링크 복사·인쇄, 뒤로가기를 확인
-9. **asset version 변경** — `index.html`의 `<meta name="asset-version">`과 로컬 CSS·JS의 `?v=`를 같은 새 값(`YYYYMMDD-n`)으로
-10. **git diff review** — `git diff`로 의도한 줄만 바뀌었는지, `git diff --check`로 공백 오류
-11. **commit**
-12. **main push**(force push 금지)
-13. **GitHub Pages 확인** — Actions의 pages build and deployment 성공, 실제 주소에서 새 asset version과 고친 내용 확인
+9. **browser smoke test** — 로컬 정적 서버에서 고친 지역과 공통을 바꿔 가며 고친 화면(지원 찾기 카드·회복·보호 상세·교육지원청 찾기)과 전화 버튼, 링크 복사·인쇄, 뒤로가기를 확인.
+   화면 코드(`app.js`·`style.css`)를 고쳤다면 `tools/ui-check.js`를 360·375·390·768·769·881·961·1024·1440px에서 실행(9지역 × 5메뉴 = 너비마다 45조합)
+10. **asset version 변경** — `index.html`의 `<meta name="asset-version">`과 로컬 CSS·JS의 `?v=`를 같은 새 값(`YYYYMMDD-n`)으로
+11. **git diff review** — `git diff`로 의도한 줄만 바뀌었는지, `git diff --check`로 공백 오류
+12. **commit**
+13. **main push**(force push 금지)
+14. **Vercel Production 확인(대표)** — Vercel 프로젝트 `teacher-care`의 새 Production 배포가 Ready이고 커밋이 같은지, https://teacher-care.vercel.app/ 에서 새 asset version과 고친 내용 확인
+15. **GitHub Pages 확인(병행)** — Actions의 pages build and deployment 성공, https://sinjhon1245-cell.github.io/teacher-care/ 에서 같은 asset version 확인
 
 ## [1~2월] 새 기준 자료
+
+### 공통(전국)
 
 | □ | 확인할 것 | 어디서 | 데이터 |
 | --- | --- | --- | --- |
@@ -38,17 +49,66 @@
 | □ | 국가공무원 복무규정·복무 관련 예규 | 국가법령정보센터 | `bokmu`, `bokmu-rule` → 병가·공무상 병가 |
 | □ | 공무원 재해보상법·시행령, 공무원연금공단 공무상 요양 안내 | 국가법령정보센터, geps.or.kr | `accident-act`, `accident-decree`, `geps` → 공무상 요양·공무상 질병휴직 |
 | □ | 교육공무원법·임용령·사립학교법·국가공무원법(휴직·복직) | 국가법령정보센터 | `edu-act`, `edu-appoint`, `private-school`, `gukga` |
-| □ | 서울 교육활동보호 시행계획·매뉴얼 | 서울특별시교육청 | `data/regions/seoul.js` `sources`, `basis` |
-| □ | 경기 교육활동 보호 종합대책·길라잡이 | 경기도교육청 | `data/regions/gyeonggi.js` `sources`, `basis` |
-| □ | 인천 교육활동 보호 시행계획·매뉴얼·비용 고시 | 인천광역시교육청 | `data/regions/incheon.js` `sources`, `basis` |
+| □ | 교육지원청 관할 근거(지방교육자치법 시행령 부칙 제2조의 종전 [별표 2] → 시·도 조례 제정 여부) | 국가법령정보센터 법령·자치법규 | 각 지역 `offices[].areas`, `README.md` ‘교육지원청 관할 근거’ 표 |
 
-## [2~3월] 지역 지원·연락처(새 학년도 시작 전후)
+### 지역별 새 시행계획·매뉴얼
+
+지금 데이터의 근거(`basis`)를 기준으로, 그해 새 자료가 나왔는지 확인해요. 이름이 바뀌어도 같은 성격의 자료면 새 자료로 교체해요.
+
+| □ | 지역 | 지금 근거(2026) | 교육청 | 데이터 |
+| --- | --- | --- | --- | --- |
+| □ | 서울 | 교육활동보호 매뉴얼(2026 개정판)·2026 서울 교육활동보호 시행계획 | 서울특별시교육청 | `seoul.js` `sources`, `basis` |
+| □ | 경기 | 2026년도 교육활동 보호 종합대책·2026 경기형 교육활동 보호 길라잡이 | 경기도교육청 | `gyeonggi.js` |
+| □ | 인천 | 2026 교육활동보호 매뉴얼·2026년 인천 교육활동 보호 시행계획·비용 고시(제2026-200호) | 인천광역시교육청 | `incheon.js` |
+| □ | 부산 | 2026 교육활동 보호 매뉴얼·2026학년도 교육활동 보호 계획 | 부산광역시교육청 | `busan.js` |
+| □ | 충북 | 2026 교육활동 보호 시행 계획·매뉴얼·교원보호공제사업 변경 안내 | 충청북도교육청 | `chungbuk.js` |
+| □ | 강원 | 2026년 교원 정신건강증진사업 시행계획·2026 원스톱 변호사 법률 지원 계획(교육활동보호 기본계획 원문 미확인 — 지역 gap) | 강원특별자치도교육청 | `gangwon.js` |
+| □ | 울산 | 2026년 교원의 교육활동 보호 시행 계획·‘안녕! 내 마음’ 프로그램 계획 | 울산광역시교육청 | `ulsan.js` |
+| □ | 전북 | (수정) 2026년 교육활동 보호에 관한 시행계획·2026 전북형 교육활동보호 매뉴얼 | 전북특별자치도교육청 | `jeonbuk.js` |
+| □ | 경남 | 2026. 교육활동보호 기본 계획·2026 교육활동 보호 매뉴얼·2026년 교직원 마음건강 지원 사업 | 경상남도교육청(경남교육활동보호센터 자료실) | `gyeongnam.js` |
+
+## [2~4월] 공제기간·연락처·관할(새 학년도 시작 전후)
+
+### 지역별 교원보호공제 기간
+
+공제기간은 지역마다 시작일이 달라요. 아래 ‘데이터에 적힌 기간’이 없는 지역은 새 약관·사업 안내에서 기간을 확인해 적을 수 있는지 봐요(확인되지 않으면 적지 않아요).
+
+| □ | 지역 | 데이터에 적힌 기간·기준(2026) | 언제 다시 볼지 | 데이터 |
+| --- | --- | --- | --- | --- |
+| □ | 서울 | 기간 미기재(청구 기한 3년만 적음) | 새 학년도 약관 공개 때 | `seoul.js` 교원보호(안심)공제 |
+| □ | 경기 | 기간 미기재 | 새 학년도 약관 공개 때 | `gyeonggi.js` 교원보호공제 |
+| □ | 인천 | 기간 미기재(14일 결정·3년 소멸) | 새 학년도 약관 공개 때 | `incheon.js` |
+| □ | 부산 | 표준약관 2026. 3. 1. 시행 | 2027. 3. 전후 | `busan.js` |
+| □ | 충북 | 2026. 교원보호공제사업 변경 안내 기준 | 새 학년도 변경 안내 때 | `chungbuk.js` |
+| □ | 강원 | 표준약관 2026. 5. 1. 시행 | 2027. 5. 전후 | `gangwon.js` |
+| □ | 울산 | 2026. 3. 1. 이후 사안부터 적용 | 2027. 3. 전후 | `ulsan.js` |
+| □ | 전북 | 공제기간 2026. 4. 1.~2027. 3. 31.(소급 2023. 4. 1.) | `validUntil` 2027-03-31 · `reviewBy` 2027-03-01 | `jeonbuk.js` 공제 5개 항목 |
+| □ | 경남 | 공제기간 2026. 3. 1.~2027. 2. 28. | `validUntil` 2027-02-28 · `reviewBy` 2027-02-01 | `gyeongnam.js` 공제 4개 항목 |
+
+### 대표 연락처·교육지원청·관할
+
+| □ | 지역 | 대표 연락처(`hot`·`hotContacts`) | 교육지원청 | 시·군·구 | 관할 근거 |
+| --- | --- | --- | --- | --- | --- |
+| □ | 서울 | 02-1395 | 11 | 25 | 종전 [별표 2] |
+| □ | 경기 | 1600-8787 | 25 | 31 | 「경기도교육청 행정기구 설치 조례」 [별표 9](통합 교육지원청 분리 추진 확인) |
+| □ | 인천 | 032-1395 | 5 | 11 | 종전 [별표 2] + 2026. 7. 1. 행정체제 개편(`areasReviewBy`) |
+| □ | 부산 | 051-862-1122 | 5 | 16 | 종전 [별표 2] |
+| □ | 충북 | 043-1395 | 10 | 11 | 종전 [별표 2] |
+| □ | 강원 | 대표 없음 — 학교급별 033-258-5342·5341 | 17 | 18 | 「강원특별자치도교육청 행정기구 설치조례」 [별표 2] |
+| □ | 울산 | 052-1395 + 학교급별 긴급지원 2개 | 2 | 5 | 종전 [별표 2] |
+| □ | 전북 | 063-1395 + 학교급별 상담 2개 | 14 | 14 | 종전 [별표 2] · 전북 위치 조례 |
+| □ | 경남 | 1811-7679 + 침해 신고 055-1395(`hotGroupTitle` ‘침해 신고’) | 18 | 18 | 종전 [별표 2](조례에 관할 조항 없음) |
+
+각 줄에서 확인할 것:
+
+- 대표번호·ARS 메뉴·운영 시간(공식 자료에 있을 때만) → `hot`, `hotContacts`, `terms`, `menu`·`menuNote`, `contactsVerifiedAt`
+- 교육지원청 이름·담당 부서·연락처(누리집 업무안내·분장사무) → `offices` → `contactsVerifiedAt`
+- 관할구역(행정구역 개편·교육지원청 신설·조례 제정) → `offices[].areas`, `expectedAreas`, `areaNote` → `areasVerifiedAt`, `areasReviewBy`
+
+### 지원 항목(모든 지역 공통 확인 목록)
 
 | □ | 확인할 것 | 데이터 |
 | --- | --- | --- |
-| □ | 대표전화(02-1395·1600-8787·032-1395 등)와 ARS 메뉴 | 지역 `hot`, `terms`, `menu` → `contactsVerifiedAt` |
-| □ | 교육지원청 조직(이름·담당 부서·연락처) | 지역 `offices` → `contactsVerifiedAt` |
-| □ | 관할구역(행정구역 개편·교육지원청 신설) | `offices[].areas`, `expectedAreas`, `areaNote` → `areasVerifiedAt`, `areasReviewBy` |
 | □ | 교권보호지원센터·교육활동보호센터 | 지역 `programs`, `orgs` |
 | □ | 상담기관(협약기관·상담 프로그램 이름) | `programs` 심리상담 |
 | □ | 치료비(한도·기간·서류) | `programs` 치료·비용 `amount`·`timing`·`documents` |
@@ -59,10 +119,29 @@
 | □ | 교원보호공제(약관 기간·한도·청구 방법) | `programs` 교원보호공제, 해당 출처 |
 | □ | 민원지원(학교민원 대응 조직·연락 경로) | `programs` 학교민원 |
 | □ | 갈등조정(조정단·중재단 운영 기간·신청) | `programs` 갈등 중재 |
-| □ | 전보 기준(비정기 전보 요건·시기) | 지역 `benefits.transfer` |
+| □ | 전보 기준(비정기 전보 요건·시기, 교사 조항과 교장·교감 조항 구분) | 지역 `benefits.transfer` |
 | □ | 복귀·회복 관련 지원(치유 프로그램·복귀 지원) | `programs` 치유·회복, `benefits.return-to-work` |
-| □ | 지역 gap 다시 판정 | `tools/data/regional-gaps.js`(`checkedAt`, 각 `status`·`note`·`todo`) |
-| □ | 새 학년도 재확인일 갱신 | 지역 `reviewBy`(다음 해 3월 1일), 기간이 끝나는 항목의 `reviewBy` |
+| □ | 연도 사업의 다음 해 운영 여부(`validUntil`이 있는 항목) | `programs[].validUntil`·`reviewBy` |
+| □ | 지역 gap 다시 판정 | `tools/data/regional-gaps.js`(`checkedAt`, 각 `status`·`note`·`todo`, 영역 밖 `extras`) |
+| □ | 새 학년도 재확인일 갱신 | 지역 `reviewBy`, 기간이 끝나는 항목의 `reviewBy` |
+
+## 경남 — 공식자료 충돌·미확인 항목 추적
+
+2026-10-16 경남 추가 때 공식 자료끼리 다르거나 확인되지 않아 화면에 넣지 않았거나 두 문구를 그대로 둔 항목이에요.
+같은 내용이 `tools/data/regional-gaps.js`(경남 `partial`·`unverified`와 영역 밖 `extras`)에도 있어 운영 리포트 ‘다음 점검 항목’에 나와요. 해결하면 두 곳을 함께 고쳐요. 근거 기록: `docs/gyeongnam-regional-accuracy-audit.md` 23장.
+
+| □ | 항목 | 지금 화면 처리 | 확인할 것 | 해결되면 고칠 곳 |
+| --- | --- | --- | --- | --- |
+| □ | 외부 연계 상담(치료)비 담당 센터 | 2026. 9. 18. 안내·센터 누리집 기준(본청 15개 시·군, 창원·진주·김해는 각 시만). 기본계획 표와 다름 | 센터에 배정 기준 확인, 다음 기본계획 표 | `gyeongnam.js` ‘외부 연계 심리상담·치료비 지원’, gap extras |
+| □ | 외부 연계 비용 ‘최초 신청 뒤 2년’과 ‘연도별 1회·1인 100만 원’의 관계 | 두 문구를 그대로 안내 | 해마다 100만 원인지, 2년 합계인지 | 같은 항목 `timing`·`amount` |
+| □ | 센터 조직도의 055-268-1342~1344 학교급 표기 | 업무분장 기준(업무별)으로 안내, 학교급 번호로 쓰지 않음 | 조직도 갱신 여부 | ‘행정상담’ 항목 `contacts`·`caution` |
+| □ | 1811-7679·055-1395 운영 시간·ARS | 시간 미표시 | 센터 공식 게시물 | `hotSummary`, gap extras |
+| □ | 경남학교안전공제회 누리집(kn.ssif.or.kr) | 인증서 신뢰 오류로 링크하지 않음(TLS 검증은 끄지 않음). 연락처는 교육청 운영 안내 기준 | 접속·인증서 정상화 여부 | 정상이면 `tools/check-data.js` 공식 도메인 목록 + 공제 `channels` |
+| □ | 교육지원청 10곳의 교육활동 민원대응팀 담당(사천·의령·함안·창녕·고성·남해·하동·산청·함양·거창) | 교육활동보호(교권) 담당 번호로만 안내 | 각 교육지원청 업무안내 | `offices`, gap `complaints` |
+| □ | 비정기 전보 신청 시기·서식, ‘동일교 미배치 신청서’ 양식, 교육지원청 관내 전보 기준 | 기준 문구와 매뉴얼 대상 안내만 | 인사 담당 공식 안내 | `benefits.transfer`, gap `transfer` |
+| □ | 교원장기치유연수 기간·처우(2026), 자율치유연수·마음챙기기 집합연수 신청 방법 | 대상·절차만(2024 계획의 1~6개월은 쓰지 않음) | 2027 기본계획·센터 안내 | ‘교원장기치유연수’ 항목, gap `recovery` |
+| □ | 2027 교직원 마음건강 지원 사업 운영 여부 | 2026. 12. 10.까지(`validUntil`) | 2027 사업 공고 | `validUntil`·`reviewBy` 2026-11-30 |
+| □ | 2027 외부 연계 상담비·교원보호공제(2027. 3. 1.~) | 2026 기준(`validUntil` 2026-12-31·2027-02-28) | 2027 기본계획·공제 운영 안내 | 해당 항목 `validUntil`·`reviewBy`·금액 |
 
 ## [수시]
 
@@ -75,6 +154,8 @@
 | □ | 금액 변경 | `amount` 수정 + 출처 `sourceUpdatedAt`(예: 고시 시행일) |
 | □ | 상담 횟수 변경 | 심리상담 `amount`·`eligibility` |
 | □ | 법령 개정 | 공통 근거 `sourceUpdatedAt` → 관련 `BENEFITS`의 `sourceUpdatedAt`·`verifiedAt`(점검 도구가 어긋나면 알려 줘요) |
+| □ | 연말(11~12월) | `CHECK_TODAY=다음 해 날짜`로 미리 보기 → `validUntil`이 지나는 연도 사업의 다음 해 공고 확인 |
+| □ | 새 지역 추가 | 지역 파일·`index.html` 한 줄·`check-data.js` 사업명·`regional-gaps.js`·`README.md`·`data/updates.js`(안내바는 여러 지역을 함께 추가할 때만)·정확도 감사 문서. 이 체크리스트의 지역 표에도 한 줄씩 추가 |
 | □ | 사용자 오류 제보 | 제보 내용을 공식 원문으로 확인한 뒤에만 반영(제보만으로 고치지 않아요). 의견 받기 운영은 `docs/feedback-form-spec.md` |
 
 ## 그해 기록
