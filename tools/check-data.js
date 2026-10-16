@@ -293,7 +293,9 @@ const REGION_BRANDS = {
   chungbuk: ['교원119', '마음클리닉', '현장지원119', '갈등조정지원관'],
   gangwon: ['동:행 119', '원스톱 변호사 법률지원', '이음톡'],
   ulsan: ['안녕! 내 마음', '단짝캠프', '응급심리자문협의체', '교육활동심의협의체', '피해교원 추수 프로그램'],
-  jeonbuk: ['중대교권침해지원단', '회복조정지원단', '교원치유중점학교', '숙박형 휴(休) 프로그램', '교원 아동학대 신고 대응팀']
+  jeonbuk: ['중대교권침해지원단', '회복조정지원단', '교원치유중점학교', '숙박형 휴(休) 프로그램', '교원 아동학대 신고 대응팀'],
+  // 교육활동보호담당관은 인천과 경남 교육청 모두의 실제 부서명이라 두 지역에 함께 둬요(다른 지역·공통 문장에는 여전히 쓰지 않아요)
+  gyeongnam: ['교육활동보호담당관', '교권보호 신속 지원팀', '책임과 회복을 위한 갈등조정팀', '교원정신건강지원팀', '교원안전지원시스템', '교육감고발제', '새로, 봄']
 };
 const regionWords = () => REGION_ORDER.flatMap(id => [REGIONS[id].short, REGIONS[id].name, REGIONS[id].office, ...(REGION_BRANDS[id] || [])]);
 function commonTextIssues(tag, text) {
@@ -606,6 +608,11 @@ for (const id of REGION_ORDER) {
       if (mains.length > 1) errors.push(`${tag} hotContacts의 role: 'main'은 하나만 둘 수 있어요`);
       else if (mains.length === 1 && mains[0].value !== r.hot) errors.push(`${tag} 대표(role: 'main') 번호(${mains[0].value})가 hot(${r.hot})과 달라요`);
     }
+  }
+  // 대표 아래 줄들의 묶음 제목(선택, 기본 ‘학교급별 직통’): 짧은 글자만, 대표(role: 'main')가 있을 때만 보여요
+  if (r.hotGroupTitle !== undefined) {
+    if (typeof r.hotGroupTitle !== 'string' || !r.hotGroupTitle.trim() || r.hotGroupTitle.length > 16) errors.push(`${tag} hotGroupTitle은 16자 이내 글자여야 해요`);
+    if (!(r.hotContacts || []).some(c => c.role === 'main')) errors.push(`${tag} hotGroupTitle은 hotContacts에 대표(role: 'main')가 있을 때만 써요`);
   }
 
   // 전화번호 형식

@@ -8,9 +8,10 @@
 //   끊김      404·410, 주소 형식 오류, 도메인 없음(DNS), ‘존재하지 않는 게시물’ 같은 안내 페이지(soft 404) → 오류
 //   확인 필요 401·403(공공기관 서버가 자동 접속을 막는 경우가 많아요), 5xx, 시간 초과, 연결 실패 → 주의(브라우저로 직접 확인)
 // HEAD를 막는 서버가 많아 처음부터 GET으로 요청하고, HTML은 앞부분만 읽어 soft 404 문구를 찾아요(PDF 등은 헤더만 봐요).
+// 이동(redirect)은 최대 10번까지 브라우저처럼 따라가고, 그 확인 안에서 받은 쿠키만 다시 보내요(SSO 확인을 거치는 누리집).
 //
 // 옵션
-//   --only=seoul|gyeonggi|incheon|busan|chungbuk|gangwon|ulsan|common   해당 파일의 링크만
+//   --only=seoul|gyeonggi|incheon|busan|chungbuk|gangwon|ulsan|jeonbuk|gyeongnam|common   해당 파일의 링크만
 //   --timeout=15000                         요청당 제한 시간(ms)
 //   --json=파일경로                          결과를 JSON으로도 저장(정기 점검 기록용)
 
@@ -49,8 +50,7 @@ async function check(url) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), TIMEOUT);
   try {
-    const res = await fetch(parsed.href, { method: 'GET', redirect: 'follow', signal: ctl.signal, headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.8', 'Accept-Language': 'ko-KR,ko;q=0.9' } });
-    const finalUrl = res.url || parsed.href;
+    const { res, finalUrl } = await fetchFollow(parsed.href, ctl.signal);
     const type = res.headers.get('content-type') || '';
     let soft = false;
     if (res.ok && /html/i.test(type) && res.body) {
@@ -91,6 +91,34 @@ async function check(url) {
     return { verdict: 'check', status: code || 'network', note: '연결 실패(인증서·네트워크 확인)' };
   } finally {
     clearTimeout(timer);
+  }
+}
+
+// 이동(redirect)을 브라우저처럼 따라가요. 일부 기관 누리집(경남 교육지원청 등)은 처음 접속하면 SSO 확인 주소로 보냈다가
+// 쿠키를 받은 뒤 원래 주소로 돌려보내는데, fetch의 자동 이동은 쿠키를 다시 보내지 않아 같은 주소를 끝없이 돌아요(redirect count exceeded).
+// 그래서 이 한 번의 확인 안에서만 받은 쿠키를 같은 도메인으로 다시 보내요(점검끼리 공유·저장하지 않고, 인증서 검증은 그대로예요)
+const MAX_REDIRECTS = 10;
+async function fetchFollow(start, signal) {
+  const jar = [];   // { domain, name, value }
+  let url = start;
+  for (let hop = 0; ; hop++) {
+    const host = new URL(url).hostname;
+    const cookie = jar.filter(c => host === c.domain || host.endsWith('.' + c.domain)).map(c => `${c.name}=${c.value}`).join('; ');
+    const res = await fetch(url, { method: 'GET', redirect: 'manual', signal, headers: { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.8', 'Accept-Language': 'ko-KR,ko;q=0.9', ...(cookie ? { Cookie: cookie } : {}) } });
+    for (const line of (res.headers.getSetCookie ? res.headers.getSetCookie() : [])) {
+      const [pair, ...attrs] = line.split(';');
+      const eq = pair.indexOf('=');
+      if (eq < 1) continue;
+      const dom = attrs.map(a => a.trim().match(/^domain=\.?(.+)$/i)).find(Boolean);
+      const c = { domain: (dom ? dom[1] : host).toLowerCase(), name: pair.slice(0, eq).trim(), value: pair.slice(eq + 1).trim() };
+      const i = jar.findIndex(x => x.domain === c.domain && x.name === c.name);
+      if (i >= 0) jar[i] = c; else jar.push(c);
+    }
+    const loc = res.headers.get('location');
+    if (res.status < 300 || res.status >= 400 || !loc) return { res, finalUrl: url };
+    if (res.body) { try { await res.body.cancel(); } catch (e) { /* 무시 */ } }
+    if (hop >= MAX_REDIRECTS) throw new TypeError('redirect count exceeded');
+    url = new URL(loc, url).href;
   }
 }
 

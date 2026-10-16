@@ -549,7 +549,7 @@ const App = {
     const { main, levels } = contactModel(R);
     return `<div class="cc${main && levels.length ? ' has-main' : ''}">
       ${main ? this.contactMain(R, main) : `<p class="panel-hot-label">${R.hotName}</p>`}
-      ${levels.length ? `<div class="cc-group">${main ? '<p class="cc-group-title">학교급별 직통</p>' : ''}${this.contactLines(R, levels)}</div>` : ''}
+      ${levels.length ? `<div class="cc-group">${main ? `<p class="cc-group-title">${R.hotGroupTitle || '학교급별 직통'}</p>` : ''}${this.contactLines(R, levels)}</div>` : ''}
     </div>`;
   },
 
