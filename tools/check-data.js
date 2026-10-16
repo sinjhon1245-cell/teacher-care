@@ -112,6 +112,7 @@ const CHANNEL_TYPES = ['apply', 'kakao', 'guide'];
 const OFFICIAL_HOSTS = [
   /(^|\.)go\.kr$/,                     // 교육부·시도교육청·교육지원청(sen.go.kr, ice.go.kr, goe.go.kr 등)
   /^www\.(goe[a-z]+|gpoe)\.kr$/,       // 경기 교육지원청 홈페이지(경기도교육청 공식 목록)
+  /^office\.jbedu\.kr$/,               // 전북 교육지원청 홈페이지(전북특별자치도교육청 ‘지역교육지원청’ 링크가 연결되는 주소)
   /^incheon\.ssif\.or\.kr$/,           // 인천광역시학교안전공제회
   /^www\.gessia\.or\.kr$/,             // 경기도학교안전공제회
   /^www\.ssia\.or\.kr$/,               // 서울특별시학교안전공제회
@@ -291,7 +292,8 @@ const REGION_BRANDS = {
   busan: ['One-Stop 지원단', '교원법률지원단', '교원 힐링캠프', '교원 힐링 아카데미', '민원 해결 요청 게시판'],
   chungbuk: ['교원119', '마음클리닉', '현장지원119', '갈등조정지원관'],
   gangwon: ['동:행 119', '원스톱 변호사 법률지원', '이음톡'],
-  ulsan: ['안녕! 내 마음', '단짝캠프', '응급심리자문협의체', '교육활동심의협의체', '피해교원 추수 프로그램']
+  ulsan: ['안녕! 내 마음', '단짝캠프', '응급심리자문협의체', '교육활동심의협의체', '피해교원 추수 프로그램'],
+  jeonbuk: ['중대교권침해지원단', '회복조정지원단', '교원치유중점학교', '숙박형 휴(休) 프로그램', '교원 아동학대 신고 대응팀']
 };
 const regionWords = () => REGION_ORDER.flatMap(id => [REGIONS[id].short, REGIONS[id].name, REGIONS[id].office, ...(REGION_BRANDS[id] || [])]);
 function commonTextIssues(tag, text) {
