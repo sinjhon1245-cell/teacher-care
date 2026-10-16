@@ -368,3 +368,5 @@ ui-check는 지역 목록(`REGION_ORDER`)을 그대로 돌아 코드 변경 없�
 | 2027-03-01 | 2027 교원보호공제 약관(공제기간·한도·서식)과 시행계획 전체 재확인, 지역 `reviewBy` 갱신 |
 
 확인이 끝나면 새 자료의 날짜로 `verifiedAt`·`sourceUpdatedAt`·`validUntil`·`reviewBy`를 함께 고쳐요. 새 자료가 없으면 날짜를 올리지 않고 기간 안내가 보이게 둬요.
+
+**배포**: `e35cb95`(asset-version `20261016-5`)는 경남 추가 커밋 `a7f944c`(`20261016-6`)와 함께 `6eb80b0..a7f944c` 일반 push로 배포됐어요(2026-10-16 18:07 KST, Vercel `dpl_4ykxBgyeEJJSRg1nyvfPp3NAHrJ8` READY). 실제 사이트에서 전북 기간 안내를 모의 날짜로 다시 확인했어요: 2026-10-16 0장 · 2027-01-01 3장(개인 상담·진료, 숙박형 휴(休), 학교 단위 — ‘2026 신청 마감’ 배지 유지). 9개 지역 405조합 ui-check 실패 0. 자세한 기록은 `docs/gyeongnam-regional-accuracy-audit.md` ‘배포 기록’.

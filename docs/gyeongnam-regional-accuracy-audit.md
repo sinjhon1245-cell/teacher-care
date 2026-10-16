@@ -317,4 +317,17 @@ PDF는 pdf.js로, HWP(OLE)는 본문 스트림을 직접 풀어(BodyText/Section
 
 **주소·이동**: `?region=gyeongnam&page=support&type=counsel` 직접 진입(지원 찾기·상담·회복 5장), 공유 주소 같음, 뒤로(홈 → 지원 찾기·상담 유형 복원)·앞으로 정상, 헤더 ☎ `tel:18117679`, 저장 지역 `gyeongnam`, 경남 ↔ 전북 전환 시 헤더·저장 지역·주소 함께 바뀜(전북·울산 카드 묶음 제목 ‘학교급별 직통’ 유지), 첫 방문 지역 선택 9곳(경남 마지막).
 
-배포 결과는 아래에 이어서 적어요.
+### 배포 기록
+
+| 항목 | 결과 |
+|---|---|
+| 커밋·push | `e35cb95` fix: add year-end review safeguards for Jeonbuk programs → `a7f944c` feat: add Gyeongnam regional teacher protection support. `6eb80b0..a7f944c` fast-forward 일반 push(2026-10-16 18:07 KST), push 전 `origin/main`에 다른 커밋 없음. force push·rebase·reset 없음 |
+| Vercel Production | `dpl_4ykxBgyeEJJSRg1nyvfPp3NAHrJ8` READY, target production, GitHub `main` `a7f944c2ec…`, 별칭 teacher-care.vercel.app |
+| asset-version | Production·GitHub Pages 모두 `20261016-6` |
+| 파일 일치 | index.html·app.js·style.css·common.js·updates.js·지역 9개·ui-check.js 15개가 커밋과 바이트 단위로 같음(MD5, Vercel·Pages 둘 다) |
+| 실제 사이트 ui-check | 360·375·390·768·769·881·961·1024·1440px × 45조합 = **405조합 실패 0**, 콘솔 오류 0 |
+| 실제 사이트 기능 | 시나리오 A·C·F·J와 전북 완주 PASS, 헤더 ☎ `tel:18117679`, 카드 묶음 제목 ‘침해 신고’, 업데이트 내역 첫 항목 `2026-10-16-gyeongnam`(안내바 없음), 지역 9곳 |
+| 기간 안내(실제 사이트, 모의 날짜) | 경남 2026-10-16 0 · 12-11 1 · 2027-03-01 6 / 전북 2026-10-16 0 · 2027-01-01 3 |
+| 기존 8개 지역 | ui-check에 포함, 데이터 파일 diff 0(전북은 기간 필드만 추가) |
+
+이 배포 기록은 문서만 바꾸는 후속 커밋으로 남겼어요(사이트 CSS·JS·데이터와 asset-version은 그대로).
