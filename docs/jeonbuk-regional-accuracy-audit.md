@@ -319,4 +319,20 @@ ui-check는 지역 목록(`REGION_ORDER`)을 그대로 돌아 코드 변경 없�
 
 ### 배포 기록
 
-(배포 후 기록)
+| 항목 | 결과 |
+|---|---|
+| 커밋·push | `e8d7ec6` feat: add Jeonbuk regional teacher protection support — `f485302..e8d7ec6` fast-forward push(2026-10-16 15:20 KST), push 전후 `origin/main`에 다른 커밋 없음 |
+| Vercel Production | `dpl_9NMxK3A9XveMQezrgZk9HqVx7qre` READY, target production, GitHub `main` `e8d7ec6f82…`, 별칭 teacher-care.vercel.app |
+| asset-version | push 30초 뒤 `20261016-4` 반영(15:21 KST). meta 1 + 로컬 CSS·JS 12곳 모두 `?v=20261016-4`, 예전 버전 0 |
+| 파일 일치 | index.html·app.js·style.css·common.js·updates.js·지역 8개·ui-check.js가 커밋과 바이트 단위로 같음(MD5) |
+| 실제 사이트 ui-check | 360·375·390·768·769·881·961·1024·1440px × 40조합(8지역 × 5메뉴) = **360조합 실패 0**, 콘솔 오류 0 |
+| 지역 선택·직접 링크 | 첫 화면 8곳(전북 마지막), `?region=jeonbuk` 시작, 헤더 ☎ `tel:0631395` |
+| 연락처 카드 tel | 063-1395 · 063-237-0343(유치원·초등·특수학교) · 063-237-0344(중·고등학교) 글자 = `tel:` 번호 |
+| 교육지원청 찾기 | 14개 시·군 모두 해당 교육지원청과 분장사무 번호(7장 표) |
+| 지원 찾기 | 유형 9개 카드 수 3·2·1·2·1·1·1·2·2, 전북 공식 링크 33곳 |
+| 회복·보호 | `?page=care&benefit=transfer` 전북 기준(제33조) 상자 |
+| 업데이트 내역 | ‘새 업데이트’ → 첫 항목 ‘전북특별자치도 지역 안내 추가’ → 읽음 `2026-10-16-jeonbuk` → ‘새’ 표시 사라짐, 상단 안내바 없음 |
+| 기존 7개 지역 | 위 ui-check에 포함(지역별 카드 번호·헤더 ☎·빠른 대응·허브), 데이터 파일 diff 0 |
+| GitHub Pages | `20261016-4` 반영, `jeonbuk.js` 커밋과 같음 |
+
+이 배포 기록은 문서만 바꾸는 후속 커밋으로 남겼어요(사이트 CSS·JS·데이터와 asset-version은 그대로).
