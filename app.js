@@ -1412,21 +1412,33 @@ const App = {
         <span class="hub-link-type">${HUB_TYPE_LABEL[l.type]}</span><span class="hub-link-label">${l.label}</span><span aria-hidden="true">↗</span>
       </a></li>
     `).join('');
+    // 좁은 화면(768px 이하)에서는 대표 연락처·전화 버튼 아래의 안내 문장과 ‘바로 이용하기’를 한 줄씩 접어 두어
+    // 지원 유형 선택이 첫 화면 가까이에 오게 해요(눌러서 펼치면 내용은 그대로). 넓은 화면은 지금처럼 펼친 채로 그려요.
+    // 펼침 상태는 유형을 바꿔 다시 그려도 유지해요(App.state.hubInfo·hubLinks)
+    // 넓은 화면에서 펼친 채로 그릴 때 생기는 toggle은 기억하지 않아요(좁은 화면으로 바뀌면 다시 접힌 채로 시작)
+    const S = this.state;
+    const wide = !isNarrow();
+    const fold = (key, label, body) => `
+      <details class="hub-fold" ${wide || S[key] ? 'open' : ''} ontoggle="if (isNarrow()) App.state.${key} = this.open">
+        <summary class="hub-fold-btn">${label}<span class="chevron" aria-hidden="true"></span></summary>
+        ${body}
+      </details>`;
     return `
       <div class="hub">
         <div class="hub-main">
           <p class="hub-region">${R.short} 교육활동 보호 지원</p>
           ${this.contactBlock(R)}
           ${R.menu
-            ? `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`
-            : `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`}
+            ? fold('hubInfo', '전화 연결 순서(ARS) 보기', `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`)
+            : fold('hubInfo', `${R.short} 연락 안내 자세히 보기`, `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`)}
         </div>
         <div class="hub-links">
+          ${fold('hubLinks', `바로 이용하기 <span class="hub-fold-count">${links.length + 1}</span>`, `
           <p class="hub-links-title">바로 이용하기</p>
           <ul>
             ${linkHtml}
             <li><button class="hub-link" onclick="App.goHome('finder')"><span class="hub-link-type">찾기</span><span class="hub-link-label">내 교육지원청 찾기</span><span aria-hidden="true">→</span></button></li>
-          </ul>
+          </ul>`)}
         </div>
       </div>
     `;
@@ -1484,16 +1496,20 @@ const App = {
     const directory = R.orgs.map(o => `
       <li><span class="dir-name">${o.name}</span>${o.contact ? `<span class="dir-contact">${linkifyPhone(o.contact)}</span>` : ''}</li>
     `).join('');
+    // 회복·보호 안내 한 줄: 넓은 화면은 제목 아래, 좁은 화면(768px 이하)은 지원 유형 선택 바로 아래(유형 선택이 첫 화면에 오게)
+    const narrow = isNarrow();
+    const careNote = `<p class="muted small">특별휴가·병가·휴직처럼 직접 사용하는 제도는 <button class="link-btn small" onclick="App.nav('care')">회복·보호</button>에 있어요.</p>`;
     return `
       <section class="section page">
         ${this.eyebrow('연결')}
         <h1 class="page-title">지원 찾기</h1>
         <p class="muted">현재 지역(${R.name})에서 이용할 수 있는 상담·치료·법률·경호 등의 지원을 찾아보세요.</p>
-        <p class="muted small">특별휴가·병가·휴직처럼 직접 사용하는 제도는 <button class="link-btn small" onclick="App.nav('care')">회복·보호</button>에 있어요.</p>
+        ${narrow ? '' : careNote}
         ${this.renderHub(R)}
         <div class="tool-panel">
           <p class="tool-title">어떤 도움이 필요하신가요?</p>
           <div class="chip-row" role="group" aria-label="도움 유형">${chips}</div>
+          ${narrow ? careNote.replace('class="muted small"', 'class="muted small tool-note"') : ''}
         </div>
         <div class="result-head" aria-live="polite">
           <div>
@@ -1785,6 +1801,11 @@ function urgencyBadge(u) {
 
 function isDesktop() {
   try { return window.matchMedia('(min-width: 769px)').matches; } catch (e) { return true; }
+}
+
+// CSS의 ‘@media (max-width: 768px)’(하단 메뉴·한 열 화면)와 같은 경계. 768~769px 사이 소수 너비에서도 CSS와 어긋나지 않게 max-width로 판단해요
+function isNarrow() {
+  try { return window.matchMedia('(max-width: 768px)').matches; } catch (e) { return false; }
 }
 
 function firstPhone(text) {

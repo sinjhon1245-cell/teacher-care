@@ -4,7 +4,7 @@
 // 사용법
 //   1) 사이트(로컬 또는 배포 주소)를 브라우저로 열어요.
 //   2) 개발자 도구 콘솔에 이 파일 내용을 붙여 넣고 실행해요 → 표와 요약 객체가 나와요.
-//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 8곳이면 9 × 40 = 360개 조합).
+//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 9곳이면 9 × 45 = 405개 조합).
 //      결과 객체의 ‘조합’ 값이 실제로 검사한 지역 × 메뉴 수예요(너비마다 따로 세요).
 //      개발자 도구의 기기 모드로 너비를 바꾸고, 바꾼 뒤에는 새로고침 없이 다시 실행해도 돼요.
 // 끝나면 처음 보던 지역·메뉴로 돌아가요.
@@ -115,10 +115,19 @@
         const firstTel = hub && hub.querySelector('a[href^="tel:"]');
         const desc = hub && hub.querySelector('.hub-summary, .hotline-menu');
         if (!firstTel) fail(id, pg, '허브 전화', '없음');
-        else if (desc && firstTel.getBoundingClientRect().top > desc.getBoundingClientRect().top) fail(id, pg, '허브 순서', '설명이 전화보다 위에 있어요');
+        else if (desc && visible(desc) && firstTel.getBoundingClientRect().top > desc.getBoundingClientRect().top) fail(id, pg, '허브 순서', '설명이 전화보다 위에 있어요');
+        // 768px 이하: 설명·바로 이용하기는 접기 줄로, 지원 유형 선택은 대표 연락처 바로 다음(접기 줄 두 개 아래)에 와요
+        if (matchMedia('(max-width: 768px)').matches) {
+          const folds = [...document.querySelectorAll('.hub .hub-fold')];
+          if (folds.length !== 2 || folds.some(d => d.open)) fail(id, pg, '허브 접기', `접기 줄 ${folds.length}개, 펼침 ${folds.filter(d => d.open).length}개`);
+          const chip = document.querySelector('.chip-row .chip');
+          const hubEnd = document.querySelector('.hub').getBoundingClientRect().bottom;
+          if (!chip || chip.getBoundingClientRect().top - hubEnd > 80) fail(id, pg, '유형 선택 위치', chip ? `허브 아래 ${Math.round(chip.getBoundingClientRect().top - hubEnd)}px` : '없음');
+        } else if ([...document.querySelectorAll('.hub .hub-fold')].some(d => !d.open)) fail(id, pg, '허브 접기', '넓은 화면인데 접혀 있어요');
         const sum = hub && hub.querySelector('.hub-summary');
         if (sum) {
-          const n = (sum.innerText.match(PHONE) || []).length, linked = sum.querySelectorAll('a.tel-link').length;
+          // 좁은 화면에서는 설명이 접혀 있어 innerText가 비어요 → 글자 그대로(textContent)로 세요
+          const n = (sum.textContent.match(PHONE) || []).length, linked = sum.querySelectorAll('a.tel-link').length;
           if (n !== linked) fail(id, pg, '허브 설명 번호', `번호 ${n}개 중 링크 ${linked}개`);
         }
       }

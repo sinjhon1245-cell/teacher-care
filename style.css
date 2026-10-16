@@ -428,6 +428,7 @@ body.is-landing { padding-bottom: 0; }
   box-shadow: var(--shadow-soft); padding: 18px 22px; margin: 0 0 18px;
 }
 .tool-title { font-weight: 700; font-size: 16px; color: var(--text); margin: 0 0 12px; }
+.tool-note { margin: 12px 0 0; }
 
 .guide-search-panel { padding: 18px 22px; }
 .guide-search-label {
@@ -513,6 +514,20 @@ body.is-landing { padding-bottom: 0; }
   border-radius: 6px; padding: 2px 7px;
 }
 .hub-link-label { flex: 1; min-width: 0; }
+/* 허브 접기 줄: 좁은 화면에서만 접힌 채로 그려요(안내 문장·바로 이용하기). 넓은 화면은 펼친 채로 그리고 접기 줄을 숨겨요 */
+.hub-fold > summary { list-style: none; }
+.hub-fold > summary::-webkit-details-marker { display: none; }
+.hub-fold-btn {
+  display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 10px 14px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface);
+  font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--text);
+}
+.hub-fold-btn:hover { border-color: var(--primary); color: var(--primary); }
+.hub-fold[open] > .hub-fold-btn { margin-bottom: 10px; }
+.hub-fold[open] > .hub-fold-btn .chevron { transform: rotate(225deg); }
+.hub-fold-count { font-size: 13px; font-weight: 700; color: var(--muted); }
+/* 넓은 화면: 펼친 접기 줄은 숨겨 지금과 같은 모양(768px 이하에서만 다시 보여요). 접힌 채라면 줄이 보여 펼칠 수 있어요 */
+.hub-fold[open] > .hub-fold-btn { display: none; }
 
 /* ── 홈(공통 모드): 지금 먼저 할 일 · 수도권 외 지역 안내 ── */
 .first-list { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -1000,8 +1015,12 @@ body.is-landing { padding-bottom: 0; }
   .filter-row .chip { min-height: 44px; }
   .situ-sub .btn-row .btn { flex: 1 1 100%; }
   .hub { grid-template-columns: 1fr; }
-  .hub-main { padding: 16px; }
-  .hub-links { border-left: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+  /* 대표 연락처 바로 아래에 접기 줄 두 개(안내 문장·바로 이용하기)를 붙여 지원 유형 선택이 첫 화면 가까이 오게 해요 */
+  .hub-main { padding: 16px 16px 8px; }
+  .hub-main .cc { margin-bottom: 10px; }
+  .hub-links { border-left: none; background: var(--surface); padding: 0 16px 16px; }
+  .hub-links .hub-links-title { display: none; }
+  .hub-fold[open] > .hub-fold-btn { display: flex; }
   .result-count { font-size: 17px; }
   .stepper {
     display: flex; overflow-x: auto; gap: 8px; margin: 0 -16px 14px; padding: 0 16px 4px;
@@ -1062,6 +1081,16 @@ body.is-landing { padding-bottom: 0; }
   .hero-actions .btn { flex: 1 1 0; padding: 8px 10px; font-size: 14.5px; }
   .hero .region-panel .panel-hot { font-size: 20px; }
   .emergency-note { font-size: 13.5px; }
+}
+
+/* 휴대폰(480px 이하) 첫 지역 선택: 카드 2열 — 9곳과 112 안내가 375×812 한 화면에 들어와요.
+   3열(카드 약 109px)도 112는 보이지만, 2열(약 168px)이 터치 영역과 지역명·화살표 사이 여백이 넉넉하고 글자 확대에도 덜 빠듯해요 */
+@media (max-width: 480px) {
+  .region-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* 아주 좁은 화면(300px 이하, 큰 확대 등)은 한 열로 */
+@media (max-width: 300px) {
+  .region-cards { grid-template-columns: 1fr; }
 }
 
 /* ══════════════ 공유·인쇄·비교·행동 ══════════════ */
