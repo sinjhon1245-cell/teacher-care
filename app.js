@@ -615,7 +615,7 @@ const App = {
         <div class="landing-inner">
           <p class="landing-brand"><img class="brand-symbol" src="assets/brand/logo-symbol.png" alt="" width="32" height="30"><span class="brand-name">선생님 곁에</span></p>
           <h1 class="landing-title">어느 지역의 안내를 볼까요?</h1>
-          <p class="landing-sub">${REGION_ORDER.map(id => REGIONS[id].short).join('·')} 중 근무 지역을 선택하세요.</p>
+          <p class="landing-sub">교육활동 보호·대응 정보를 확인할 근무 지역을 선택해 주세요.</p>
           <ul class="region-cards" aria-label="근무 지역 선택">${cards}</ul>
           <button class="link-btn landing-skip" onclick="App.skipOnboarding()">공통 대응 먼저 보기</button>
           <p class="landing-safety">지금 위험한 상황이라면 <a href="tel:112">112</a> 신고가 우선입니다.</p>
@@ -650,7 +650,6 @@ const App = {
 
   renderHero() {
     const R = this.R;
-    const regionNames = REGION_ORDER.map(id => REGIONS[id].short).join('·');
     // 연락처 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
     // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역 → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
     // DOM에서 hero-copy보다 앞에 둬요: 한 열 화면(960px 이하)에서 보이는 순서(카드 → 제목) = 키보드·화면 읽기 순서.
@@ -669,7 +668,7 @@ const App = {
           <div class="hero-copy">
             ${this.eyebrow('교육활동 보호·대응 가이드')}
             <h1>교육활동 중 어려움이 생겼다면,<br>지금 해야 할 일을 바로 확인하세요.</h1>
-            <p class="hero-sub">${regionNames} 공식 자료를 바탕으로 신고·대응·법률·심리 지원 절차를 안내해요.</p>
+            <p class="hero-sub">선택한 지역의 교육청 공식 자료를 바탕으로 신고·대응·법률·심리 지원 절차를 안내해요.</p>
             <div class="hero-actions">
               <button class="btn btn-primary" onclick="App.nav('proc')">지금 대응 절차 확인</button>
               <button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기</button>
@@ -2127,11 +2126,13 @@ const UpdateUI = {
   day(iso) { const [y, m, d] = iso.split('-'); return { full: `${y}.${m}.${d}`, short: `${m}.${d}` }; },
   today() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }, // 한국 날짜
 
-  // 상단 안내바: showBanner인 가장 최근 업데이트 하나. 닫았거나, 그 뒤(또는 그) 업데이트 내역을 이미 열어 봤거나, 기간이 지나면 숨겨요
+  // 상단 안내바: showBanner인 가장 최근 업데이트 하나. 닫았거나, 그 뒤(또는 그) 업데이트 내역을 이미 열어 봤거나, 기간이 지나면 숨겨요.
+  // ‘지역 확대’ 안내바는 그 뒤에 지역 확대가 또 있으면 지난 소식이라 띄우지 않아요(내역·id·읽음 상태는 그대로)
   banner() {
     const list = this.list();
     const b = list.find(u => u.showBanner);
     if (!b || (b.bannerUntil && this.today() > b.bannerUntil)) return null;
+    if (b.type === '지역 확대' && list.slice(0, list.indexOf(b)).some(u => u.type === '지역 확대')) return null;
     if (this._bannerClosed === b.id || storeGet(STORAGE_UPDATE_BANNER) === b.id) return null;
     const seen = list.findIndex(u => u.id === this.seenId());
     if (seen !== -1 && seen <= list.indexOf(b)) return null;
