@@ -651,8 +651,10 @@ const App = {
   renderHero() {
     const R = this.R;
     const regionNames = REGION_ORDER.map(id => REGIONS[id].short).join('·');
-    // 오른쪽 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
+    // 연락처 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
     // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역 → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
+    // DOM에서 hero-copy보다 앞에 둬요: 한 열 화면(960px 이하)에서 보이는 순서(카드 → 제목) = 키보드·화면 읽기 순서.
+    // 두 열 화면에서는 CSS grid 배치로 오른쪽 열에 보여요
     const panel = `
       <aside class="region-panel" id="contacts" aria-label="현재 지역 연락처">
         <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
@@ -663,6 +665,7 @@ const App = {
     return `
       <section class="hero">
         <div class="hero-inner">
+          ${panel}
           <div class="hero-copy">
             ${this.eyebrow('교육활동 보호·대응 가이드')}
             <h1>교육활동 중 어려움이 생겼다면,<br>지금 해야 할 일을 바로 확인하세요.</h1>
@@ -673,7 +676,6 @@ const App = {
             </div>
             ${this.emergencyNote()}
           </div>
-          ${panel}
         </div>
       </section>
     `;
@@ -2128,7 +2130,7 @@ const UpdateUI = {
     return b;
   },
 
-  // PC 헤더: 지역 선택 옆의 작은 글자 버튼(880px 이하에서는 CSS로 숨기고 strip·푸터로 안내해요)
+  // PC 헤더: 지역 선택 옆의 작은 글자 버튼(920px 이하에서는 CSS로 숨기고 strip·푸터로 안내해요)
   chip() {
     const u = this.latest();
     if (!u) return '';
@@ -2136,7 +2138,7 @@ const UpdateUI = {
     return `<button type="button" class="update-chip${isNew ? ' is-new' : ''}" id="update-chip" aria-haspopup="dialog" onclick="UpdateUI.open('update-chip')">${isNew ? '<span class="update-dot" aria-hidden="true"></span>새 ' : ''}업데이트 ${this.day(u.date).short}<span class="sr-only"> 내역 보기</span></button>`;
   },
 
-  // 헤더 바로 아래 한 줄: 큰 업데이트면 안내바(모든 폭), 아니면 880px 이하에서만 ‘새 업데이트’ 한 줄(읽으면 사라져요)
+  // 헤더 바로 아래 한 줄: 큰 업데이트면 안내바(모든 폭), 아니면 920px 이하에서만 ‘새 업데이트’ 한 줄(읽으면 사라져요)
   strip() {
     const b = this.banner();
     if (b) {

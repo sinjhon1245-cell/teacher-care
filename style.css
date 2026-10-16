@@ -285,6 +285,9 @@ summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; 
   max-width: var(--wide); margin: 0 auto; padding: 44px 24px 36px;
   display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(290px, 1fr); gap: 48px; align-items: center;
 }
+/* 지역 홈은 연락처 카드가 DOM에서 hero-copy보다 앞이에요(한 열 화면의 보이는 순서 = 키보드 순서). 두 열일 때는 칸을 정해 카드를 오른쪽에 둬요 */
+.hero-copy { grid-column: 1; grid-row: 1; }
+.hero .region-panel { grid-column: 2; grid-row: 1; }
 .hero h1 { font-weight: 400; font-size: 34px; line-height: 1.4; margin: 0 0 12px; letter-spacing: -0.015em; }
 .hero-sub { color: var(--muted); margin: 0 0 22px; max-width: 560px; font-size: 16.5px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
@@ -913,7 +916,10 @@ body.is-landing { padding-bottom: 0; }
   .rec-detail { padding: 4px 14px 14px; }
 }
 
+/* 헤더 간격: 1080px 이하에서는 8px(모바일과 같음). 긴 대표 번호(예: 051-862-1122)와 세로 스크롤바가 있어도
+   ☎ 버튼이 header-inner 안쪽 여백을 넘지 않아요(769·961px처럼 메뉴 글자가 바뀌는 경계 바로 위가 가장 빠듯해요) */
 @media (max-width: 1080px) {
+  .header-inner { gap: 8px; }
   .nav-btn { padding: 7px 9px; }
   .main-nav { margin-left: 8px; }
 }
@@ -922,13 +928,15 @@ body.is-landing { padding-bottom: 0; }
   .nav-btn { padding: 8px 6px; font-size: 14.5px; }
   .main-nav { margin-left: 6px; }
   .hero-inner { grid-template-columns: 1fr; gap: 20px; }
+  .hero-copy, .hero .region-panel { grid-column: auto; grid-row: auto; }
   .region-panel { max-width: 620px; }
   .support-list { grid-template-columns: 1fr; }
 }
 
-/* 업데이트 표시(880px 이하): 헤더에 메뉴·지역·전화 버튼이 함께 들어가지 않는 폭이라 헤더 버튼은 숨기고,
-   새 업데이트가 있을 때만 헤더 아래 한 줄로 알려요(읽으면 사라지고 공통 하단에서 언제든 열어요) */
-@media (max-width: 880px) {
+/* 업데이트 표시(920px 이하): 헤더에 메뉴·지역·전화 버튼이 함께 들어가지 않는 폭이라 헤더 버튼은 숨기고,
+   새 업데이트가 있을 때만 헤더 아래 한 줄로 알려요(읽으면 사라지고 공통 하단에서 언제든 열어요).
+   경계는 가장 긴 헤더 ☎(부산 051-862-1122) + ‘새 업데이트’ 버튼 + 세로 스크롤바 기준이에요(881~903px에서 넘쳤어요) */
+@media (max-width: 920px) {
   .update-chip { display: none; }
   .update-line { display: block; border-bottom: 1px solid var(--border); background: var(--bg); }
   .update-line-btn {
@@ -963,7 +971,6 @@ body.is-landing { padding-bottom: 0; }
   /* 모바일 지역 패널: 연락처만 — 대표는 번호 + 전화하기 한 줄, 학교급별 번호는 한 줄씩.
      지원 방법 보기는 히어로 ‘내 교육지원청 찾기’와 하단 메뉴 ‘지원 찾기’가 맡아요 */
   .region-panel { padding: 12px 14px; }
-  .hero .region-panel { order: -1; }
   .hero .region-panel .panel-label, .hero .region-panel .cc-more, .hero .cc-group-title { display: none; }
   .hero .region-panel .panel-hot-label { font-size: 13px; margin: 0; }
   .hero .region-panel .panel-hot { font-size: 21px; }
@@ -979,8 +986,8 @@ body.is-landing { padding-bottom: 0; }
   .step-list, .first-list { grid-template-columns: 1fr; }
   .hl-list { gap: 8px; }
   .hl-btn { padding: 12px; }
-  /* 공통 모드 안내 기준 패널은 제목 뒤에 두고, 설명과 지역 버튼을 그대로 보여 줘요 */
-  .hero .common-panel { order: 0; display: block; }
+  /* 공통 모드 안내 기준 패널은 제목 뒤에 두고(DOM 순서 그대로), 설명과 지역 버튼을 그대로 보여 줘요 */
+  .hero .common-panel { display: block; }
   .hero .common-panel .panel-label { display: block; }
   .common-basis { font-size: 20px; }
   .tool-panel { padding: 14px 16px; }
