@@ -544,6 +544,19 @@ for (const id of REGION_ORDER) {
   r.programs.forEach((p, i) => {
     for (const old of ['docs', 'deadline']) if (p[old] !== undefined) errors.push(`${tag} programs[${i}] 예전 필드 ${old} → ${old === 'docs' ? 'documents' : 'timing'}로 바꿔 주세요`);
   });
+  // 기간이 정해진 지원(validUntil: 공식 안내의 운영·공제 기간 마지막 날 → 지나면 화면에 ‘기간 확인 필요’):
+  // 실제 날짜이고 확인일보다 늦어야 하며, 운영자가 미리 다시 볼 재확인일(reviewBy)을 함께 적어요
+  {
+    const { isRealDate } = require('./lib/freshness');
+    const realDate = d => { try { return isRealDate(d); } catch (e) { return false; } }; // 13월처럼 없는 날짜도 오류로 알려요(점검이 멈추지 않게)
+    r.programs.forEach((p, i) => {
+      if (p.validUntil === undefined) return;
+      const where = `${tag} programs[${i}] (${p.t})`;
+      if (!realDate(p.validUntil)) errors.push(`${where} validUntil 날짜 형식 오류(YYYY-MM-DD, 실제 날짜): ${p.validUntil}`);
+      else if (p.verifiedAt && p.validUntil < p.verifiedAt) errors.push(`${where} validUntil(${p.validUntil})이 확인일(${p.verifiedAt})보다 빨라요 — 이미 지난 기간이면 새 자료로 다시 확인하세요`);
+      if (p.reviewBy === undefined) errors.push(`${where} validUntil이 있으면 운영자 재확인일 reviewBy도 적어요`);
+    });
+  }
 
   // 신청·상담·안내 링크(channels)와 교육지원청 링크: https + 공식 도메인만
   r.programs.forEach((p, i) => (p.channels || []).forEach((c, j) => {

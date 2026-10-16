@@ -1467,8 +1467,9 @@ const App = {
       <li class="support-item" data-sp="${escapeAttr([p.t, p.sum, programAreas(p).join(' '), SUPPORT_TYPES.filter(t => inType(p, t)).map(t => t.label + ' ' + t.desc).join(' '), p.org].join(' '))}">
         <div class="support-head">
           <h3 class="sub-title">${p.t}</h3>
-          ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : ''}
+          ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : periodPassed(p) ? '<span class="badge badge-accent">기간 확인 필요</span>' : ''}
         </div>
+        ${periodPassed(p) ? `<p class="note support-period"><strong>기간 확인</strong> 공식 안내의 기간(${fmtDate(p.validUntil)}까지)이 지났어요. 지금도 운영하는지, 지원 내용·신청 방법이 바뀌었는지 공식 안내나 담당 기관에 먼저 확인하세요.</p>` : ''}
         <p>${p.sum}</p>
         ${p.amount ? `<p class="support-amount"><span class="support-amount-label">지원 범위 · ${R.short} 기준</span> ${p.amount}</p>` : ''}
         ${p.apply || p.contact || p.contacts ? this.facts([
@@ -1952,6 +1953,13 @@ function regionAreas(R) {
   return R.offices
     .flatMap(o => o.areas.map(area => ({ area, office: o })))
     .sort((a, b) => a.area.localeCompare(b.area, 'ko'));
+}
+
+// 연도·공제기간이 정해진 지원: validUntil(공식 안내에 적힌 운영·공제 기간의 마지막 날)이 한국 날짜로 지나면 카드에 ‘기간 확인 필요’를 보여요.
+// 종료로 단정하지 않고 다시 확인하도록만 알려요. status(예: ‘2026 신청 마감’)가 있으면 그 배지는 그대로 두고 아래 ‘기간 확인’ 안내만 더해요.
+// validUntil이 없는 항목(법령 절차·기간 미기재 제도)은 그대로예요. 운영자 재확인일은 reviewBy(도구만 읽음)
+function periodPassed(p) {
+  return !!p.validUntil && UpdateUI.today() > p.validUntil;
 }
 
 // source는 sources 배열 번호 하나 또는 번호 배열이에요(근거 자료가 둘 이상이면 ‘근거 자료 1·2’)
