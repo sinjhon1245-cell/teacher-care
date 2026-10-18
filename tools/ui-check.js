@@ -122,7 +122,9 @@
           if (folds.length !== 2 || folds.some(d => d.open)) fail(id, pg, '허브 접기', `접기 줄 ${folds.length}개, 펼침 ${folds.filter(d => d.open).length}개`);
           const chip = document.querySelector('.chip-row .chip');
           const hubEnd = document.querySelector('.hub').getBoundingClientRect().bottom;
-          if (!chip || chip.getBoundingClientRect().top - hubEnd > 80) fail(id, pg, '유형 선택 위치', chip ? `허브 아래 ${Math.round(chip.getBoundingClientRect().top - hubEnd)}px` : '없음');
+          // 기준 80px = 5rem(기본 글꼴 16px). 브라우저 글꼴을 키우면 사이의 제목 글자도 커지므로 rem으로 환산해 재요
+          const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+          if (!chip || chip.getBoundingClientRect().top - hubEnd > 5 * rem) fail(id, pg, '유형 선택 위치', chip ? `허브 아래 ${Math.round(chip.getBoundingClientRect().top - hubEnd)}px(기준 ${5 * rem}px)` : '없음');
         } else if ([...document.querySelectorAll('.hub .hub-fold')].some(d => !d.open)) fail(id, pg, '허브 접기', '넓은 화면인데 접혀 있어요');
         const sum = hub && hub.querySelector('.hub-summary');
         if (sum) {

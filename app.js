@@ -786,6 +786,7 @@ const App = {
   renderEntries() {
     const cards = HOME_ENTRIES.map(x => `
       <li><button class="entry-card" onclick="App.nav('${x.page}')">
+        <span class="entry-icon" aria-hidden="true">${x.e}</span>
         <span class="entry-text"><span class="entry-title">${x.t}</span><span class="entry-desc">${x.d}</span></span>
         <span class="entry-go" aria-hidden="true">→</span>
       </button></li>
@@ -808,7 +809,7 @@ const App = {
       return `
         <li class="hl-card">
           <button class="hl-btn" onclick="App.openBenefit('${b.id}')">
-            <span class="hl-title">${b.t}</span>
+            <span class="hl-title"><span aria-hidden="true">${b.e}</span> ${b.t}</span>
             <span class="bf-badges">${benefitBadges(b)}</span>
             <span class="hl-text">${h.d}</span>
             ${local ? `<span class="hl-local"><strong>${R.short}</strong> ${local}</span>` : ''}
@@ -991,8 +992,10 @@ const App = {
             ${list('교육지원청이 할 일', d.office)}
             ${list('준비·기록할 것', d.docs)}
           </div>
-          ${callout('caution', '주의할 점', d.caution)}
-          ${callout('info', '다음 단계', d.next)}
+          <div class="proc-notes">
+            ${callout('caution', '주의할 점', d.caution)}
+            ${callout('info', '다음 단계', d.next)}
+          </div>
           ${this.renderStepLinks(i)}
           ${this.shareTools({ page: 'proc', step: i, regionId: this.state.regionId }, '대응 절차 · ' + s.n + '단계 ' + s.title)}
           <div class="btn-row">
@@ -1079,6 +1082,7 @@ const App = {
       return `
         <li class="action prot ${open ? 'open' : ''}" id="bf-${b.id}" data-bf="${b.id}">
           <button class="action-head" aria-expanded="${open}" onclick="App.toggle('benefit','${b.id}')">
+            <span class="prot-icon" aria-hidden="true">${b.e}</span>
             <span class="action-label bf-head"><span class="bf-title">${b.t}</span><span class="prot-sum">${b.d}</span><span class="bf-badges">${benefitBadges(b)}</span></span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
@@ -1238,7 +1242,7 @@ const App = {
     const list = (SITU_BENEFITS[s.id] || []).map(benefitById).filter(Boolean);
     if (!list.length) return '';
     return `
-      <div class="block situ-benefits">
+      <div class="block block-warm situ-benefits">
         <p class="block-title">함께 확인할 회복·보호 제도</p>
         <p class="block-desc">적용 여부는 교원 신분과 요건·승인 절차에 따라 달라요.</p>
         <ul class="link-list">${list.map(benefitChip).join('')}</ul>
@@ -1559,7 +1563,7 @@ const App = {
             </div>
           </details>` : ''}
         ${careIds.length ? `
-          <div class="block bf-cross">
+          <div class="block block-warm bf-cross">
             <p class="block-title">${t.care.q}</p>
             <p class="block-desc">회복·보호에서 함께 확인할 수 있는 제도예요.</p>
             <ul class="link-list cols">${careIds.map(benefitChip).join('')}</ul>
