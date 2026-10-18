@@ -440,10 +440,10 @@ const App = {
     }).join('');
     const n = items.filter(a => this.state.actionChecks[`${scope}:${ownerId}.${a.id}`]).length;
     return `
-      <div class="act-box act-${scope}">
-        <p class="act-title">${title} <span class="muted small">${n}/${items.length}</span></p>
+      <div class="block act-box act-${scope}">
+        <p class="block-title act-title">${title} <span class="act-count">${n}/${items.length}</span></p>
         <ul class="check-list act-list">${rows}</ul>
-        <p class="muted small">스스로 확인해 볼 항목이에요(제출 서류 목록이 아니에요). 체크는 이 기기에만 저장되고 서버로 보내지 않아요.</p>
+        <p class="block-desc">스스로 확인해 볼 항목이에요(제출 서류 목록이 아니에요). 체크는 이 기기에만 저장되고 서버로 보내지 않아요.</p>
       </div>
     `;
   },
@@ -455,8 +455,8 @@ const App = {
     const url = shareUrlOf(state, false);
     return `
       <div class="share-row">
-        <button type="button" class="tool-btn" data-url="${escapeAttr(url)}" onclick="App.copyLink(this.dataset.url)" aria-label="${escapeAttr(label)} 링크 복사"><span aria-hidden="true">🔗</span> 링크 복사</button>
-        <button type="button" class="tool-btn" data-title="${escapeAttr(label)}" onclick="App.printTarget(this)" aria-label="${escapeAttr(label)} 인쇄하기"><span aria-hidden="true">🖨</span> 인쇄하기</button>
+        <button type="button" class="tool-btn" data-url="${escapeAttr(url)}" onclick="App.copyLink(this.dataset.url)" aria-label="${escapeAttr(label)} 링크 복사">링크 복사</button>
+        <button type="button" class="tool-btn" data-title="${escapeAttr(label)}" onclick="App.printTarget(this)" aria-label="${escapeAttr(label)} 인쇄하기">인쇄하기</button>
       </div>
       ${withFeedback ? feedbackLine(state, label) : ''}
     `;
@@ -786,7 +786,6 @@ const App = {
   renderEntries() {
     const cards = HOME_ENTRIES.map(x => `
       <li><button class="entry-card" onclick="App.nav('${x.page}')">
-        <span class="entry-icon" aria-hidden="true">${x.e}</span>
         <span class="entry-text"><span class="entry-title">${x.t}</span><span class="entry-desc">${x.d}</span></span>
         <span class="entry-go" aria-hidden="true">→</span>
       </button></li>
@@ -809,7 +808,7 @@ const App = {
       return `
         <li class="hl-card">
           <button class="hl-btn" onclick="App.openBenefit('${b.id}')">
-            <span class="hl-title"><span aria-hidden="true">${b.e}</span> ${b.t}</span>
+            <span class="hl-title">${b.t}</span>
             <span class="bf-badges">${benefitBadges(b)}</span>
             <span class="hl-text">${h.d}</span>
             ${local ? `<span class="hl-local"><strong>${R.short}</strong> ${local}</span>` : ''}
@@ -977,7 +976,7 @@ const App = {
           <div class="proc-title-row">
             <h2 class="h2">${s.n}. ${s.title}</h2>
             <span class="badge">${s.org}</span>
-            ${s.deadline ? `<span class="badge badge-accent">⏱ ${s.deadline}</span>` : ''}
+            ${s.deadline ? `<span class="badge badge-accent">기한 · ${s.deadline}</span>` : ''}
           </div>
           <p>${s.sum}</p>
           <div class="progress-row">
@@ -992,8 +991,8 @@ const App = {
             ${list('교육지원청이 할 일', d.office)}
             ${list('준비·기록할 것', d.docs)}
           </div>
-          <p class="caution"><strong>주의할 점</strong> ${d.caution.join(' · ')}</p>
-          <p class="next-step"><strong>다음 단계</strong> ${d.next}</p>
+          ${callout('caution', '주의할 점', d.caution)}
+          ${callout('info', '다음 단계', d.next)}
           ${this.renderStepLinks(i)}
           ${this.shareTools({ page: 'proc', step: i, regionId: this.state.regionId }, '대응 절차 · ' + s.n + '단계 ' + s.title)}
           <div class="btn-row">
@@ -1014,10 +1013,10 @@ const App = {
     const bs = L.benefits.map(benefitById).filter(Boolean);
     const ts = L.supports.map(supportTypeById).filter(Boolean);
     return `
-      <div class="step-links">
-        <p class="step-links-title">이 단계에서 함께 확인</p>
-        ${bs.length ? `<div class="link-group"><span class="link-group-label">회복·보호</span><div class="bf-list">${bs.map(benefitChip).join('')}</div></div>` : ''}
-        ${ts.length ? `<div class="link-group"><span class="link-group-label">지원 찾기</span><div class="bf-list">${ts.map(t => supportChip(t, this.R)).join('')}</div></div>` : ''}
+      <div class="block step-links">
+        <p class="block-title">이 단계에서 함께 확인</p>
+        ${bs.length ? `<p class="link-group-label">회복·보호 제도</p><ul class="link-list cols">${bs.map(benefitChip).join('')}</ul>` : ''}
+        ${ts.length ? `<p class="link-group-label">지원 찾기</p><ul class="link-list cols">${ts.map(t => supportChip(t, this.R)).join('')}</ul>` : ''}
       </div>
     `;
   },
@@ -1030,17 +1029,17 @@ const App = {
     const links = x.supportLinks ? x.supportLinks.types.map(supportTypeById).filter(Boolean) : [];
     return `
       <div class="bf-detail">
-        ${x.notice ? `<p class="bf-notice"><strong>꼭 확인하세요</strong> ${x.notice}</p>` : ''}
-        ${x.scope ? `<p class="prot-scope">${x.scope}</p>` : ''}
+        ${x.notice ? callout('caution', '꼭 확인하세요', x.notice) : ''}
+        ${x.scope ? callout('note', '적용 범위', x.scope) : ''}
         ${this.fieldGrid(x)}
-        ${x.caution ? `<p class="bf-caution"><strong>주의할 점</strong> ${x.caution}</p>` : ''}
+        ${x.caution ? callout('caution', '주의할 점', x.caution) : ''}
         ${missedBox(x.missed, '놓치기 쉬워요')}
         ${local ? `
-          <div class="prot-local">
-            <p class="prot-local-title">${R.short} 기준</p>
+          <div class="block prot-local">
+            <p class="block-title">${R.short} 기준</p>
             ${local.program ? `<p class="prot-local-name">${local.program}</p>` : ''}
             ${this.fieldGrid(local, true)}
-            ${local.caution ? `<p class="bf-caution"><strong>주의할 점</strong> ${linkifyPhone(local.caution)}</p>` : ''}
+            ${local.caution ? callout('caution', '주의할 점', linkifyPhone(local.caution)) : ''}
             ${missedBox(local.missed, R.short + '에서 놓치기 쉬워요')}
             <p class="muted small">${sourceLine(R, local)}</p>
           </div>` : (R ? `<p class="muted small prot-local-none">${R.short}에서 별도로 안내한 세부 기준은 현재 확인되지 않았어요. 공통 기준을 먼저 확인하고, 실제 적용은 소속 학교나 교육(지원)청에 확인하세요.${R.hot ? ` 문의 ${this.inlineContacts(R)}` : ''}</p>` : '')}
@@ -1048,9 +1047,9 @@ const App = {
       ${this.actionList('benefit', x.id, x.actions, '지금 확인해 볼 일')}
       ${refsBox(x.refs, x.basis, x.verifiedAt)}
       ${links.length ? `
-        <div class="bf-cross">
-          <p class="bf-cross-q">${x.supportLinks.q}</p>
-          <div class="bf-list">${links.map(t => supportChip(t, R)).join('')}</div>
+        <div class="block bf-cross">
+          <p class="block-title">${x.supportLinks.q}</p>
+          <ul class="link-list cols">${links.map(t => supportChip(t, R)).join('')}</ul>
         </div>` : ''}
       ${this.shareTools({ page: 'care', benefit: x.id, regionId: this.state.regionId }, '회복·보호 · ' + x.t, true)}
     `;
@@ -1080,7 +1079,6 @@ const App = {
       return `
         <li class="action prot ${open ? 'open' : ''}" id="bf-${b.id}" data-bf="${b.id}">
           <button class="action-head" aria-expanded="${open}" onclick="App.toggle('benefit','${b.id}')">
-            <span class="prot-icon" aria-hidden="true">${b.e}</span>
             <span class="action-label bf-head"><span class="bf-title">${b.t}</span><span class="prot-sum">${b.d}</span><span class="bf-badges">${benefitBadges(b)}</span></span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
@@ -1133,7 +1131,7 @@ const App = {
     const S = this.state;
     const c = COMPARISONS.find(x => x.id === S.compare);
     // aria-controls는 비교표가 화면에 있을 때만(닫혀 있으면 가리킬 요소가 없어요)
-    const btns = COMPARISONS.map(x => `<button type="button" class="bf-chip ${S.compare === x.id ? 'active' : ''}" aria-expanded="${S.compare === x.id}"${c ? ' aria-controls="compare-panel"' : ''} onclick="App.toggleCompare('${x.id}')">${x.t}</button>`).join('');
+    const btns = COMPARISONS.map(x => `<button type="button" class="chip" aria-expanded="${S.compare === x.id}"${c ? ' aria-controls="compare-panel"' : ''} onclick="App.toggleCompare('${x.id}')">${x.t}</button>`).join('');
     let panel = '';
     if (c) {
       const bs = c.ids.map(benefitById);
@@ -1141,7 +1139,7 @@ const App = {
         : key === '@return' ? (benefitById('return-to-work') || {}).limit || '' : b[key] || '';
       panel = `
         <div class="cmp-panel" id="compare-panel" data-print>
-          ${c.note ? `<p class="bf-notice"><strong>꼭 확인하세요</strong> ${c.note}</p>` : ''}
+          ${c.note ? callout('caution', '꼭 확인하세요', c.note) : ''}
           <table class="cmp-table">
             <caption>${c.t}: ${bs.map(b => b.t).join(' · ')}</caption>
             <thead><tr><th scope="col">항목</th>${bs.map(b => `<th scope="col">${b.t}${benefitBadges(b) ? `<span class="bf-badges">${benefitBadges(b)}</span>` : ''}</th>`).join('')}</tr></thead>
@@ -1155,7 +1153,7 @@ const App = {
     return `
       <section class="compare" id="compare">
         <h2 class="care-cat-title">제도 차이가 헷갈리나요?</h2>
-        <div class="bf-list">${btns}</div>
+        <div class="chip-row">${btns}</div>
         ${panel}
       </section>
     `;
@@ -1176,7 +1174,7 @@ const App = {
       <section class="recovery" id="recovery">
         <h2 class="h2">회복에 시간이 더 필요하다면</h2>
         <ol class="rec-flow">${steps}</ol>
-        <p class="rec-note"><strong>꼭 확인하세요</strong> ${RECOVERY_NOTE}</p>
+        ${callout('caution', '꼭 확인하세요', RECOVERY_NOTE)}
       </section>
     `;
   },
@@ -1207,22 +1205,22 @@ const App = {
       : `<button class="btn btn-secondary" onclick="App.nav('support', { supportType: '${types.length ? types[0].id : 'all'}' })">${types.length ? `관련 지원 보기(${types[0].label})` : '지원 찾기'} →</button>`;
     return `
       <div class="situ-sub ${this.state.situ === 'situ:' + s.id ? 'is-target' : ''}" id="situ-${s.id}" data-print>
-        ${withTitle ? `<h3 class="sub-title">${s.title} ${urgencyBadge(s.urgency)}</h3>` : ''}
+        ${withTitle ? `<h3 class="sub-title situ-title"><span>${s.title}</span>${urgencyBadge(s.urgency)}</h3>` : ''}
+        <p class="situ-example"><span class="situ-example-label">예시</span> ${s.example}</p>
         <div class="situ-layout">
           <div class="situ-main">
-            <p class="muted small situ-example">예: ${s.example}</p>
-            <div class="first-box"><p class="first-label">지금 먼저 할 일</p><p>${s.firstAction}</p></div>
+            ${callout(s.urgency === URGENCY_ORDER[0] ? 'danger' : 'info', '지금 먼저 할 일', s.firstAction, 'callout-strong')}
             ${this.actionList('situ', s.id, SITU_ACTIONS[s.id], '지금 해볼 일')}
             ${this.facts([['학교에 알릴 내용', s.report], ['남겨 두면 좋은 기록', s.evidence]])}
           </div>
           <div class="situ-side">
-            ${this.facts([['주의할 점', s.dont]])}
-            ${s.legalCaution ? `<p class="note"><strong>판단 시 주의</strong> ${s.legalCaution}</p>` : ''}
+            ${s.dont ? callout('caution', '피해야 할 행동', s.dont) : ''}
+            ${s.legalCaution ? callout('note', '판단할 때 참고할 점', s.legalCaution) : ''}
             ${this.situBenefits(s)}
-            <div class="situ-supports">
-              <p class="first-label">연결 가능한 지원</p>
+            <div class="block situ-supports">
+              <p class="block-title">연결 가능한 지원</p>
               ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
-              ${types.length ? `<div class="bf-list">${types.map(t => supportChip(t, this.R)).join('')}</div>` : ''}
+              ${types.length ? `<ul class="link-list">${types.map(t => supportChip(t, this.R)).join('')}</ul>` : ''}
             </div>
           </div>
         </div>
@@ -1240,10 +1238,10 @@ const App = {
     const list = (SITU_BENEFITS[s.id] || []).map(benefitById).filter(Boolean);
     if (!list.length) return '';
     return `
-      <div class="situ-benefits">
-        <p class="first-label">함께 확인할 회복·보호 제도</p>
-        <p class="muted small">적용 여부는 교원 신분과 요건·승인 절차에 따라 달라요.</p>
-        <div class="bf-list">${list.map(benefitChip).join('')}</div>
+      <div class="block situ-benefits">
+        <p class="block-title">함께 확인할 회복·보호 제도</p>
+        <p class="block-desc">적용 여부는 교원 신분과 요건·승인 절차에 따라 달라요.</p>
+        <ul class="link-list">${list.map(benefitChip).join('')}</ul>
       </div>
     `;
   },
@@ -1297,7 +1295,7 @@ const App = {
             <button class="action-head" aria-expanded="${isOpen}" onclick="App.toggle('situ', '${key}')">
               ${g.urgent ? '<span class="tag tag-danger">긴급</span>' : ''}
               <span class="action-label">${g.t}</span>
-              <span class="action-count">${subs.length}</span>
+              <span class="action-count">${subs.length}개 상황</span>
               <span class="chevron" aria-hidden="true"></span>
             </button>
             ${isOpen ? `<div class="action-body">${subs.map(s => this.situDetail(s, subs.length > 1)).join('')}</div>` : ''}
@@ -1334,8 +1332,8 @@ const App = {
 
     const benefitHits = queryActive ? matchBenefits(query) : [];
     const hint = benefitHits.length ? `
-      <div class="bf-hint">
-        <p class="bf-hint-title">‘${escapeAttr(query.trim())}’은(는) 회복·보호 제도에서 찾을 수 있어요</p>
+      <div class="callout callout-note bf-hint">
+        <p class="callout-title">‘${escapeAttr(query.trim())}’은(는) 회복·보호 제도에서 찾을 수 있어요</p>
         <button class="link-btn" data-q="${escapeAttr(query.trim())}" onclick="App.searchCare(this.dataset.q)">회복·보호에서 찾아보기 →</button>
       </div>` : '';
     return `
@@ -1382,8 +1380,8 @@ const App = {
           <p id="guide-search-hint" class="muted small guide-search-hint">정확한 용어를 몰라도, 떠오르는 단어로 검색할 수 있어요.</p>
         </div>
 
-        <details class="tool-panel filter-panel" ${open ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
-          <summary><span class="tool-title">상세 조건으로 찾기</span>${selected.length ? `<span class="badge badge-accent">${selected.length}개 선택</span>` : ''}<span class="chevron" aria-hidden="true"></span></summary>
+        <details class="tool-panel filter-panel disclosure disclosure-box" ${open ? 'open' : ''} ontoggle="App.state.filterOpen = this.open">
+          ${disclosureHead('상세 조건으로 찾기', '주체·유형·긴급성 등 5가지 조건으로 좁혀 보기', selected.length ? `<span class="badge badge-accent">${selected.length}개 선택</span>` : '')}
           <div class="filter-rows" id="guide-filter-rows">${this.guideFilterRowsHtml()}</div>
         </details>
 
@@ -1407,9 +1405,10 @@ const App = {
       ...(R.links || []).slice().sort((a, b) => CHANNEL_ORDER.indexOf(a.type) - CHANNEL_ORDER.indexOf(b.type)),
       { type: 'office', label: R.office, url: R.officeUrl }
     ];
+    // 바로가기 줄: 이름(제목) + 종류(보조 글) + ↗. 종류를 버튼 안 배지로 겹쳐 넣지 않아요
     const linkHtml = links.map(l => `
-      <li><a class="hub-link" href="${l.url}" target="_blank" rel="noopener">
-        <span class="hub-link-type">${HUB_TYPE_LABEL[l.type]}</span><span class="hub-link-label">${l.label}</span><span aria-hidden="true">↗</span>
+      <li><a class="link-row hub-link" href="${l.url}" target="_blank" rel="noopener">
+        <span class="link-row-text"><span class="link-row-title">${l.label}</span><span class="link-row-meta">${HUB_TYPE_LABEL[l.type]} · 새 창</span></span><span class="link-row-go" aria-hidden="true">↗</span>
       </a></li>
     `).join('');
     // 좁은 화면(768px 이하)에서는 대표 연락처·전화 버튼 아래의 안내 문장과 ‘바로 이용하기’를 한 줄씩 접어 두어
@@ -1418,9 +1417,9 @@ const App = {
     // 넓은 화면에서 펼친 채로 그릴 때 생기는 toggle은 기억하지 않아요(좁은 화면으로 바뀌면 다시 접힌 채로 시작)
     const S = this.state;
     const wide = !isNarrow();
-    const fold = (key, label, body) => `
-      <details class="hub-fold" ${wide || S[key] ? 'open' : ''} ontoggle="if (isNarrow()) App.state.${key} = this.open">
-        <summary class="hub-fold-btn">${label}<span class="chevron" aria-hidden="true"></span></summary>
+    const fold = (key, label, desc, body) => `
+      <details class="disclosure hub-fold" ${wide || S[key] ? 'open' : ''} ontoggle="if (isNarrow()) App.state.${key} = this.open">
+        ${disclosureHead(label, desc)}
         ${body}
       </details>`;
     return `
@@ -1429,15 +1428,15 @@ const App = {
           <p class="hub-region">${R.short} 교육활동 보호 지원</p>
           ${this.contactBlock(R)}
           ${R.menu
-            ? fold('hubInfo', '전화 연결 순서(ARS) 보기', `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`)
-            : fold('hubInfo', `${R.short} 연락 안내 자세히 보기`, `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`)}
+            ? fold('hubInfo', '전화 연결 순서(ARS)', '번호를 누르면 연결되는 곳', `<ol class="hotline-menu">${R.menu.map(m => `<li>${m}</li>`).join('')}</ol>`)
+            : fold('hubInfo', `${R.short} 연락 안내`, '전화하기 전에 알아 두면 좋은 내용', `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`)}
         </div>
         <div class="hub-links">
-          ${fold('hubLinks', `바로 이용하기 <span class="hub-fold-count">${links.length + 1}</span>`, `
+          ${fold('hubLinks', '바로 이용하기', `공식 신청·상담·안내 ${links.length + 1}곳`, `
           <p class="hub-links-title">바로 이용하기</p>
-          <ul>
+          <ul class="link-list">
             ${linkHtml}
-            <li><button class="hub-link" onclick="App.goHome('finder')"><span class="hub-link-type">찾기</span><span class="hub-link-label">내 교육지원청 찾기</span><span aria-hidden="true">→</span></button></li>
+            <li><button type="button" class="link-row hub-link" onclick="App.goHome('finder')"><span class="link-row-text"><span class="link-row-title">내 교육지원청 찾기</span><span class="link-row-meta">시·군·구로 담당 교육지원청 찾기</span></span><span class="chevron right" aria-hidden="true"></span></button></li>
           </ul>`)}
         </div>
       </div>
@@ -1480,7 +1479,7 @@ const App = {
           <h3 class="sub-title">${p.t}</h3>
           ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : periodPassed(p) ? '<span class="badge badge-accent">기간 확인 필요</span>' : ''}
         </div>
-        ${periodPassed(p) ? `<p class="note support-period"><strong>기간 확인</strong> 공식 안내의 기간(${fmtDate(p.validUntil)}까지)이 지났어요. 지금도 운영하는지, 지원 내용·신청 방법이 바뀌었는지 공식 안내나 담당 기관에 먼저 확인하세요.</p>` : ''}
+        ${periodPassed(p) ? callout('caution', '기간 확인', `공식 안내의 기간(${fmtDate(p.validUntil)}까지)이 지났어요. 지금도 운영하는지, 지원 내용·신청 방법이 바뀌었는지 공식 안내나 담당 기관에 먼저 확인하세요.`, 'support-period') : ''}
         <p>${p.sum}</p>
         ${p.amount ? `<p class="support-amount"><span class="support-amount-label">지원 범위 · ${R.short} 기준</span> ${p.amount}</p>` : ''}
         ${p.apply || p.contact || p.contacts ? this.facts([
@@ -1551,16 +1550,19 @@ const App = {
     return `
       <div class="sup-guide">
         ${g ? `
-          <details class="support-more sup-guide-detail">
-            <summary>${t.label} 지원, 공통 기준 보기 <span class="muted small">무엇 · 누가 · 언제 · 어디에</span></summary>
-            <div class="bf-grid">${this.facts([['어떤 지원인가요?', g.what], ['누가 받을 수 있나요?', g.who]])}${this.facts([['언제 신청하나요?', g.when], ['어디에 신청하나요?', g.apply]])}</div>
-            ${missedBox(g.missed, '놓치기 쉬워요')}
-            ${refsBox(g.refs, g.basis)}
+          <details class="disclosure disclosure-box sup-guide-detail">
+            ${disclosureHead(`${t.label} 지원 공통 기준`, '지원 내용 · 대상 · 신청 시기 · 신청처')}
+            <div class="disclosure-body">
+              <div class="bf-grid">${this.facts([['어떤 지원인가요?', g.what], ['누가 받을 수 있나요?', g.who]])}${this.facts([['언제 신청하나요?', g.when], ['어디에 신청하나요?', g.apply]])}</div>
+              ${missedBox(g.missed, '놓치기 쉬워요')}
+              ${refsBox(g.refs, g.basis)}
+            </div>
           </details>` : ''}
         ${careIds.length ? `
-          <div class="bf-cross">
-            <p class="bf-cross-q">${t.care.q}</p>
-            <div class="bf-list">${careIds.map(b => `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t} 제도 확인</button>`).join('')}</div>
+          <div class="block bf-cross">
+            <p class="block-title">${t.care.q}</p>
+            <p class="block-desc">회복·보호에서 함께 확인할 수 있는 제도예요.</p>
+            <ul class="link-list cols">${careIds.map(benefitChip).join('')}</ul>
           </div>` : ''}
         ${t.id === 'office' ? `<button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기 →</button>` : ''}
         ${this.shareTools({ page: 'support', supportType: t.id, regionId: this.state.regionId }, '지원 찾기 · ' + t.label, true)}
@@ -1575,10 +1577,12 @@ const App = {
       ['준비하면 좋은 것', p.documents], ['주의할 점', p.caution], ['담당', p.org]
     ].filter(([, v]) => v);
     if (!rows.length) return '';
+    // 접힌 줄의 보조 설명은 안에 든 항목 이름을 짧게(대상 · 신청 시기 · 준비물 · 주의할 점 · 담당)
+    const short = { '누가 이용할 수 있나요?': '대상', '언제 신청하나요?': '신청 시기', '준비하면 좋은 것': '준비물' };
     return `
-      <details class="support-more">
-        <summary>자세히 <span class="muted small">${rows.map(([k]) => k.replace(/\?$/, '')).join(' · ')}</span></summary>
-        ${this.facts(rows)}
+      <details class="disclosure disclosure-line support-more">
+        ${disclosureHead('신청 전 확인할 내용', rows.map(([k]) => short[k] || k).join(' · '))}
+        <div class="disclosure-body">${this.facts(rows)}</div>
       </details>
     `;
   },
@@ -1692,23 +1696,32 @@ function benefitBadges(b) {
   return own + (scope && scope.badge ? `<span class="bf-badge bf-scope">${scope.badge}</span>` : '');
 }
 
+// 회복·보호 제도 바로가기 줄: 제도 이름 + 핵심 조건 한 줄(배지를 버튼 안에 겹쳐 넣지 않아요). <ul class="link-list"> 안에 넣어요
 function benefitChip(b) {
   const first = (b.badges || [])[0];
-  return `<button class="bf-chip" onclick="App.openBenefit('${b.id}')"><span aria-hidden="true">${b.e}</span> ${b.t}${first ? ` <span class="bf-badge">${first}</span>` : ''}</button>`;
+  return `<li><button type="button" class="link-row" onclick="App.openBenefit('${b.id}')"><span class="link-row-text"><span class="link-row-title">${b.t}</span>${first ? `<span class="link-row-meta">${first}</span>` : ''}</span><span class="chevron right" aria-hidden="true"></span></button></li>`;
 }
 
-// 지원 유형 버튼: 지역을 골랐으면 ‘인천 상담·회복 지원’처럼 지역을 붙여요
+// 지원 유형 바로가기 줄: 지역을 골랐으면 ‘인천 상담·회복 지원’처럼 지역을 붙이고, 보조 글은 유형 설명이에요
 function supportChip(t, R) {
-  return `<button class="bf-chip sup-chip" onclick="App.openSupport('${t.id}')">${R ? R.short + ' ' : ''}${t.label} 지원 보기 <span aria-hidden="true">→</span></button>`;
+  return `<li><button type="button" class="link-row" onclick="App.openSupport('${t.id}')"><span class="link-row-text"><span class="link-row-title">${R ? R.short + ' ' : ''}${t.label} 지원</span><span class="link-row-meta">${t.desc}</span></span><span class="chevron right" aria-hidden="true"></span></button></li>`;
+}
+
+// 접이식 요약 줄: 제목 · 보조 설명 · (선택) 상태 배지 · 펼침 아이콘을 각각 나눠 둬요. 요약 줄 전체가 누르는 영역이에요
+function disclosureHead(title, desc, extra) {
+  return `<summary><span class="disclosure-text"><span class="disclosure-title">${title}</span>${desc ? `<span class="disclosure-desc">${desc}</span>` : ''}</span>${extra || ''}<span class="chevron" aria-hidden="true"></span></summary>`;
+}
+
+// 안내 상자: 제목은 따로 한 줄, 내용은 문단(문자열) 또는 목록(배열).
+// kind: info(지금 할 일·다음 단계) · caution(주의) · danger(긴급) · note(참고)
+function callout(kind, title, body, cls) {
+  const content = Array.isArray(body) ? `<ul>${body.map(x => `<li>${x}</li>`).join('')}</ul>` : `<p>${body}</p>`;
+  return `<div class="callout callout-${kind}${cls ? ' ' + cls : ''}"><p class="callout-title">${title}</p>${content}</div>`;
 }
 
 // 놓치기 쉬워요 상자(공통·지역 기준을 섞지 않고 각자의 상자에)
 function missedBox(list, title) {
-  return list && list.length ? `
-    <div class="prot-missed">
-      <p class="prot-missed-title">${title}</p>
-      <ul>${list.map(m => `<li>${m}</li>`).join('')}</ul>
-    </div>` : '';
+  return list && list.length ? callout('note', title, list) : '';
 }
 
 // 공식 근거: 조문 요약 + COMMON_PUBLIC_SOURCES 링크(접힘)
@@ -1717,10 +1730,12 @@ function refsBox(refs, basis, verifiedAt) {
   const srcs = (refs || []).map(id => COMMON_PUBLIC_SOURCES.find(s => s.id === id)).filter(Boolean);
   if (!basis && !srcs.length) return '';
   return `
-    <details class="bf-refs">
-      <summary>공식 근거${srcs.length ? ` ${srcs.length}건 · ${fmtDate(verifiedAt || latestDate(srcs))} 확인` : ''}</summary>
-      ${basis ? `<p class="muted small">${basis}</p>` : ''}
-      ${srcs.length ? `<ul class="source-common">${srcs.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}</a></li>`).join('')}</ul>` : ''}
+    <details class="disclosure disclosure-line bf-refs">
+      ${disclosureHead('공식 근거', srcs.length ? `${srcs.length}건 · ${fmtDate(verifiedAt || latestDate(srcs))} 확인` : '')}
+      <div class="disclosure-body">
+        ${basis ? `<p>${basis}</p>` : ''}
+        ${srcs.length ? `<ul class="source-common">${srcs.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}<span class="sr-only"> (새 창)</span></a></li>`).join('')}</ul>` : ''}
+      </div>
     </details>`;
 }
 
@@ -1998,14 +2013,16 @@ function sourceLine(R, item) {
 // 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구, + 공통 법적·정책 근거를 작게)
 function sourceBox(label, sources, verifiedAt, note, common) {
   const list = arr => arr.map(s => `
-    <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}</a>` : s.title}${s.verifiedAt ? ` <span class="muted">· ${fmtDate(s.verifiedAt)} 확인</span>` : ''}</li>
+    <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}<span class="sr-only"> (새 창)</span></a>` : s.title}${s.verifiedAt ? ` <span class="muted">· ${fmtDate(s.verifiedAt)} 확인</span>` : ''}</li>
   `).join('');
   return `
-    <details class="source-box">
-      <summary>${label} · ${fmtDate(verifiedAt)} 최종 확인</summary>
-      <ul>${list(sources)}</ul>
-      ${note ? `<p>${note}</p>` : ''}
-      ${common && common.length ? `<p class="source-sub">공통 법적·정책 근거</p><ul class="source-common">${list(common)}</ul>` : ''}
+    <details class="disclosure disclosure-box source-box">
+      ${disclosureHead(label, `${fmtDate(verifiedAt)} 최종 확인 · 자료 ${sources.length + (common ? common.length : 0)}건`)}
+      <div class="disclosure-body">
+        <ul>${list(sources)}</ul>
+        ${note ? `<p>${note}</p>` : ''}
+        ${common && common.length ? `<p class="source-sub">공통 법적·정책 근거</p><ul class="source-common">${list(common)}</ul>` : ''}
+      </div>
     </details>
   `;
 }
@@ -2109,11 +2126,17 @@ function matchesGuideSearch(situ, query) {
 }
 
 // 공통 데이터 안의 지역 토큰을 현재 지역 값으로 바꿔요. 지역 미선택이면 중립 문구를 써요.
+// 본문 글자로 들어가는 값 속 전화번호는 한 덩어리로 묶어 ‘02-’ / ‘1395’처럼 줄이 갈라지지 않게 해요(태그 속성 값에는 그대로 넣어요)
 function T(str) {
   const R = REGIONS[App.state.regionId];
   const terms = R ? R.terms : NEUTRAL_TERMS;
-  return String(str).replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, (_, k) =>
-    k === 'TEL' ? (R ? telHref(R.hot) : 'tel:112') : terms[k]);
+  const value = (k, inText) => {
+    if (k === 'TEL') return R ? telHref(R.hot) : 'tel:112';
+    return inText ? String(terms[k]).replace(/\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?/g, m => `<span class="nowrap">${m}</span>`) : terms[k];
+  };
+  return String(str).split(/(<[^>]*>)/).map(part =>
+    part.replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, (_, k) => value(k, part[0] !== '<'))
+  ).join('');
 }
 
 // 02-1234-5678, 1600-8787, 032-1395(1번), 112 형태의 번호에 전화 링크를 걸어요

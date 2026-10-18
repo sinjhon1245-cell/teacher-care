@@ -35,7 +35,7 @@
       if (docOver > 0) fail(id, pg, '페이지 가로 넘침', docOver + 'px');
 
       // 2) 요소 단위 넘침: 버튼·연락처 줄·링크가 부모의 안쪽 여백을 넘지 않아야 해요
-      document.querySelectorAll('main .btn, main .cc-line, main .hub-link, main .chip, main .panel-hot, .header-call').forEach(el => {
+      document.querySelectorAll('main .btn, main .cc-line, main .hub-link, main .link-row, main .chip, main .panel-hot, .header-call').forEach(el => {
         if (!visible(el)) return;
         const p = el.parentElement, pr = p.getBoundingClientRect(), cs = getComputedStyle(p);
         const limit = pr.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth);

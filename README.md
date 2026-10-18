@@ -26,7 +26,7 @@
 
 ```
 index.html              스크립트 로드 순서 정의(공통 → 지역 → 화면)
-style.css               전체 스타일(모바일 반응형 포함)
+style.css               전체 스타일(모바일 반응형 포함). 글꼴·크기·부품 규칙은 docs/design-system.md
 app.js                  화면 렌더링·상태 관리. 특정 지역 이름·번호를 두지 않아요
 data/
   common.js             전국 공통 데이터 + 지역 등록 도구(registerRegion)
@@ -48,6 +48,7 @@ tools/
   data/regional-gaps.js 서울·경기·인천·부산·충북·강원·울산·전북·경남 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
   lib/                  점검 도구가 함께 쓰는 계산(최신성·gap·데이터 읽기)
 docs/
+  design-system.md             화면 디자인 시스템(글꼴·글자 크기·카드·배지·접이식·안내 상자 규칙)
   maintenance-report.md        운영 점검 리포트(자동 생성, 직접 고치지 않기)
   annual-maintenance-checklist.md  연례 갱신 체크리스트·업데이트 절차
   regional-gap-audit-2026.md  지역 gap 판정 기준과 기록(현재 표는 maintenance-report.md)
