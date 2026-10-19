@@ -1214,12 +1214,12 @@ const App = {
         <div class="situ-layout">
           <div class="situ-main">
             ${callout(s.urgency === URGENCY_ORDER[0] ? 'danger' : 'info', '지금 먼저 할 일', s.firstAction, 'callout-strong')}
+            ${s.dont ? callout('caution', '피해야 할 행동', s.dont) : ''}
+            ${s.legalCaution ? callout('note', '판단할 때 참고할 점', s.legalCaution) : ''}
             ${this.actionList('situ', s.id, SITU_ACTIONS[s.id], '지금 해볼 일')}
             ${this.facts([['학교에 알릴 내용', s.report], ['남겨 두면 좋은 기록', s.evidence]])}
           </div>
           <div class="situ-side">
-            ${s.dont ? callout('caution', '피해야 할 행동', s.dont) : ''}
-            ${s.legalCaution ? callout('note', '판단할 때 참고할 점', s.legalCaution) : ''}
             ${this.situBenefits(s)}
             <div class="block situ-supports">
               <p class="block-title">연결 가능한 지원</p>

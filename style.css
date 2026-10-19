@@ -743,7 +743,7 @@ body.is-landing { padding-bottom: 0; }
 .situ-example-label { font-weight: 700; color: var(--text); margin-right: 2px; }
 .situ-main > .facts { margin-top: 16px; }
 @media (min-width: 1024px) {
-  /* PC: 같은 순서(먼저 할 일 → 해볼 일 → 기록 → 피해야 할 행동 → 참고 → 제도 → 지원)를 두 단으로 흘려 두 열 높이를 자동으로 맞춰요.
+  /* PC: 같은 순서(먼저 할 일 → 피해야 할 행동 → 판단 참고 → 해볼 일 → 기록 → 제도 → 지원)를 두 단으로 흘려 두 열 높이를 자동으로 맞춰요.
      묶음은 중간에서 끊지 않아요(상황마다 왼쪽·오른쪽 내용 길이가 달라 고정 두 열은 한쪽이 크게 비었어요) */
   .situ-layout { columns: 2; column-gap: 32px; margin-top: 12px; }
   .situ-main, .situ-side { display: contents; }
