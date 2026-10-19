@@ -885,16 +885,12 @@ const App = {
         <h2 class="h2">내 교육지원청 찾기</h2>
         <p class="muted">교육활동 침해 신고와 지역교권보호위원회 심의는 소속 교육지원청이 담당해요.</p>
         <div class="finder-grid">
-          <div class="finder-pick">
-            <label class="field">
-              <span class="field-label">학교가 있는 ${R.short} 시·군·구</span>
-              <select onchange="App.setState({ area: this.value })">
-                <option value="" ${office ? '' : 'selected'}>선택해 주세요</option>
-                ${opts}
-              </select>
-            </label>
-            ${R.areaNote ? `<p class="note">${R.areaNote}</p>` : ''}
-          </div>
+          <label class="field-label finder-label" for="finder-area">학교가 있는 ${R.short} 시·군·구</label>
+          <select id="finder-area" class="finder-select" onchange="App.setState({ area: this.value })">
+            <option value="" ${office ? '' : 'selected'}>선택해 주세요</option>
+            ${opts}
+          </select>
+          ${R.areaNote ? `<p class="finder-note">${R.areaNote}</p>` : ''}
         ${office ? `
           <div class="result" aria-live="polite">
             <p class="result-title">${office.name}</p>
@@ -1403,12 +1399,10 @@ const App = {
     return R ? SUPPORT_TYPES.filter(t => R.programs.some(p => inType(p, t))) : SUPPORT_TYPES;
   },
 
-  // 지역 지원 허브: 왼쪽 대표 창구, 오른쪽 공식 확인된 바로가기(시·도교육청 홈페이지는 항상)
+  // 지역 지원 허브: 왼쪽 대표 창구, 오른쪽 공식 확인된 바로가기(교육활동 보호 전용 신청·상담·안내만)
+  // 시·도교육청 일반 홈페이지는 바로가기에 두지 않아요. 전용 안내보다 먼저 눈에 띄고, 다시 메뉴를 찾아야 해서예요(푸터 ‘최신 안내 확인’에는 남겨요)
   renderHub(R) {
-    const links = [
-      ...(R.links || []).slice().sort((a, b) => CHANNEL_ORDER.indexOf(a.type) - CHANNEL_ORDER.indexOf(b.type)),
-      { type: 'office', label: R.office, url: R.officeUrl }
-    ];
+    const links = (R.links || []).slice().sort((a, b) => CHANNEL_ORDER.indexOf(a.type) - CHANNEL_ORDER.indexOf(b.type));
     // 바로가기 줄: 이름(제목) + 종류(보조 글) + ↗. 종류를 버튼 안 배지로 겹쳐 넣지 않아요
     const linkHtml = links.map(l => `
       <li><a class="link-row hub-link" href="${l.url}" target="_blank" rel="noopener">
@@ -1779,7 +1773,7 @@ const COMMON_FLOW = [
 // 우선순위: 실제 신청 → 전화 → 카카오톡 → 공식 안내. 한 카드에 최대 3개까지만 보여요
 const CHANNEL_ORDER = ['apply', 'phone', 'kakao', 'guide', 'office', 'officeGuide'];
 // 지역 지원 허브의 링크 종류 표시
-const HUB_TYPE_LABEL = { apply: '신청', kakao: '상담', guide: '안내', office: '교육청' };
+const HUB_TYPE_LABEL = { apply: '신청', kakao: '상담', guide: '안내' };
 const CHANNEL_LABEL = { apply: '온라인 신청', kakao: '카카오톡 상담', phone: '전화 문의', guide: '공식 안내', office: '교육지원청 홈페이지', officeGuide: '교육활동보호 안내' };
 
 // 지원 항목: 데이터의 channels + 전화 버튼. 용도별 번호(contacts)가 있으면 call이 붙은 번호로, 없으면 연락처의 첫 번호로 걸어요
