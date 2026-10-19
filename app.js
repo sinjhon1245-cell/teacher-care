@@ -1706,9 +1706,10 @@ function benefitChip(b) {
   return `<li><button type="button" class="link-row" onclick="App.openBenefit('${b.id}')"><span class="link-row-text"><span class="link-row-title">${b.t}</span>${first ? `<span class="link-row-meta">${first}</span>` : ''}</span><span class="chevron right" aria-hidden="true"></span></button></li>`;
 }
 
-// 지원 유형 바로가기 줄: 지역을 골랐으면 ‘인천 상담·회복 지원’처럼 지역을 붙이고, 보조 글은 유형 설명이에요
+// 지원 유형 바로가기 줄: 지역을 골랐으면 ‘인천 상담·회복 지원’처럼 지역을 붙이고, 보조 글은 유형 설명이에요.
+// 설명 길이가 유형마다 달라 늘 ‘제목 위 · 설명 아래’ 두 줄로 그려 목록의 줄 높이를 맞춰요(link-row-stack)
 function supportChip(t, R) {
-  return `<li><button type="button" class="link-row" onclick="App.openSupport('${t.id}')"><span class="link-row-text"><span class="link-row-title">${R ? R.short + ' ' : ''}${t.label} 지원</span><span class="link-row-meta">${t.desc}</span></span><span class="chevron right" aria-hidden="true"></span></button></li>`;
+  return `<li><button type="button" class="link-row link-row-stack" onclick="App.openSupport('${t.id}')"><span class="link-row-text"><span class="link-row-title">${R ? R.short + ' ' : ''}${t.label} 지원</span><span class="link-row-meta">${t.desc}</span></span><span class="chevron right" aria-hidden="true"></span></button></li>`;
 }
 
 // 접이식 요약 줄: 제목 · 보조 설명 · (선택) 상태 배지 · 펼침 아이콘을 각각 나눠 둬요. 요약 줄 전체가 누르는 영역이에요
@@ -1807,7 +1808,7 @@ function actionButtons(channels) {
     const label = c.label || CHANNEL_LABEL[c.type];
     const cls = i === 0 ? 'btn btn-primary' : 'btn btn-secondary';
     return c.type === 'phone'
-      ? `<a class="${cls}" href="${telHref(c.tel)}"><span aria-hidden="true">☎</span> ${label} <span class="btn-sub">${c.tel}</span></a>`
+      ? `<a class="${cls} btn-call" href="${telHref(c.tel)}"><span aria-hidden="true">☎</span> <span class="btn-label">${label}</span> <span class="btn-sub">${c.tel}</span></a>`
       : `<a class="${cls}" href="${c.url}" target="_blank" rel="noopener">${label} <span aria-hidden="true">↗</span></a>`;
   }).join('')}</div>`;
 }
@@ -2130,17 +2131,17 @@ function matchesGuideSearch(situ, query) {
 }
 
 // 공통 데이터 안의 지역 토큰을 현재 지역 값으로 바꿔요. 지역 미선택이면 중립 문구를 써요.
-// 본문 글자로 들어가는 값 속 전화번호는 한 덩어리로 묶어 ‘02-’ / ‘1395’처럼 줄이 갈라지지 않게 해요(태그 속성 값에는 그대로 넣어요)
+// 화면 글자 속 번호(전화번호·‘제2026-200호’ 같은 문서 번호)는 한 덩어리로 묶어 ‘052-’ / ‘243-8722’처럼 줄이 갈라지지 않게 해요.
+// 지역 토큰 값뿐 아니라 데이터 문장(신청 방법·시기·주의할 점·근거 제목) 속 번호도 같아요. 태그 속성 값은 건드리지 않아요
+const TEXT_NUMBER = /\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?/g;
 function T(str) {
   const R = REGIONS[App.state.regionId];
   const terms = R ? R.terms : NEUTRAL_TERMS;
-  const value = (k, inText) => {
-    if (k === 'TEL') return R ? telHref(R.hot) : 'tel:112';
-    return inText ? String(terms[k]).replace(/\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?/g, m => `<span class="nowrap">${m}</span>`) : terms[k];
-  };
-  return String(str).split(/(<[^>]*>)/).map(part =>
-    part.replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, (_, k) => value(k, part[0] !== '<'))
-  ).join('');
+  const token = (_, k) => k === 'TEL' ? (R ? telHref(R.hot) : 'tel:112') : terms[k];
+  return String(str).split(/(<[^>]*>)/).map(part => {
+    const filled = part.replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, token);
+    return part[0] === '<' ? filled : filled.replace(TEXT_NUMBER, m => `<span class="nowrap">${m}</span>`);
+  }).join('');
 }
 
 // 02-1234-5678, 1600-8787, 032-1395(1번), 112 형태의 번호에 전화 링크를 걸어요
