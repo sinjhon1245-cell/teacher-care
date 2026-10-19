@@ -57,6 +57,7 @@ docs/
   gyeongnam-regional-accuracy-audit.md  경남 연락처·금액·관할 정확도 감사(2026-10-16)
   usability-test-teachers.md  교사 사용성 테스트 가이드(진행 방법·과제 카드 6개·성공 기준·분석 기준)
   usability-results-template.md  사용성 테스트 관찰 기록표·결과 집계·개선사항 보고 빈 양식
+  usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽)
   feedback-form-spec.md       의견 받기 양식 명세(현재 비활성)
 ```
 
