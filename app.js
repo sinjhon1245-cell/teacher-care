@@ -1498,7 +1498,7 @@ const App = {
             : fold('hubInfo', `${R.short} 연락 안내`, '전화하기 전에 알아 두면 좋은 내용', `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`)}
         </div>
         <div class="hub-links">
-          ${fold('hubLinks', '바로 이용하기', `공식 신청·상담·안내 ${links.length + 1}곳`, `
+          ${fold('hubLinks', '바로 이용하기', `공식 지원 링크·교육지원청 찾기`, `
           <p class="hub-links-title">바로 이용하기</p>
           <ul class="link-list">
             ${linkHtml}
