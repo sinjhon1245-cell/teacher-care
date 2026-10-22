@@ -31,81 +31,82 @@
 1. [30일 내 예정] 전북 지원 프로그램 재확인일 2026-11-15(D-24) · 전북 교원 맞춤형 치유 프로그램·교원치유중점학교(학교 단위)
 2. [90일 내 예정] 경남 지원 프로그램 재확인일 2026-11-30(D-39) · 2건
 3. [90일 내 예정] 제주 지원 프로그램 재확인일 2026-11-30 ~ 2026-12-01(D-39) · 7건
-4. [90일 내 예정] 전북 지원 프로그램 재확인일 2026-12-15(D-54) · 2건
-5. [90일 내 예정] 대구 지역 안내 전체 재확인일 2027-01-04(D-74)
-6. [90일 내 예정] 제주 지역 안내 전체 재확인일 2027-01-04(D-74)
-7. [지역 gap · 공식자료 미확인] 경기도교육청·경기도학교안전공제회 공식 안내에서 두 한도의 관계(별개·중복 청구 가능 여부) 확인 (도교육청 보호조치 비용과 공제 치료비의 관계)
-8. [지역 gap · 공식자료 미확인] 강원 교육공무원 인사관리기준의 교육활동 침해 피해 교원 전보 기준 확인 (강원 전보·근무환경)
-9. [지역 gap · 공식자료 미확인] 강원 2026 「동:행」 기본계획 원문과 교권보호 긴급 요청 창구 확정 여부 확인 (2026 교육활동보호 「동:행」 기본계획·긴급 요청 창구)
-10. [지역 gap · 공식자료 미확인] 경남학교안전공제회 누리집 접속·인증서와 교원보호공제 안내 페이지를 다시 확인한 뒤 공식 도메인에 추가할지 결정 (경남학교안전공제회 누리집(교원보호공제))
-11. [지역 gap · 공식자료 미확인] 학교급별 담당 장학사 연락 경로를 공식 안내로 확인 (학교급별 담당 장학사 연락 경로)
-12. [지역 gap · 공식자료 미확인] 2027. 1. 개편 뒤 업무분장·센터 누리집으로 연락처 전체 재확인 (2027. 1. 1. 교육활동보호담당관 개편)
-13. [지역 gap · 부분적] 서울 경호 서비스 대상 조건·신청 서류 확인(서울특별시학교안전공제회 안내) (서울 안전·경호)
-14. [지역 gap · 부분적] 서울 학교민원 지원(교육(지원)청) 연락 경로 확인 (서울 민원 대응)
-15. [지역 gap · 부분적] 서울 치유·회복(집단상담) 프로그램 일정·신청 방법 확인 (서울 치유·복귀)
-16. [지역 gap · 부분적] 서울 북부·성동광진교육지원청 SEM119 전용 번호를 교육지원청 공식 안내로 다시 확인 (교육지원청 SEM119 번호(북부·성동광진))
-17. [지역 gap · 부분적] 경기 교육지원청 학교민원대응지원팀 연락 경로 확인 (경기 민원 대응)
-18. [지역 gap · 부분적] 경기 교육지원청별 비정기전보 세부기준 확인 (경기 전보·근무환경)
-19. [지역 gap · 부분적] 경기 치유 프로그램(마음충전·심층치유·힐링성장) 대상·신청 방법 확인 (경기 치유·복귀)
-20. [지역 gap · 부분적] 경기 교육지원청별 경기교권보호지원센터 연락처 확인(공식 게시물로 확인될 때만) (교육지원청 연락처(내 교육지원청 찾기))
-21. [지역 gap · 부분적] 인천 비정기 전보 신청 시기·요건 확인 (인천 전보·근무환경)
-22. [지역 gap · 부분적] 인천 치유·회복 프로그램 일정·대상별 신청 방법 확인 (인천 치유·복귀)
-23. [지역 gap · 부분적] 부산 교육지원청별 학교민원대응지원팀 연락 경로 확인(공식 게시물로 확인될 때만) (부산 민원 대응)
-24. [지역 gap · 부분적] 부산 피해 교원 긴급 전보 신청 시기·요건 확인 (부산 전보·근무환경)
-25. [지역 gap · 부분적] 부산 치유·회복 프로그램 2026 하반기 일정·신청 방법 확인 (부산 치유·복귀)
-26. [지역 gap · 부분적] 부산 교육활동보호센터 업무별 내선 최신 안내 확인(공식 게시물로 확인될 때만 contacts로 추가) (교육활동보호센터 업무별 내선)
-27. [지역 gap · 부분적] 충북 교육지원청별 학교민원대응지원팀 연락 경로 확인(공식 게시물로 확인될 때만) (충북 민원 대응)
-28. [지역 gap · 부분적] 충북 교원보호공제 갈등조정 서비스 신청 서류·진행 절차 확인 (충북 갈등조정)
-29. [지역 gap · 부분적] 충북 교원 인사관리기준의 교권 보호 비정기 전보 시기·요건 확인 (충북 전보·근무환경)
-30. [지역 gap · 부분적] 충북 마음건강 심리지원 프로그램 2026 하반기 일정 확인 (충북 치유·복귀)
-31. [지역 gap · 부분적] 충북 교육지원청별 교육활동 보호 업무 연락처 확인(공식 게시물로 확인될 때만) (교육지원청 연락처(내 교육지원청 찾기))
-32. [지역 gap · 부분적] 강원 교육지원청 학교민원 대응 지원 연락 경로 확인(공식 게시물로 확인될 때만) (강원 민원 대응)
-33. [지역 gap · 부분적] 강원 교육활동 침해 분쟁조정지원단 운영 방식·신청 방법 확인 (강원 갈등조정)
-34. [지역 gap · 부분적] 강원 2026 하반기 집단상담·자기돌봄 프로그램 일정 확인 (강원 치유·복귀)
-35. [지역 gap · 부분적] 강원 교육지원청별 교육활동 보호 업무 연락처 확인(공식 게시물로 확인될 때만) (교육지원청 연락처(내 교육지원청 찾기))
-36. [지역 gap · 부분적] 울산 교육활동보호센터 공식 안내에서 공제 소진교원 치료·상담비와 ‘안녕! 내 마음’ 지원의 관계(별개·중복 가능 여부) 확인 (울산 치료·비용)
-37. [지역 gap · 부분적] 울산 강북·강남교육지원청 학교민원대응지원팀 접수 연락처를 교육지원청 공식 안내로 확인 (울산 민원 대응)
-38. [지역 gap · 부분적] 울산 2026학년도 인사관리기준의 교육활동 침해 피해 교원 전보 신청 시기 확인 (울산 전보·근무환경)
-39. [지역 gap · 부분적] 울산 2026 하반기 회복·성장 프로그램·단짝캠프·추수 프로그램 일정·신청 방법 확인 (울산 치유·복귀)
-40. [지역 gap · 부분적] 울산 052-1395 ARS 메뉴·운영 시간 공식 안내 확인(공식 게시물로 확인될 때만 menu 추가) (대표번호 052-1395 연결 방식)
-41. [지역 gap · 부분적] 울산광역시학교안전공제회 교원보호공제 담당 번호를 공제회 공식 안내로 다시 확인 (울산광역시학교안전공제회 교원보호공제 연락처)
-42. [지역 gap · 부분적] 울산 다음 학년도 시행계획·학교 안내자료에서 강남교육지원청 번호 정정 여부 확인 (시행계획·학교 안내자료의 강남교육지원청 주무관 번호)
-43. [지역 gap · 부분적] 전북 보호조치 비용 부담 신청(교원지위법 시행령 제19조) 창구·서식을 전북교육인권센터 공식 안내로 확인 (전북 치료·비용)
-44. [지역 gap · 부분적] 법률지원단 상담 횟수·상담료 부담 기준과 교권전담 변호사 연락 경로를 전북교육인권센터 공식 안내로 확인 (전북 법률)
-45. [지역 gap · 부분적] 무주·장수교육지원청 학교민원대응지원팀 담당과 연락처를 분장사무·공식 안내로 확인 (전북 민원 대응)
-46. [지역 gap · 부분적] 유·초등 교사에게 제27조② 적용 여부와 긴급 전보 신청 시기·서식을 교원인사과 공식 안내로 확인 (전북 전보·근무환경)
-47. [지역 gap · 부분적] 2027 시행계획에서 숙박형·학교 단위 치유 프로그램 일정·신청 방법 다시 확인 (전북 치유·복귀)
-48. [지역 gap · 부분적] 063-1395 운영 시간·ARS 메뉴를 전북교육인권센터 공식 게시물로 확인 (대표번호 063-1395 운영 시간·연결 방식)
-49. [지역 gap · 부분적] 교권전담 변호사 연락 경로와 0345·0348 역할을 전북교육인권센터에 공식 확인 (시행계획 구성표의 센터 변호사 번호(0345·0348))
-50. [지역 gap · 부분적] 전북교육인권센터 전화안내 목록이 갱신되면 교육지원청 분장사무와 다시 대조 (센터 ‘전화안내’의 교육지원청 업무담당 번호)
-51. [지역 gap · 부분적] 사천·의령·함안·창녕·고성·남해·하동·산청·함양·거창교육지원청의 교육활동 민원대응팀 담당을 업무안내·공식 안내로 확인 (경남 민원 대응)
-52. [지역 gap · 부분적] 비정기 전보 신청 시기·서식과 동일교 미배치 신청서 양식, 교육지원청 관내 전보 기준의 교권 조항을 경남교육청 인사 담당 공식 안내로 확인 (경남 전보·근무환경)
-53. [지역 gap · 부분적] 2026~2027 교원장기치유연수 기간·처우와 자율치유연수·집합연수 신청 방법을 경남교육활동보호센터 공식 안내로 확인 (경남 치유·복귀)
-54. [지역 gap · 부분적] 경남교육활동보호센터에 외부 연계 비용 담당 센터 배정 기준을 다시 확인(다음 기본계획에서 표가 바뀌었는지) (외부 연계 상담(치료)비 담당 센터 배정)
-55. [지역 gap · 부분적] 센터 조직도가 갱신되면 업무분장과 다시 대조 (센터 조직도의 055-268-1342~1344 학교급 표기)
-56. [지역 gap · 부분적] 2년 기간과 연도별 한도의 관계를 경남교육활동보호센터 공식 안내로 확인 (외부 연계 상담비 지원 기간(최초 신청 뒤 2년 / 연도별 1회 청구))
-57. [지역 gap · 부분적] 1811-7679·055-1395 운영 시간·연결 방식을 경남교육활동보호센터 공식 게시물로 확인 (대표번호 1811-7679·055-1395 운영 시간·연결 방식)
-58. [지역 gap · 부분적] 공제 상해치료·심리상담 비용지급기준(관할교육청 고시)과 보호조치 비용 신청 기준을 제주 공식 자료로 확인 (제주 치료·비용)
-59. [지역 gap · 부분적] 제주 학교민원 이관 기준·신청 서식·처리 기한을 학교민원 대응 매뉴얼로 확인 (제주 민원 대응)
-60. [지역 gap · 부분적] 갈등조정 전문가 지원을 학교·교원이 신청하는 공식 경로 확인 (제주 갈등조정)
-61. [지역 gap · 부분적] 비정기전보 신청 시기·서식을 제주 인사 담당 공식 안내로 확인(특수·보건·사서 기준 포함) (제주 전보·근무환경)
-62. [지역 gap · 부분적] 교원 회복력 향상 프로그램 일정·신청 공문 확인 (제주 치유·복귀)
-63. [지역 gap · 부분적] 9. 29. 요약표의 배상책임 2억 원 표기가 정정되는지, 2027 약관의 한도 확인 (교원보호공제 한도 표기(시행계획·9. 29. 보도자료 ↔ 2026 표준약관))
-64. [지역 gap · 부분적] 센터 누리집 운영시간 안내가 갱신되는지 확인 (운영 시간(센터소개 평일 09~18시 ↔ 안심콜센터 9. 1.부터 평일 09~22시·주말 09~18시))
-65. [지역 gap · 부분적] 센터 누리집 갱신 뒤 업무분장과 다시 대조 (학교민원 이관 연락처(센터 ‘민원대응팀 운영 절차’ 064-710-0042))
-66. [지역 gap · 부분적] 고등·특수·각종학교 사안 접수 기관을 제주 공식 자료로 명시 확인 (고등학교·특수학교·각종학교 사안의 교육지원청 관할)
-67. [지역 gap · 부분적] 다음 위촉·운영 계획에서 인원과 권역 배정 확인 (우리학교 변호사 인원·배정 권역)
-68. [지역 gap · 부분적] 다품 긴급 법률 지원의 지원 금액·변호사 동행 범위를 공식 안내로 확인 (대구 수사·소송)
-69. [지역 gap · 부분적] 교육지원청 통합민원팀 연락처·이관 절차 확인 (대구 민원 대응)
-70. [지역 gap · 부분적] 관계회복지원단 연락처 확인 (대구 갈등조정)
-71. [지역 gap · 부분적] 2026학년도 중등 인사관리원칙의 교권 침해 전보 조항 확인 (대구 전보·근무환경)
-72. [지역 gap · 부분적] 에듀케어·마음균형 프로그램 신청 공문(시기·절차) 확인 (대구 치유·복귀)
-73. [지역 gap · 부분적] 약관 제4호(2026. 3. 1. 시행) 원문과 그 기간 사안의 적용 한도 확인 (교원보호공제 한도(2026 기본계획·매뉴얼 ↔ 약관 제5호, 2026. 10. 1. 시행))
-74. [지역 gap · 부분적] 053-1395 운영 시간·연결 방식을 대구 공식 안내로 확인 (053-1395 응답 주체·운영 시간)
-75. [지역 gap · 부분적] 조례 개정안 공포 여부를 확인하고 출처를 조례로 바꾸기(2027. 1.) (교육지원청 관할 근거(종전 [별표 2] ↔ 조례 개정안))
-76. [지역 gap · 부분적] 고등학교 사안의 교육지원청 배정 기준을 대구 공식 자료로 명시 확인 (고등학교·특수학교 사안 접수 교육지원청)
-77. [지역 gap · 부분적] 대구 추가 특별휴가 시행 안내 공문 확인 (특별휴가 추가 5일(상해·폭행·성폭력))
-78. [지역 gap · 부분적] 교육지원청 교권보호팀 변호사 연락처 확인 (교육지원청 법률 담당 번호(동부 0099·서부 0178·달성))
+4. [90일 내 예정] 대구 지원 프로그램 재확인일 2026-12-01(D-40) · 대구 모든 학교 교직원 다:행복한 소통·회복 프로그램
+5. [90일 내 예정] 전북 지원 프로그램 재확인일 2026-12-15(D-54) · 2건
+6. [90일 내 예정] 대구 지역 안내 전체 재확인일 2027-01-04(D-74)
+7. [90일 내 예정] 제주 지역 안내 전체 재확인일 2027-01-04(D-74)
+8. [지역 gap · 공식자료 미확인] 경기도교육청·경기도학교안전공제회 공식 안내에서 두 한도의 관계(별개·중복 청구 가능 여부) 확인 (도교육청 보호조치 비용과 공제 치료비의 관계)
+9. [지역 gap · 공식자료 미확인] 강원 교육공무원 인사관리기준의 교육활동 침해 피해 교원 전보 기준 확인 (강원 전보·근무환경)
+10. [지역 gap · 공식자료 미확인] 강원 2026 「동:행」 기본계획 원문과 교권보호 긴급 요청 창구 확정 여부 확인 (2026 교육활동보호 「동:행」 기본계획·긴급 요청 창구)
+11. [지역 gap · 공식자료 미확인] 경남학교안전공제회 누리집 접속·인증서와 교원보호공제 안내 페이지를 다시 확인한 뒤 공식 도메인에 추가할지 결정 (경남학교안전공제회 누리집(교원보호공제))
+12. [지역 gap · 공식자료 미확인] 학교급별 담당 장학사 연락 경로를 공식 안내로 확인 (학교급별 담당 장학사 연락 경로)
+13. [지역 gap · 공식자료 미확인] 2027. 1. 개편 뒤 업무분장·센터 누리집으로 연락처 전체 재확인 (2027. 1. 1. 교육활동보호담당관 개편)
+14. [지역 gap · 부분적] 서울 경호 서비스 대상 조건·신청 서류 확인(서울특별시학교안전공제회 안내) (서울 안전·경호)
+15. [지역 gap · 부분적] 서울 학교민원 지원(교육(지원)청) 연락 경로 확인 (서울 민원 대응)
+16. [지역 gap · 부분적] 서울 치유·회복(집단상담) 프로그램 일정·신청 방법 확인 (서울 치유·복귀)
+17. [지역 gap · 부분적] 서울 북부·성동광진교육지원청 SEM119 전용 번호를 교육지원청 공식 안내로 다시 확인 (교육지원청 SEM119 번호(북부·성동광진))
+18. [지역 gap · 부분적] 경기 교육지원청 학교민원대응지원팀 연락 경로 확인 (경기 민원 대응)
+19. [지역 gap · 부분적] 경기 교육지원청별 비정기전보 세부기준 확인 (경기 전보·근무환경)
+20. [지역 gap · 부분적] 경기 치유 프로그램(마음충전·심층치유·힐링성장) 대상·신청 방법 확인 (경기 치유·복귀)
+21. [지역 gap · 부분적] 경기 교육지원청별 경기교권보호지원센터 연락처 확인(공식 게시물로 확인될 때만) (교육지원청 연락처(내 교육지원청 찾기))
+22. [지역 gap · 부분적] 인천 비정기 전보 신청 시기·요건 확인 (인천 전보·근무환경)
+23. [지역 gap · 부분적] 인천 치유·회복 프로그램 일정·대상별 신청 방법 확인 (인천 치유·복귀)
+24. [지역 gap · 부분적] 부산 교육지원청별 학교민원대응지원팀 연락 경로 확인(공식 게시물로 확인될 때만) (부산 민원 대응)
+25. [지역 gap · 부분적] 부산 피해 교원 긴급 전보 신청 시기·요건 확인 (부산 전보·근무환경)
+26. [지역 gap · 부분적] 부산 치유·회복 프로그램 2026 하반기 일정·신청 방법 확인 (부산 치유·복귀)
+27. [지역 gap · 부분적] 부산 교육활동보호센터 업무별 내선 최신 안내 확인(공식 게시물로 확인될 때만 contacts로 추가) (교육활동보호센터 업무별 내선)
+28. [지역 gap · 부분적] 충북 교육지원청별 학교민원대응지원팀 연락 경로 확인(공식 게시물로 확인될 때만) (충북 민원 대응)
+29. [지역 gap · 부분적] 충북 교원보호공제 갈등조정 서비스 신청 서류·진행 절차 확인 (충북 갈등조정)
+30. [지역 gap · 부분적] 충북 교원 인사관리기준의 교권 보호 비정기 전보 시기·요건 확인 (충북 전보·근무환경)
+31. [지역 gap · 부분적] 충북 마음건강 심리지원 프로그램 2026 하반기 일정 확인 (충북 치유·복귀)
+32. [지역 gap · 부분적] 충북 교육지원청별 교육활동 보호 업무 연락처 확인(공식 게시물로 확인될 때만) (교육지원청 연락처(내 교육지원청 찾기))
+33. [지역 gap · 부분적] 강원 교육지원청 학교민원 대응 지원 연락 경로 확인(공식 게시물로 확인될 때만) (강원 민원 대응)
+34. [지역 gap · 부분적] 강원 교육활동 침해 분쟁조정지원단 운영 방식·신청 방법 확인 (강원 갈등조정)
+35. [지역 gap · 부분적] 강원 2026 하반기 집단상담·자기돌봄 프로그램 일정 확인 (강원 치유·복귀)
+36. [지역 gap · 부분적] 강원 교육지원청별 교육활동 보호 업무 연락처 확인(공식 게시물로 확인될 때만) (교육지원청 연락처(내 교육지원청 찾기))
+37. [지역 gap · 부분적] 울산 교육활동보호센터 공식 안내에서 공제 소진교원 치료·상담비와 ‘안녕! 내 마음’ 지원의 관계(별개·중복 가능 여부) 확인 (울산 치료·비용)
+38. [지역 gap · 부분적] 울산 강북·강남교육지원청 학교민원대응지원팀 접수 연락처를 교육지원청 공식 안내로 확인 (울산 민원 대응)
+39. [지역 gap · 부분적] 울산 2026학년도 인사관리기준의 교육활동 침해 피해 교원 전보 신청 시기 확인 (울산 전보·근무환경)
+40. [지역 gap · 부분적] 울산 2026 하반기 회복·성장 프로그램·단짝캠프·추수 프로그램 일정·신청 방법 확인 (울산 치유·복귀)
+41. [지역 gap · 부분적] 울산 052-1395 ARS 메뉴·운영 시간 공식 안내 확인(공식 게시물로 확인될 때만 menu 추가) (대표번호 052-1395 연결 방식)
+42. [지역 gap · 부분적] 울산광역시학교안전공제회 교원보호공제 담당 번호를 공제회 공식 안내로 다시 확인 (울산광역시학교안전공제회 교원보호공제 연락처)
+43. [지역 gap · 부분적] 울산 다음 학년도 시행계획·학교 안내자료에서 강남교육지원청 번호 정정 여부 확인 (시행계획·학교 안내자료의 강남교육지원청 주무관 번호)
+44. [지역 gap · 부분적] 전북 보호조치 비용 부담 신청(교원지위법 시행령 제19조) 창구·서식을 전북교육인권센터 공식 안내로 확인 (전북 치료·비용)
+45. [지역 gap · 부분적] 법률지원단 상담 횟수·상담료 부담 기준과 교권전담 변호사 연락 경로를 전북교육인권센터 공식 안내로 확인 (전북 법률)
+46. [지역 gap · 부분적] 무주·장수교육지원청 학교민원대응지원팀 담당과 연락처를 분장사무·공식 안내로 확인 (전북 민원 대응)
+47. [지역 gap · 부분적] 유·초등 교사에게 제27조② 적용 여부와 긴급 전보 신청 시기·서식을 교원인사과 공식 안내로 확인 (전북 전보·근무환경)
+48. [지역 gap · 부분적] 2027 시행계획에서 숙박형·학교 단위 치유 프로그램 일정·신청 방법 다시 확인 (전북 치유·복귀)
+49. [지역 gap · 부분적] 063-1395 운영 시간·ARS 메뉴를 전북교육인권센터 공식 게시물로 확인 (대표번호 063-1395 운영 시간·연결 방식)
+50. [지역 gap · 부분적] 교권전담 변호사 연락 경로와 0345·0348 역할을 전북교육인권센터에 공식 확인 (시행계획 구성표의 센터 변호사 번호(0345·0348))
+51. [지역 gap · 부분적] 전북교육인권센터 전화안내 목록이 갱신되면 교육지원청 분장사무와 다시 대조 (센터 ‘전화안내’의 교육지원청 업무담당 번호)
+52. [지역 gap · 부분적] 사천·의령·함안·창녕·고성·남해·하동·산청·함양·거창교육지원청의 교육활동 민원대응팀 담당을 업무안내·공식 안내로 확인 (경남 민원 대응)
+53. [지역 gap · 부분적] 비정기 전보 신청 시기·서식과 동일교 미배치 신청서 양식, 교육지원청 관내 전보 기준의 교권 조항을 경남교육청 인사 담당 공식 안내로 확인 (경남 전보·근무환경)
+54. [지역 gap · 부분적] 2026~2027 교원장기치유연수 기간·처우와 자율치유연수·집합연수 신청 방법을 경남교육활동보호센터 공식 안내로 확인 (경남 치유·복귀)
+55. [지역 gap · 부분적] 경남교육활동보호센터에 외부 연계 비용 담당 센터 배정 기준을 다시 확인(다음 기본계획에서 표가 바뀌었는지) (외부 연계 상담(치료)비 담당 센터 배정)
+56. [지역 gap · 부분적] 센터 조직도가 갱신되면 업무분장과 다시 대조 (센터 조직도의 055-268-1342~1344 학교급 표기)
+57. [지역 gap · 부분적] 2년 기간과 연도별 한도의 관계를 경남교육활동보호센터 공식 안내로 확인 (외부 연계 상담비 지원 기간(최초 신청 뒤 2년 / 연도별 1회 청구))
+58. [지역 gap · 부분적] 1811-7679·055-1395 운영 시간·연결 방식을 경남교육활동보호센터 공식 게시물로 확인 (대표번호 1811-7679·055-1395 운영 시간·연결 방식)
+59. [지역 gap · 부분적] 공제 상해치료·심리상담 비용지급기준(관할교육청 고시)과 보호조치 비용 신청 기준을 제주 공식 자료로 확인 (제주 치료·비용)
+60. [지역 gap · 부분적] 제주 학교민원 이관 기준·신청 서식·처리 기한을 학교민원 대응 매뉴얼로 확인 (제주 민원 대응)
+61. [지역 gap · 부분적] 갈등조정 전문가 지원을 학교·교원이 신청하는 공식 경로 확인 (제주 갈등조정)
+62. [지역 gap · 부분적] 비정기전보 신청 시기·서식을 제주 인사 담당 공식 안내로 확인(특수·보건·사서 기준 포함) (제주 전보·근무환경)
+63. [지역 gap · 부분적] 교원 회복력 향상 프로그램 일정·신청 공문 확인 (제주 치유·복귀)
+64. [지역 gap · 부분적] 9. 29. 요약표의 배상책임 2억 원 표기가 정정되는지, 2027 약관의 한도 확인 (교원보호공제 한도 표기(시행계획·9. 29. 보도자료 ↔ 2026 표준약관))
+65. [지역 gap · 부분적] 센터 누리집 운영시간 안내가 갱신되는지 확인 (운영 시간(센터소개 평일 09~18시 ↔ 안심콜센터 9. 1.부터 평일 09~22시·주말 09~18시))
+66. [지역 gap · 부분적] 센터 누리집 갱신 뒤 업무분장과 다시 대조 (학교민원 이관 연락처(센터 ‘민원대응팀 운영 절차’ 064-710-0042))
+67. [지역 gap · 부분적] 고등·특수·각종학교 사안 접수 기관을 제주 공식 자료로 명시 확인 (고등학교·특수학교·각종학교 사안의 교육지원청 관할)
+68. [지역 gap · 부분적] 다음 위촉·운영 계획에서 인원과 권역 배정 확인 (우리학교 변호사 인원·배정 권역)
+69. [지역 gap · 부분적] 다품 긴급 법률 지원의 지원 금액·변호사 동행 범위를 공식 안내로 확인 (대구 수사·소송)
+70. [지역 gap · 부분적] 교육지원청 통합민원팀 연락처·이관 절차 확인 (대구 민원 대응)
+71. [지역 gap · 부분적] 관계회복지원단 연락처 확인 (대구 갈등조정)
+72. [지역 gap · 부분적] 2026학년도 중등 인사관리원칙의 교권 침해 전보 조항 확인 (대구 전보·근무환경)
+73. [지역 gap · 부분적] 에듀케어·마음균형 프로그램 신청 공문(시기·절차) 확인 (대구 치유·복귀)
+74. [지역 gap · 부분적] 약관 제4호(2026. 3. 1. 시행) 원문과 그 기간 사안의 적용 한도 확인 (교원보호공제 한도(2026 기본계획·매뉴얼 ↔ 약관 제5호, 2026. 10. 1. 시행))
+75. [지역 gap · 부분적] 053-1395 운영 시간·연결 방식을 대구 공식 안내로 확인 (053-1395 응답 주체·운영 시간)
+76. [지역 gap · 부분적] 조례 개정안 공포 여부를 확인하고 출처를 조례로 바꾸기(2027. 1.) (교육지원청 관할 근거(종전 [별표 2] ↔ 조례 개정안))
+77. [지역 gap · 부분적] 고등학교 사안의 교육지원청 배정 기준을 대구 공식 자료로 명시 확인 (고등학교·특수학교 사안 접수 교육지원청)
+78. [지역 gap · 부분적] 대구 추가 특별휴가 시행 안내 공문 확인 (특별휴가 추가 5일(상해·폭행·성폭력))
+79. [지역 gap · 부분적] 교육지원청 교권보호팀 변호사 연락처 확인 (교육지원청 법률 담당 번호(동부 0099·서부 0178·달성))
 
 ### 그 뒤 예정(90일 이후, 가까운 순)
 
@@ -137,7 +138,7 @@
 | 전북 지원 프로그램 | 14 | volatile 180일 | 2026-10-16 | 2027-04-14 | 2026-11-15 (D-24) | 0 | 0 |
 | 경남 지원 프로그램 | 18 | volatile 180일 | 2026-10-16 | 2027-04-14 | 2026-11-30 (D-39) | 0 | 0 |
 | 제주 지원 프로그램 | 16 | volatile 180일 | 2026-10-22 | 2027-04-20 | 2026-11-30 (D-39) | 0 | 0 |
-| 대구 지원 프로그램 | 18 | volatile 180일 | 2026-10-22 | 2027-04-20 | 2027-01-04 (D-74) | 0 | 0 |
+| 대구 지원 프로그램 | 18 | volatile 180일 | 2026-10-22 | 2027-04-20 | 2026-12-01 (D-40) | 0 | 0 |
 | 지역 회복·보호 기준 | 16 | volatile 180일 | 2026-10-03 (서울 회복·보호 지역 기준) | 2027-04-01 | 2027-01-04 (D-74) | 0 | 0 |
 | 전화번호(대표·교육지원청·기관) | 11 | volatile 180일 | 2026-10-07 (서울 전화번호) | 2027-04-05 | 2027-01-04 (D-74) | 0 | 0 |
 | 교육지원청 관할 | 11 | volatile 180일 | 2026-10-07 (서울 관할) | 2027-04-05 | 2027-01-04 (D-74) | 0 | 0 |
@@ -146,7 +147,7 @@
 
 ## 링크 현황
 
-점검 시각: 2026-10-22 14:47(한국 시간) · 링크 374개(사용 위치 503곳)
+점검 시각: 2026-10-22 16:41(한국 시간) · 링크 374개(사용 위치 503곳)
 
 | 정상 | redirect | 확인 필요 | broken |
 | ---: | ---: | ---: | ---: |
@@ -154,33 +155,33 @@
 
 | 판정 | 상태 | 주소 | 위치 | 메모 |
 | --- | --- | --- | --- | --- |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dep/jo/jobshare/selectJobShareView.do?dept_cd=7240365&mi=8210 → https://www.dge.go.kr/dep/sso/index.do | data/regions/daegu.js:40 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/jo/jobshare/selectJobShareView.do?mi=6935 → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:48 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/main.do → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:88 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgdse/jo/jobshare/selectJobShareView.do?mi=7521 → https://www.dge.go.kr/dgdse/sso/index.do | data/regions/daegu.js:51 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgdse/main.do → https://www.dge.go.kr/dgdse/sso/index.do | data/regions/daegu.js:91 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dggwe/jo/jobshare/selectJobShareView.do?dept=%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EA%B3%BC&mi=9349 → https://www.dge.go.kr/dggwe/sso/index.do | data/regions/daegu.js:52 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dggwe/main.do → https://www.dge.go.kr/dggwe/sso/index.do | data/regions/daegu.js:92 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgnbe/cm/cntnts/cntntsView.do?cntntsId=2215&mi=7094 → https://www.dge.go.kr/dgnbe/sso/index.do | data/regions/daegu.js:53 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgnbe/jo/jobshare/selectJobShareView.do?mi=7249 → https://www.dge.go.kr/dgnbe/sso/index.do | data/regions/daegu.js:50 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgnbe/main.do → https://www.dge.go.kr/dgnbe/sso/index.do | data/regions/daegu.js:90 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgsbe/jo/jobshare/selectJobShareView.do?mi=6541 → https://www.dge.go.kr/dgsbe/sso/index.do | data/regions/daegu.js:49 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/dgsbe/main.do → https://www.dge.go.kr/dgsbe/sso/index.do | data/regions/daegu.js:89 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/cm/cntnts/cntntsView.do?cntntsId=1327&mi=4588 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:32, data/regions/daegu.js:69, data/regions/daegu.js:134 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=4575&cntntsId=1403 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:31 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=4582&cntntsId=1326 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:42 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/main.do → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:30, data/regions/daegu.js:68 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/na/ntt/selectNttInfo.do?mi=4601&nttSn=2189013 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:34 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/na/ntt/selectNttInfo.do?mi=4601&nttSn=2189298 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:33, data/regions/daegu.js:71 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/law/na/ntt/selectNttInfo.do?mi=4613&nttSn=2211349 → https://www.dge.go.kr/law/sso/index.do | data/regions/daegu.js:47 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?mi=6697&nttSn=2093569 → https://www.dge.go.kr/main/sso/index.do | data/regions/daegu.js:45 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?mi=6697&nttSn=2191260 → https://www.dge.go.kr/main/sso/index.do | data/regions/daegu.js:43 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?mi=6697&nttSn=2191261 → https://www.dge.go.kr/main/sso/index.do | data/regions/daegu.js:44 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9801&cntntsId=4847 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:35, data/regions/daegu.js:70, data/regions/daegu.js:131 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9802&cntntsId=4848 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:39, data/regions/daegu.js:137 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9803&cntntsId=4849 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:38, data/regions/daegu.js:136 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9805&cntntsId=4850 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:37, data/regions/daegu.js:132 |  |
-| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9806&cntntsId=4851 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:36, data/regions/daegu.js:130 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dep/jo/jobshare/selectJobShareView.do?dept_cd=7240365&mi=8210 → https://www.dge.go.kr/dep/sso/index.do | data/regions/daegu.js:41 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/jo/jobshare/selectJobShareView.do?mi=6935 → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:49 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/main.do → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:89 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgdse/jo/jobshare/selectJobShareView.do?mi=7521 → https://www.dge.go.kr/dgdse/sso/index.do | data/regions/daegu.js:52 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgdse/main.do → https://www.dge.go.kr/dgdse/sso/index.do | data/regions/daegu.js:92 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dggwe/jo/jobshare/selectJobShareView.do?dept=%EA%B5%90%EC%9C%A1%EC%A7%80%EC%9B%90%EA%B3%BC&mi=9349 → https://www.dge.go.kr/dggwe/sso/index.do | data/regions/daegu.js:53 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dggwe/main.do → https://www.dge.go.kr/dggwe/sso/index.do | data/regions/daegu.js:93 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgnbe/cm/cntnts/cntntsView.do?cntntsId=2215&mi=7094 → https://www.dge.go.kr/dgnbe/sso/index.do | data/regions/daegu.js:54 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgnbe/jo/jobshare/selectJobShareView.do?mi=7249 → https://www.dge.go.kr/dgnbe/sso/index.do | data/regions/daegu.js:51 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgnbe/main.do → https://www.dge.go.kr/dgnbe/sso/index.do | data/regions/daegu.js:91 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgsbe/jo/jobshare/selectJobShareView.do?mi=6541 → https://www.dge.go.kr/dgsbe/sso/index.do | data/regions/daegu.js:50 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/dgsbe/main.do → https://www.dge.go.kr/dgsbe/sso/index.do | data/regions/daegu.js:90 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/cm/cntnts/cntntsView.do?cntntsId=1327&mi=4588 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:33, data/regions/daegu.js:70, data/regions/daegu.js:135 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=4575&cntntsId=1403 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:32 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/cm/cntnts/cntntsView.do?mi=4582&cntntsId=1326 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:43 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/main.do → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:31, data/regions/daegu.js:69 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/na/ntt/selectNttInfo.do?mi=4601&nttSn=2189013 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:35 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/forteacher/na/ntt/selectNttInfo.do?mi=4601&nttSn=2189298 → https://www.dge.go.kr/forteacher/sso/index.do | data/regions/daegu.js:34, data/regions/daegu.js:72 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/law/na/ntt/selectNttInfo.do?mi=4613&nttSn=2211349 → https://www.dge.go.kr/law/sso/index.do | data/regions/daegu.js:48 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?mi=6697&nttSn=2093569 → https://www.dge.go.kr/main/sso/index.do | data/regions/daegu.js:46 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?mi=6697&nttSn=2191260 → https://www.dge.go.kr/main/sso/index.do | data/regions/daegu.js:44 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/main/na/ntt/selectNttInfo.do?mi=6697&nttSn=2191261 → https://www.dge.go.kr/main/sso/index.do | data/regions/daegu.js:45 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9801&cntntsId=4847 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:36, data/regions/daegu.js:71, data/regions/daegu.js:132 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9802&cntntsId=4848 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:40, data/regions/daegu.js:138 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9803&cntntsId=4849 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:39, data/regions/daegu.js:137 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9805&cntntsId=4850 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:38, data/regions/daegu.js:133 |  |
+| 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9806&cntntsId=4851 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:37, data/regions/daegu.js:131 |  |
 | 이동(redirect) | 200 | https://www.jbe.go.kr/human/index.jbe?menuCd=DOM_000002709006000000 → https://www.jbe.go.kr/human/board/list.jbe?boardId=BBS_0000501&menuCd=DOM_000002709006000000&contentsSid=2537&cpath=%2Fhuman | data/regions/jeonbuk.js:83, data/regions/jeonbuk.js:150, data/regions/jeonbuk.js:158 |  |
 
 ## 지역별 gap
@@ -336,7 +337,7 @@
   다음 확인: 고등·특수·각종학교 사안 접수 기관을 제주 공식 자료로 명시 확인
 - **제주 · 우리학교 변호사 인원·배정 권역** — 부분적: 2026 시행계획(2. 13.)은 31명·5개 권역 배정, 9. 23. 보도는 25명 위촉(1년)과 근무 지역 등을 고려한 배정을 적어요. 화면은 9. 23. 위촉 기준이고 권역은 적지 않아요\
   다음 확인: 다음 위촉·운영 계획에서 인원과 권역 배정 확인
-- **대구 · 수사·소송** — 부분적: 공제 소송비(약관 제5호: 형사 1·2심 660만·3심 330만·수사 500만, 2인 이상 330만·150만·250만, 민사 소송물가액 비율, 교원 제기 민사 연 2,000만 원·침해 결정 필요), 조례 비용지원(심급별 500만 원, 공제와 중복 불가), 변호사단 39명, 다품 긴급 법률 지원(대상·절차)은 있어요. 다품 지원 금액과 경찰 조사 동행 범위는 2026 기본계획에 없어요\
+- **대구 · 수사·소송** — 부분적: 공제 소송비(약관 제5호: 형사 1·2심 660만·3심 330만·수사 500만, 2인 이상 330만·150만·250만, 민사 소송물가액 비율, 교원 제기 민사 연 2,000만 원·침해 결정 필요·선지원 제외, 선지원은 피소 교원만, 제3자 구상권 가압류·가처분 110만 원, 신고 단계 법률 상담 비용은 금액 없음), 조례 비용지원(심급별 500만 원, 공제와 중복 불가), 변호사단 39명, 다품 긴급 법률 지원(대상·절차)은 있어요. 다품 지원 금액과 경찰 조사 동행 범위는 2026 기본계획에 없어요\
   다음 확인: 다품 긴급 법률 지원의 지원 금액·변호사 동행 범위를 공식 안내로 확인
 - **대구 · 민원 대응** — 부분적: 학교 민원대응팀 → 교육지원청 통합민원팀(5개 교육(지원)청, 교육장 직속 10팀) 이관 구조·구성과 개인 휴대전화·SNS 민원 응대 거부권은 있어요. 통합민원팀 연락처·이관 서식은 공식 자료에서 확인하지 못했어요\
   다음 확인: 교육지원청 통합민원팀 연락처·이관 절차 확인
