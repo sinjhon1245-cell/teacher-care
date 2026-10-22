@@ -290,4 +290,8 @@ PDF 중 HWP에서 변환된 파일(공제 약관·운영 계획·매뉴얼·유�
 
 ### 배포 기록
 
-- 2026-10-22 현재 **미배포**(작업 브랜치 전용). `main` 병합·Vercel Production 배포는 사용자 검토 뒤 결정해요.
+- 2026-10-22 사용자 검토(조건부 PASS) 뒤 `main`을 `4b3a66c`로 fast-forward해 push했어요(`414ceea` 제주·다른 지역 보기, `dd4e7c6` 최종 검토 보완, `6b4caf9` = `fix/hub-direct-links-label`의 `f0389d1`, `4b3a66c` 업데이트 내역·사용성 문서).
+- Vercel Production: 배포 `E2EPKLKE5ekB3VSVgcap6vqMWtzH`(GitHub 상태 ‘Deployment has completed’, 2026-10-22 13:38 KST) → https://teacher-care.vercel.app/
+- GitHub Pages: ‘pages build and deployment’ 성공(`4b3a66c`) → https://sinjhon1245-cell.github.io/teacher-care/
+- 두 주소 모두 사이트 파일 15개(`index.html`과 `?v=` 파일 14개)가 커밋과 바이트 단위로 같고 asset version `20261022-1`이에요.
+- 배포 뒤 실제 주소 검사: Vercel에서 `tools/ui-check.js` 10지역 × 5메뉴 × 9너비 **450조합 실패 0**, 시나리오 38/38, 최종 흐름 23/23(지역 선택·헤더 지역 목록·공통 대응·지원 필터·공유 링크·공제 카드 문구·업데이트 표시). GitHub Pages 375·1440px 100조합 실패 0.
