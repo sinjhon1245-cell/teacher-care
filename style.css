@@ -480,7 +480,7 @@ body.is-landing { padding-bottom: 0; }
 .landing-title { font-size: 2rem; margin: 0 0 8px; }
 .landing-title:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .landing-sub { color: var(--muted); margin: 0 0 24px; }
-/* 지역 11곳: 1024px 이상 6칸(6·5), 769~1023px 4칸(4·4·3), 휴대폰 2칸(아래 768·480px 규칙). 줄마다 카드 수 차이가 1개 이내가 되게 칸 수를 골라요(12곳이면 6×2·4×3) */
+/* 지역 12곳: 1024px 이상 6칸(6×2), 769~1023px 4칸(4×3), 휴대폰 2칸(아래 768·480px 규칙). 줄마다 카드 수 차이가 1개 이내가 되게 칸 수를 골라요(11곳일 때는 6·5, 4·4·3) */
 .region-cards { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 12px; margin: 0 0 20px; }
 /* 모든 카드 높이를 같게: 칸(li)이 줄 높이를 채우고 버튼이 칸을 채워요(큰 글꼴에서 ‘현재’ 카드만 커지지 않게) */
 .region-cards > li { display: grid; }

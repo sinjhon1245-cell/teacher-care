@@ -4,7 +4,7 @@
 // 사용법
 //   1) 사이트(로컬 또는 배포 주소)를 브라우저로 열어요.
 //   2) 개발자 도구 콘솔에 이 파일 내용을 붙여 넣고 실행해요 → 표와 요약 객체가 나와요.
-//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 11곳이면 11 × 5메뉴 × 9너비 = 495개 조합).
+//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 12곳이면 12 × 5메뉴 × 9너비 = 540개 조합).
 //      결과 객체의 ‘조합’ 값이 실제로 검사한 지역 × 메뉴 수예요(너비마다 따로 세요).
 //      개발자 도구의 기기 모드로 너비를 바꾸고, 바꾼 뒤에는 새로고침 없이 다시 실행해도 돼요.
 // 끝나면 처음 보던 지역·메뉴로 돌아가요.
@@ -130,7 +130,7 @@
         const rows = {};
         cards.forEach(c => { const t = Math.round(c.getBoundingClientRect().top); rows[t] = (rows[t] || 0) + 1; });
         const per = Object.values(rows);
-        // 줄마다 카드 수 차이가 1개 이내(예: 11곳 6·5 / 4·4·3 / 2칸 마지막 줄 1개). 5·5·1처럼 한 장만 남으면 칸 수를 다시 골라요
+        // 줄마다 카드 수 차이가 1개 이내(예: 12곳 6×2 / 4×3 / 2칸 6줄, 11곳 6·5 / 4·4·3). 5·5·1처럼 한 장만 남으면 칸 수를 다시 골라요
         if (Math.max(...per) - Math.min(...per) > 1) fail(id, pg, '지역 선택 줄 균형', per.join('/'));
         cards.forEach(c => { if (c.scrollWidth - c.clientWidth > 1) fail(id, pg, '지역 선택 글자 넘침', c.innerText.replace(/\s+/g, ' ').trim()); });
         const landOver = document.documentElement.scrollWidth - document.documentElement.clientWidth;
