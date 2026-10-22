@@ -52,17 +52,59 @@ const App = {
     if (linked) this.scrollToTarget();
   },
 
-  // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요
+  // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요.
+  // ‘다른 지역 보기’로 다시 연 화면이면 그 기록을 새 지역 홈으로 바꿔요(뒤로가기 = 이전 지역 홈).
+  // 지금 지역을 다시 고르면 setRegion이 아무것도 하지 않으니, 저장값은 그대로 두고 원래 홈으로 돌아가요
   chooseRegion(id) {
+    if (!REGIONS[id]) return;
+    if (id === this.state.regionId) { this.closeRegionChooser(true); return; }
     this.state.onboarding = false;
     this.state.page = 'home';
     this.setRegion(id, true);
     window.scrollTo(0, 0);
   },
 
-  // 지역 없이 공통 대응부터 보기. ‘미선택’은 저장하지 않아 다음 새 방문에는 다시 지역 선택 화면이 나와요
+  // 홈 연락처 카드의 ‘다른 지역 보기’: 처음 방문 때의 지역 선택 화면을 다시 열어요.
+  // 저장된 지역·체크·교육지원청 선택은 그대로 두고(다른 지역을 고를 때만 setRegion이 바꿔요) 기록을 하나 쌓아,
+  // 뒤로가기나 ‘돌아가기’로 지금 홈에 그대로 돌아와요
+  openRegionChooser() {
+    if (!this.R) return;
+    this.saveScroll();
+    this._navigating = true;
+    this.setState({ onboarding: true, page: 'home' });
+    this._navigating = false;
+    window.scrollTo(0, 0);
+    this.recordHistory('push');
+    const title = document.getElementById('landing-title');
+    if (title) title.focus({ preventScroll: true });
+  },
+
+  // 지역 선택 화면 닫기(돌아가기·Esc·지금 지역 다시 고르기). 이 화면을 연 기록이면 뒤로가기와 똑같이 돌아가
+  // 같은 홈이 기록에 두 번 쌓이지 않아요. 돌아온 뒤 ‘다른 지역 보기’ 버튼에 초점을 둬요
+  closeRegionChooser(reselected) {
+    const R = this.R;
+    if (!R) return;
+    const after = () => {
+      if (reselected) this.showToast(R.name + ' 기준으로 안내해요');
+      const btn = document.getElementById('region-switch');
+      if (btn) btn.focus({ preventScroll: true });
+    };
+    if (history.state && history.state.chooser) {
+      this._afterRestore = after;
+      history.back();
+      return;
+    }
+    this._navigating = true;
+    this.setState({ onboarding: false, page: 'home' });
+    this._navigating = false;
+    this.recordHistory('replace');
+    after();
+  },
+
+  // 지역 없이 공통 대응부터 보기. ‘미선택’은 저장하지 않아 다음 새 방문에는 다시 지역 선택 화면이 나와요.
+  // ‘다른 지역 보기’에서 눌렀으면 이 탭만 공통 화면이 되고 저장된 지역은 지우지 않아요(다음 방문은 그 지역)
   skipOnboarding() {
-    this.nav('home', { onboarding: false });
+    this.nav('home', { onboarding: false, regionId: null, area: '', supportType: 'all', related: null });
   },
 
   // 현재 선택된 지역 데이터(없으면 null)
@@ -102,7 +144,8 @@ const App = {
   // 기록(history.state) = 탐색 중 세부 상태(관련 지원 묶음, 스크롤 위치 등). 검색어·체크·스크롤은 주소에 넣지 않아요
   historyState() {
     const S = this.state;
-    return { tc: 1, page: S.page, region: S.regionId, step: S.step, benefit: S.benefit, situ: S.situ, compare: S.compare, supportType: S.supportType, related: S.related, scrollY: 0 };
+    // chooser: ‘다른 지역 보기’로 연 지역 선택 화면(앞으로가기로 다시 열 수 있게 기록해요)
+    return { tc: 1, page: S.page, region: S.regionId, chooser: !!(S.onboarding && S.regionId), step: S.step, benefit: S.benefit, situ: S.situ, compare: S.compare, supportType: S.supportType, related: S.related, scrollY: 0 };
   },
 
   recordHistory(mode) {
@@ -140,18 +183,31 @@ const App = {
   },
 
   restoreHistory(st) {
-    if (!st || !st.tc) return; // 우리 기록이 아니면(본문 바로가기 #main 등) 그대로 둬요
+    // 지역 선택 화면을 ‘돌아가기’로 닫았을 때 돌아온 화면에서 할 일(초점·알림)
+    const after = this._afterRestore;
+    this._afterRestore = null;
+    if (!st || !st.tc) {
+      // 우리 기록이 아니면(본문 바로가기 #main 등) 그대로 둬요. 다만 ‘다른 지역 보기’ 화면은 닫아 그 앞 화면으로 돌아가요
+      if (this.state.onboarding && this.R) {
+        this._restoring = true;
+        this.setState({ onboarding: false });
+        this._restoring = false;
+        if (after) after();
+      }
+      return;
+    }
     const page = PAGES.some(([id]) => id === st.page) ? st.page : 'home';
     const step = Number.isInteger(st.step) && st.step >= 0 && st.step < STEPS.length ? st.step : 0;
     this._restoring = true;
-    // 지역도 그 기록의 지역으로 돌려요(저장된 지역도 함께). 지역 기록이 없던 예전 항목은 지금 지역을 그대로 둬요
+    // 지역도 그 기록의 지역으로 돌려요(저장된 지역도 함께). 지역 기록이 없던 예전 항목은 지금 지역을 그대로 둬요.
+    // 공통 화면(region 없음) 기록으로 돌아갈 때는 저장된 지역을 지우지 않아요(‘미선택’은 저장하지 않는 규칙과 같아요)
     const patch = {};
     if (st.region !== undefined) {
       const region = REGIONS[st.region] ? st.region : null;
-      if (region !== this.state.regionId) { storeSet(STORAGE_REGION, region); patch.regionId = region; patch.area = ''; }
+      if (region !== this.state.regionId) { if (region) storeSet(STORAGE_REGION, region); patch.regionId = region; patch.area = ''; }
     }
     this.setState({
-      ...patch, page, step, onboarding: false,
+      ...patch, page, step, onboarding: !!st.chooser && !!REGIONS[st.region],
       benefit: st.benefit && benefitById(st.benefit) ? st.benefit : null,
       situ: typeof st.situ === 'string' ? st.situ : null,
       compare: st.compare && COMPARISONS.some(c => c.id === st.compare) ? st.compare : null,
@@ -160,6 +216,7 @@ const App = {
     });
     this._restoring = false;
     window.scrollTo(0, st.scrollY || 0);
+    if (after) after();
   },
 
   toggle(key, value) {
@@ -603,18 +660,25 @@ const App = {
   },
 
   // ══════════════ 첫 방문: 지역 선택 첫 화면 ══════════════
+  // 홈의 ‘다른 지역 보기’도 같은 화면을 써요. 그때는 지금 지역이 있어 그 카드에 ‘현재’를 표시하고, 맨 위에 돌아가기를 둬요
   renderLanding() {
-    const cards = REGION_ORDER.map(id => `
-      <li><button class="region-card" onclick="App.chooseRegion('${id}')" aria-label="${REGIONS[id].short} 안내 보기">
+    const cur = this.R ? this.state.regionId : null;
+    const cards = REGION_ORDER.map(id => {
+      const now = id === cur;
+      return `
+      <li><button class="region-card${now ? ' is-current' : ''}" onclick="App.chooseRegion('${id}')" ${now ? 'aria-current="true" ' : ''}aria-label="${REGIONS[id].short} 안내 보기${now ? ', 현재 지역' : ''}">
         <span class="region-card-name">${REGIONS[id].short}</span>
-        <span class="region-card-arrow" aria-hidden="true">→</span>
+        ${now ? '<span class="region-card-now">현재</span>' : '<span class="region-card-arrow" aria-hidden="true">→</span>'}
       </button></li>
-    `).join('');
+    `;
+    }).join('');
+    const back = cur ? `<button type="button" class="link-btn small landing-back" onclick="App.closeRegionChooser()"><span aria-hidden="true">‹</span> ${REGIONS[cur].short} 안내로 돌아가기</button>` : '';
     return `
       <main id="main" class="landing">
         <div class="landing-inner">
+          ${back}
           <p class="landing-brand"><img class="brand-symbol" src="assets/brand/logo-symbol.png" alt="" width="32" height="30"><span class="brand-name">선생님 곁에</span></p>
-          <h1 class="landing-title">어느 지역의 안내를 볼까요?</h1>
+          <h1 class="landing-title" id="landing-title" tabindex="-1">어느 지역의 안내를 볼까요?</h1>
           <p class="landing-sub">교육활동 보호·대응 정보를 확인할 근무 지역을 선택해 주세요.</p>
           <ul class="region-cards" aria-label="근무 지역 선택">${cards}</ul>
           <button class="link-btn landing-skip" onclick="App.skipOnboarding()">공통 대응 먼저 보기</button>
@@ -651,12 +715,16 @@ const App = {
   renderHero() {
     const R = this.R;
     // 연락처 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
-    // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역 → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
+    // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역(+ 다른 지역 보기) → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
     // DOM에서 hero-copy보다 앞에 둬요: 한 열 화면(960px 이하)에서 보이는 순서(카드 → 제목) = 키보드·화면 읽기 순서.
     // 두 열 화면에서는 CSS grid 배치로 오른쪽 열에 보여요
+    // ‘다른 지역 보기’는 전화 버튼보다 눈에 덜 띄는 작은 글자 버튼이에요. 처음 방문 때의 지역 선택 화면을 다시 열어요
     const panel = `
       <aside class="region-panel" id="contacts" aria-label="현재 지역 연락처">
-        <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
+        <div class="panel-head">
+          <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
+          <button type="button" class="link-btn small panel-switch" id="region-switch" onclick="App.openRegionChooser()">다른 지역 보기<span aria-hidden="true"> ›</span></button>
+        </div>
         ${this.contactBlock(R)}
         <button class="btn btn-secondary cc-more" onclick="App.nav('support')">지원 방법 보기</button>
       </aside>
@@ -2391,6 +2459,11 @@ const RegionMenu = {
     else if (e.key === 'Tab') this.close(false);
   }
 };
+
+// ‘다른 지역 보기’로 연 지역 선택 화면은 Esc로도 닫아요(처음 방문 화면은 돌아갈 곳이 없어 그대로예요)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && App.state.onboarding && App.R) App.closeRegionChooser();
+});
 
 // 목록 바깥을 누르면 닫아요
 document.addEventListener('pointerdown', e => {

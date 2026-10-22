@@ -473,32 +473,42 @@ details[open] > summary > .chevron::before { transform: translateY(2px) rotate(2
 /* ══════════════ 첫 방문: 지역 선택 첫 화면 ══════════════ */
 body.is-landing { padding-bottom: 0; }
 .landing { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; background: linear-gradient(180deg, var(--bg) 0%, var(--warm) 100%); }
-.landing-inner { width: 100%; max-width: 800px; margin: 0 auto; padding: 40px 24px; text-align: center; }
+.landing-inner { width: 100%; max-width: 960px; margin: 0 auto; padding: 40px 24px; text-align: center; }
+/* ‘다른 지역 보기’로 다시 열었을 때만: 맨 위 왼쪽의 돌아가기 */
+.landing-back { display: block; margin: 0 auto 16px 0; }
 .landing-brand { display: flex; align-items: center; justify-content: center; gap: 9px; margin: 0 0 28px; }
 .landing-title { font-size: 2rem; margin: 0 0 8px; }
+.landing-title:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .landing-sub { color: var(--muted); margin: 0 0 24px; }
-.region-cards { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 20px; }
+/* 지역 10곳: 넓은 화면 5칸 × 2줄, 휴대폰 2칸 × 5줄(아래 768·480px 규칙). 지역 수가 바뀌면 남는 칸 없이 나눠지는지 다시 봐요 */
+.region-cards { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 12px; margin: 0 0 20px; }
+/* 모든 카드 높이를 같게: 칸(li)이 줄 높이를 채우고 버튼이 칸을 채워요(큰 글꼴에서 ‘현재’ 카드만 커지지 않게) */
+.region-cards > li { display: grid; }
 .region-card {
-  width: 100%; min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
   text-align: left; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px 18px 12px 22px;
+  padding: 12px 16px 12px 20px;
 }
 .region-card:hover { border-color: var(--primary); background: var(--primary-soft); }
+/* 지금 보는 지역: 테두리를 한 겹 더(자리 이동 없이 안쪽 그림자) + 화살표 대신 ‘현재’ 글자 */
+.region-card.is-current { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); background: var(--primary-soft); }
 .region-card-name { font-size: 1.25rem; font-weight: 600; line-height: 1.3; color: var(--text); }
 .region-card-arrow { flex: none; font-weight: 700; color: var(--primary); }
+.region-card-now { flex: none; font-size: 0.875rem; font-weight: 700; line-height: var(--lh-ui); color: var(--primary-hover); }
 .landing-skip { font-size: var(--fs-sm); }
 .landing-safety { margin: 14px 0 0; font-size: 0.875rem; color: var(--muted); }
 .landing-safety a { color: var(--danger); font-weight: 700; }
 @media (min-width: 1024px) {
-  /* 데스크톱: 가로가 조금 긴 카드(약 1.5:1). 지역명은 왼쪽 위, 화살표는 오른쪽 아래 */
+  /* 데스크톱: 5칸 카드(약 1.3:1). 지역명은 왼쪽 위, 화살표(지금 지역은 ‘현재’)는 오른쪽 아래 */
   .region-cards { gap: 16px; margin-bottom: 24px; }
-  .region-card { min-height: 160px; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 24px 24px 20px 26px; }
+  .region-card { min-height: 132px; flex-direction: column; align-items: stretch; justify-content: space-between; padding: 22px 20px 18px 22px; }
   .region-card-name { font-size: 1.375rem; }
   .region-card-arrow {
     align-self: flex-end; width: 34px; height: 34px; border-radius: 50%; background: var(--primary-soft);
     display: flex; align-items: center; justify-content: center;
   }
   .region-card:hover .region-card-arrow { background: var(--surface); }
+  .region-card-now { align-self: flex-end; min-height: 34px; display: flex; align-items: center; }
 }
 
 /* ══════════════ 홈 ══════════════ */
@@ -518,6 +528,10 @@ body.is-landing { padding-bottom: 0; }
 .region-panel .region-picker { border: none; padding: 0; margin: 0; }
 .panel-label { margin: 0 0 12px; font-size: var(--fs-sm); color: var(--muted); }
 .panel-label strong { color: var(--text); font-weight: 700; margin-left: 4px; }
+/* 현재 지역 줄: 지역 이름 왼쪽, ‘다른 지역 보기 ›’(작은 글자 버튼) 오른쪽. 칸이 좁으면 버튼이 다음 줄 오른쪽으로 내려가 글자가 겹치지 않아요 */
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 12px; margin: 0 0 8px; }
+.panel-head .panel-label { margin: 0; }
+.panel-switch { flex: none; margin-left: auto; white-space: nowrap; }
 .panel-hot-label { margin: 0; font-size: var(--fs-sm); color: var(--muted); }
 .panel-hot {
   display: block; font-size: 2rem; font-weight: 700; color: var(--text); text-decoration: none; overflow-wrap: normal;
@@ -1039,10 +1053,13 @@ body.is-landing { padding-bottom: 0; }
   .hero-sub { font-size: var(--fs-sm); margin-bottom: 14px; }
   .hero-actions { margin-bottom: 12px; }
   .hero-actions .btn { flex: 1 1 140px; }
-  /* 모바일 지역 패널: 연락처만 — 대표는 번호 + 전화하기 한 줄, 학교급별 번호는 한 줄씩.
+  /* 모바일 지역 패널: 현재 지역 줄(작게) + 연락처 — 대표는 번호 + 전화하기 한 줄, 학교급별 번호는 한 줄씩.
      지원 방법 보기는 히어로 ‘내 교육지원청 찾기’와 하단 메뉴 ‘지원 찾기’가 맡아요 */
   .region-panel { padding: 12px 14px; }
-  .hero .region-panel .panel-label, .hero .region-panel .cc-more, .hero .cc-group-title { display: none; }
+  .hero .region-panel .cc-more, .hero .cc-group-title { display: none; }
+  .hero .region-panel .panel-head { margin-bottom: 4px; }
+  .hero .region-panel .panel-label { font-size: 0.8125rem; }
+  .hero .region-panel .panel-switch { font-size: 0.875rem; }
   .hero .region-panel .panel-hot-label { font-size: 0.8125rem; margin: 0; }
   .hero .region-panel .panel-hot { font-size: min(1.3125rem, 11cqi); }
   .cc { gap: 8px; }

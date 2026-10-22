@@ -4,7 +4,7 @@
 // 사용법
 //   1) 사이트(로컬 또는 배포 주소)를 브라우저로 열어요.
 //   2) 개발자 도구 콘솔에 이 파일 내용을 붙여 넣고 실행해요 → 표와 요약 객체가 나와요.
-//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 9곳이면 9 × 45 = 405개 조합).
+//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 10곳이면 10 × 5메뉴 × 9너비 = 450개 조합).
 //      결과 객체의 ‘조합’ 값이 실제로 검사한 지역 × 메뉴 수예요(너비마다 따로 세요).
 //      개발자 도구의 기기 모드로 너비를 바꾸고, 바꾼 뒤에는 새로고침 없이 다시 실행해도 돼요.
 // 끝나면 처음 보던 지역·메뉴로 돌아가요.
@@ -107,6 +107,37 @@
         }
         App.state.quick = null;
         App.render();
+
+        // 11) 현재 지역 줄: ‘다른 지역 보기’가 카드 안에 있고 지역 이름과 겹치지 않아요
+        const sw = document.getElementById('region-switch');
+        const lab = card && card.querySelector('.panel-label');
+        if (!sw || !visible(sw)) fail(id, pg, '다른 지역 보기', '없음');
+        else {
+          const s = sw.getBoundingClientRect(), c = card.getBoundingClientRect(), l = lab && lab.getBoundingClientRect();
+          if (s.right > c.right - parseFloat(getComputedStyle(card).paddingRight) + 1) fail(id, pg, '다른 지역 보기', '카드 밖으로 나가요');
+          if (l && visible(lab) && s.left < l.right - 1 && l.left < s.right - 1 && s.top < l.bottom - 1 && l.top < s.bottom - 1) fail(id, pg, '다른 지역 보기', '지역 이름과 겹쳐요');
+        }
+
+        // 12) 다른 지역 보기 → 지역 선택 화면: 카드 수·현재 지역 표시·높이·줄 균형·넘침, 돌아가기로 원래 홈
+        App.openRegionChooser();
+        await wait(60);
+        const cards = [...document.querySelectorAll('.region-card')];
+        if (cards.length !== REGION_ORDER.length) fail(id, pg, '지역 선택 카드', `${cards.length}개(기대 ${REGION_ORDER.length})`);
+        const cur = document.querySelectorAll('.region-card[aria-current="true"]');
+        if (cur.length !== 1 || !cur[0].innerText.includes(R.short)) fail(id, pg, '지역 선택 현재 표시', `${cur.length}개`);
+        const hs = cards.map(c => c.getBoundingClientRect().height);
+        if (Math.max(...hs) - Math.min(...hs) > 1) fail(id, pg, '지역 선택 카드 높이', `${Math.min(...hs).toFixed(1)}~${Math.max(...hs).toFixed(1)}px`);
+        const rows = {};
+        cards.forEach(c => { const t = Math.round(c.getBoundingClientRect().top); rows[t] = (rows[t] || 0) + 1; });
+        const per = Object.values(rows);
+        if (per.some(n => n !== per[0])) fail(id, pg, '지역 선택 줄 균형', per.join('/'));
+        cards.forEach(c => { if (c.scrollWidth - c.clientWidth > 1) fail(id, pg, '지역 선택 글자 넘침', c.innerText.replace(/\s+/g, ' ').trim()); });
+        const landOver = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        if (landOver > 0) fail(id, pg, '지역 선택 가로 넘침', landOver + 'px');
+        if (!document.querySelector('.landing-back')) fail(id, pg, '지역 선택 돌아가기', '없음');
+        App.closeRegionChooser();
+        await wait(150);
+        if (App.state.onboarding || App.state.regionId !== id || !document.getElementById('contacts')) fail(id, pg, '지역 선택 돌아가기', '원래 홈으로 돌아오지 않았어요');
       }
 
       if (pg === 'support') {
