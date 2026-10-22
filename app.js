@@ -54,10 +54,11 @@ const App = {
 
   // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요.
   // ‘다른 지역 보기’로 다시 연 화면이면 그 기록을 새 지역 홈으로 바꿔요(뒤로가기 = 이전 지역 홈).
-  // 지금 지역을 다시 고르면 setRegion이 아무것도 하지 않으니, 저장값은 그대로 두고 원래 홈으로 돌아가요
+  // 지금 지역을 다시 고르면 setRegion이 아무것도 하지 않으니, 그 지역을 저장하고 원래 홈으로 돌아가요
+  // (공유 주소로 들어와 화면 지역과 저장 지역이 다를 때도, 직접 고른 지역이 다음 방문에 이어지게)
   chooseRegion(id) {
     if (!REGIONS[id]) return;
-    if (id === this.state.regionId) { this.closeRegionChooser(true); return; }
+    if (id === this.state.regionId) { storeSet(STORAGE_REGION, id); this.closeRegionChooser(true); return; }
     this.state.onboarding = false;
     this.state.page = 'home';
     this.setRegion(id, true);
