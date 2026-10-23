@@ -158,4 +158,10 @@
 - asset version은 `20261023-1`(배포한 적 없는 값, 공개일과 같은 날짜) 그대로예요.
 - 사용성 테스트 안내·결과 양식을 12개 지역으로 고쳤어요(연락처 구조 표에 ‘대표번호 + 업무별 직통번호’ 대전 추가). 인쇄용 PDF는 여전히 9개 지역 인쇄본이라 다음 테스트 전에 다시 만들어요.
 - 3장 미확인·충돌 목록과 처리 방식은 바꾸지 않고 배포해요.
-- `main` 병합·배포 결과는 배포 뒤 이 아래에 적어요.
+- 2026-10-23 사용자 요청(최종 검증 PASS 확인 뒤 배포)에 따라 PR #1(https://github.com/sinjhon1245-cell/teacher-care/pull/1)을 열고 `main`을 `e6ea265`로 fast-forward해 push했어요(`897c2f0` 대전 추가, `ea6abeb` 학교민원 시점 구분, `a3a29d4` 10. 29. 전후 모두 맞는 문구, `e6ea265` 업데이트 내역·운영 문서). GitHub에서 PR #1은 병합으로 표시돼요. force push는 쓰지 않았어요.
+- Vercel Production: 배포 `5fuEH4XrhXed4iscEV4FkPu13GEh`(GitHub 상태 ‘Deployment has completed’, 2026-10-23 13:30 KST) → https://teacher-care.vercel.app/
+- GitHub Pages: 빌드 성공(`e6ea265`, 2026-10-23 13:30 KST) → https://sinjhon1245-cell.github.io/teacher-care/
+- 두 주소 모두 사이트 파일 25개(`index.html`·`?v=` 파일 16개·이미지 등)가 커밋과 바이트 단위로 같고 asset version `20261023-1`이에요.
+- 배포 전 검사(`e6ea265`): check-all PASS(링크 396개), `git diff --check` 통과, 12지역 × 5메뉴 × 9너비 540조합 실패 0, 대전 흐름 41/41, 배포 흐름 27/27(업데이트 순서·읽음 상태 포함), 시나리오 38/38. `a3a29d4`에서 원문 대조 55/55. 기존 11개 지역은 데이터가 main(`d6ab596`)과 같고, 화면 110개(375·1440px)에서 헤더·푸터의 업데이트 줄과 ‘12개 시·도’만 달라요(전화·링크 같음).
+- 배포 뒤 실제 주소 검사: Vercel 540조합 실패 0, 대전 흐름 41/41, 배포 흐름 27/27, 시나리오 38/38. GitHub Pages 375·1440px 120조합 실패 0, 대전 흐름 41/41, 배포 흐름 27/27. 화면 점검 20/20(두 주소 × 375·1440px: 지역 선택 12곳, 대전 홈, 주소에 지역 없이 재방문 → 대전 유지, 지원 찾기, 교육지원청 찾기 — 가로 넘침·번호 줄바꿈·콘솔 오류 0).
+- PR에는 Netlify ‘icnteachercare’ 미리보기 검사가 붙었어요(미리보기 성공, 나머지 neutral). Vercel·GitHub Pages가 아닌 별도 사이트라 이 서비스의 배포 대상이 아니에요.
