@@ -3,8 +3,8 @@
 매년(새 학년도 전후) 이 문서를 복사해 그해 기록으로 쓰세요(예: `docs/maintenance-log-2027.md`). 항목마다 □를 ☑로 바꾸고, 바뀐 것이 있으면 옆에 한 줄로 적어요.
 
 - 지금 할 일 목록: `node tools/check-all.js` → `docs/maintenance-report.md`의 **다음 점검 항목**(리포트는 이 도구로만 다시 만들어요. 직접 고치지 않아요)
-- 대상 지역(12곳, `index.html` 순서): 서울·경기·인천·부산·충북·강원·울산·전북·경남·제주·대구·대전(대전은 작업 브랜치, 미배포)
-- 데이터 위치: 공통 `data/common.js` · 지역 `data/regions/seoul.js`, `gyeonggi.js`, `incheon.js`, `busan.js`, `chungbuk.js`, `gangwon.js`, `ulsan.js`, `jeonbuk.js`, `gyeongnam.js`, `jeju.js`, `daegu.js` · 지역 gap `tools/data/regional-gaps.js` · 업데이트 내역 `data/updates.js`
+- 대상 지역(12곳, `index.html` 순서): 서울·경기·인천·부산·충북·강원·울산·전북·경남·제주·대구·대전
+- 데이터 위치: 공통 `data/common.js` · 지역 `data/regions/seoul.js`, `gyeonggi.js`, `incheon.js`, `busan.js`, `chungbuk.js`, `gangwon.js`, `ulsan.js`, `jeonbuk.js`, `gyeongnam.js`, `jeju.js`, `daegu.js`, `daejeon.js` · 지역 gap `tools/data/regional-gaps.js` · 업데이트 내역 `data/updates.js`
 - 배포 주소: **대표(교사에게 공유) https://teacher-care.vercel.app/** · 병행 운영 https://sinjhon1245-cell.github.io/teacher-care/ (둘 다 `main` push로 반영)
 - 원칙: **공식 원문으로 확인한 것만** 고쳐요. 한 지역 자료가 없다고 다른 지역 값을 옮겨 적지 않아요. 확인하지 못한 칸은 비워 두면 화면에서 숨겨져요.
 - 날짜 원칙: `verifiedAt`·`sourceUpdatedAt`·`reviewBy`는 **실제로 다시 확인했을 때만** 바꿔요. 점검 도구의 ‘주의’를 없애려고 날짜만 올리지 않아요.
