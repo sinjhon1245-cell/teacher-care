@@ -69,6 +69,7 @@ docs/
   usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽, 12개 지역 기준)
   usability-test-kit.html     인쇄본 원본(고친 뒤 tools/build-usability-kit.js로 PDF를 다시 만들어요)
   usability-walkthrough-2026-10-26.md  교사 테스트 전 연구자 워크스루 기록(교사 참여 없음, 관찰 후보)
+  accessibility-followups.md  후속 접근성 수정 목록(사용자 관찰과 별개로 확인된 결함)
   feedback-form-spec.md       의견 받기 양식 명세(현재 비활성)
 ```
 
