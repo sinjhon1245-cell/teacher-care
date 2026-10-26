@@ -6,14 +6,14 @@
 | 항목 | 값 |
 | --- | --- |
 | 생성일 | 2026-10-26 (한국 시간) |
-| asset version | 20261023-1 |
+| asset version | 20261026-1 |
 | 최근 전체 확인일 | 2026-10-03 (모든 지역 안내를 마지막으로 다 확인한 날) |
 | 확인일 범위 | 2026-09-24 ~ 2026-10-26 (항목 471건) |
 
 | 점검 | 결과 |
 | --- | --- |
 | 데이터 검증 | PASS (오류 0 · 주의 0) |
-| 공식 링크 | PASS (405개) |
+| 공식 링크 | PASS(확인 필요 있음) (405개) |
 | 오래된 정보 | 0 |
 | 재검토 필요 | 0 |
 | 지역 gap | 43 (+ 영역 밖 38) |
@@ -163,14 +163,15 @@
 
 ## 링크 현황
 
-점검 시각: 2026-10-26 08:41(한국 시간) · 링크 405개(사용 위치 548곳)
+점검 시각: 2026-10-26 09:11(한국 시간) · 링크 405개(사용 위치 548곳)
 
 | 정상 | redirect | 확인 필요 | broken |
 | ---: | ---: | ---: | ---: |
-| 377 | 28 | 0 | 0 |
+| 376 | 28 | 1 | 0 |
 
 | 판정 | 상태 | 주소 | 위치 | 메모 |
 | --- | --- | --- | --- | --- |
+| 확인 필요 | CERT_HAS_EXPIRED | https://chungbuk.ssif.or.kr/compensation/teacher.php | data/regions/chungbuk.js:34, data/regions/chungbuk.js:50, data/regions/chungbuk.js:103, data/regions/chungbuk.js:106 | 연결 실패(인증서·네트워크 확인) |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dep/jo/jobshare/selectJobShareView.do?dept_cd=7240365&mi=8210 → https://www.dge.go.kr/dep/sso/index.do | data/regions/daegu.js:41 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/jo/jobshare/selectJobShareView.do?mi=6935 → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:49 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/main.do → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:89 |  |
