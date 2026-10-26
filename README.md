@@ -61,6 +61,7 @@ docs/
   jeju-regional-accuracy-audit.md  제주 연락처·금액·관할 정확도 감사(2026-10-22)
   daegu-regional-accuracy-audit.md  대구 연락처·금액·관할 정확도 감사(2026-10-22)
   daejeon-regional-accuracy-audit.md  대전 연락처·금액·관할 정확도 감사(2026-10-22~23)
+  12-region-final-accuracy-audit-2026-10-26.md  12개 지역·공통 법령 최종 정확성 감사(2026-10-23~26)
   usability-test-teachers.md  교사 사용성 테스트 가이드(진행 방법·과제 카드 6개·성공 기준·분석 기준)
   usability-results-template.md  사용성 테스트 관찰 기록표·결과 집계·개선사항 보고 빈 양식
   usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽)
