@@ -62,6 +62,7 @@ docs/
   daegu-regional-accuracy-audit.md  대구 연락처·금액·관할 정확도 감사(2026-10-22)
   daejeon-regional-accuracy-audit.md  대전 연락처·금액·관할 정확도 감사(2026-10-22~23)
   12-region-final-accuracy-audit-2026-10-26.md  12개 지역·공통 법령 최종 정확성 감사(2026-10-23~26)
+  official-source-spotcheck-2026-10-23.md  12개 지역 선택 항목 독립 교차검증(2026-10-23, 최종 감사 전 기록)
   usability-test-teachers.md  교사 사용성 테스트 가이드(진행 방법·과제 카드 6개·성공 기준·분석 기준)
   usability-results-template.md  사용성 테스트 관찰 기록표·결과 집계·개선사항 보고 빈 양식
   usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽)
@@ -295,7 +296,7 @@ git diff --check
 ‘자동 승인·지급’ 같은 오해 표현, 특별휴가 ‘범위에서 부여’·휴직 ‘검토’ 표현, 상황 → 권리 연결·회복 경로·홈 카드 id,
 지역 `benefits`·`highlights`의 id·출처, 숫자 정보의 출처, 다른 지역 사업명 혼입, 출처의 `region`,
 5메뉴 순서, 회복·보호에 외부 지원이 섞였는지, 제도 묶음·공식 근거 id, 단계별 바로가기·홈 입구 id, 지원 유형의 공통 기준·회복·보호 연결, 지원 항목 area(배열 포함)를 검사해요.
-문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역(서울~강원) 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에, 그 뒤 추가한 지역의 검증은 `docs/ulsan-regional-accuracy-audit.md`·`docs/jeonbuk-regional-accuracy-audit.md`·`docs/gyeongnam-regional-accuracy-audit.md`·`docs/jeju-regional-accuracy-audit.md`·`docs/daegu-regional-accuracy-audit.md`·`docs/daejeon-regional-accuracy-audit.md`에 있어요(감사 문서는 그 시점의 기록이라 고쳐 쓰지 않아요). 12개 지역 연례 갱신 절차와 경남·제주·대구·대전 미확인·충돌 항목 추적은 `docs/annual-maintenance-checklist.md`에 있어요.
+문제가 있으면 종료 코드 1로 끝나요. 보호·지원 상세화 근거와 최신화 기록은 `docs/protection-support-audit-2026.md`(1차)와 `docs/rights-benefits-audit-2026.md`(2차: 병가·휴직·공무상 요양·전보·신분별 차이)에, 5메뉴 정보구조는 `docs/ia-5-menu-2026.md`에, 지역별 정보 깊이 비교는 `docs/regional-gap-audit-2026.md`에, 6개 지역(서울~강원) 연락처·금액·관할 정확도 감사는 `docs/regional-accuracy-audit-2026-10-07.md`에, 그 뒤 추가한 지역의 검증은 `docs/ulsan-regional-accuracy-audit.md`·`docs/jeonbuk-regional-accuracy-audit.md`·`docs/gyeongnam-regional-accuracy-audit.md`·`docs/jeju-regional-accuracy-audit.md`·`docs/daegu-regional-accuracy-audit.md`·`docs/daejeon-regional-accuracy-audit.md`에 있어요(감사 문서는 그 시점의 기록이라 고쳐 쓰지 않아요). 12개 지역·공통 법령 최종 정확성 감사(2026-10-23~26)는 `docs/12-region-final-accuracy-audit-2026-10-26.md`에, 그 전 선택 항목 독립 교차검증은 `docs/official-source-spotcheck-2026-10-23.md`에 있어요. 12개 지역 연례 갱신 절차와 경남·제주·대구·대전 미확인·충돌 항목 추적은 `docs/annual-maintenance-checklist.md`에 있어요.
 
 ## 로컬에서 확인하기
 
