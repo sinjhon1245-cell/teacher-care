@@ -219,5 +219,11 @@
 
 - 공개일 2026-10-26. `data/updates.js` 맨 위에 `2026-10-26-12-region-accuracy-audit`(정보 수정, 상단 안내바 없음, 전화번호 없음)을 넣었어요. 기존 항목·id는 그대로라 대전(10. 23.)까지 읽은 사람에게는 이 항목이 새 업데이트로 보여요.
 - asset version을 `20261023-1`에서 `20261026-1`로 올렸어요(`index.html`의 meta와 로컬 CSS·JS `?v=` 16곳).
-- 배포 전 `check-all`(2026-10-26 09:1x KST)에서 충북학교안전공제회 `https://chungbuk.ssif.or.kr/compensation/teacher.php`가 ‘확인 필요(CERT_HAS_EXPIRED)’로 나왔어요. 인증서 유효기간이 2026-10-25 23:59:59 UTC(10. 26. 08:59 KST)에 끝나 브라우저에서 보안 경고가 뜰 수 있어요. 공식 기관 주소라 바꾸지 않고, 충북 공제 안내는 교육청 게시물(공제기간·한도)로도 확인돼요. 갱신 여부를 다시 봐요.
-- `main` 병합·배포 결과는 배포 뒤 이 아래에 적어요.
+- 배포 전 `check-all`(2026-10-26 오전)에서 충북학교안전공제회 `https://chungbuk.ssif.or.kr/compensation/teacher.php`가 ‘확인 필요(CERT_HAS_EXPIRED)’로 나왔어요. 인증서 유효기간이 2026-10-25 23:59:59 UTC(10. 26. 08:59 KST)에 끝나 브라우저에서 보안 경고가 뜰 수 있어요. 공식 기관 주소라 바꾸지 않고, 충북 공제 안내는 교육청 게시물(공제기간·한도)로도 확인돼요. 갱신 여부를 다시 봐요.
+- 2026-10-26 사용자 요청(감사 수정분 배포)에 따라 PR #4(https://github.com/sinjhon1245-cell/teacher-care/pull/4)를 열고 `main`을 `ea4dfd6`로 fast-forward해 push했어요(`1fb5468` 감사 수정, `ea4dfd6` 업데이트 내역·asset version·배포 기록). GitHub에서 PR #4는 병합으로 표시돼요. force push는 쓰지 않았어요.
+- Vercel Production: 배포 `9m3RaLVyXUmMPvmwgjqnxqpwhkiQ`(GitHub 상태 ‘Deployment has completed’, 2026-10-26 09:17 KST) → https://teacher-care.vercel.app/
+- GitHub Pages: 빌드 성공(`ea4dfd6`, 2026-10-26 09:17 KST) → https://sinjhon1245-cell.github.io/teacher-care/
+- 두 주소 모두 사이트 파일 25개(`index.html`·`?v=` 파일 16개·이미지 등)가 커밋과 바이트 단위로 같고 asset version `20261026-1`이에요.
+- 배포 전 검사(`ea4dfd6`): check-all PASS(링크 405개, 확인 필요 1 = 위 충북 인증서), `git diff --check` 통과, 540조합 실패 0, 대전 흐름 41/41, 배포 흐름 27/27(업데이트 순서·읽음 상태 포함), 상황 시나리오 38/38, 미래 날짜 ‘기간 확인’ 84/84. 감사 수정본(`1fb5468`)과 비교하면 60쪽 모두 헤더·푸터의 업데이트 줄만 다르고 전화·링크 차이 0이에요.
+- 배포 뒤 실제 주소 검사: Vercel 540조합 실패 0, 배포 흐름 27/27, 대전 흐름 41/41, 상황 시나리오 38/38, ‘기간 확인’ 84/84(서울 북부·성동광진 교육지원청 찾기 전화 버튼 02-1395 포함). GitHub Pages 375·1440px 120조합 실패 0, 배포 흐름 27/27, 대전 흐름 41/41. 고친 카드(인천 200만 원, 제주 조례 부결, 대전 학교민원, 경기·강원 치료비, 서울 교육지원청 찾기)를 375px에서 캡처해 확인했고 콘솔 오류는 없었어요.
+- PR #4에도 Netlify ‘icnteachercare’ 미리보기 검사가 붙었어요. Vercel·GitHub Pages가 아닌 별도 사이트라 이 서비스의 배포 대상이 아니에요. 다른 세션의 PR #3(`audit/independent-source-crosscheck-20261023`)은 이 배포 뒤에도 충돌 없이 병합할 수 있는 상태예요(README·연례 점검표의 같은 줄을 같은 문장으로 맞춤).
