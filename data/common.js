@@ -2347,6 +2347,14 @@ const FEEDBACK_URL = '';
 // type: helpful·needs-improvement·general / region: seoul·gyeonggi·incheon·busan·chungbuk·gangwon·ulsan·common / page: 화면 id / item: 제도·상황·지원 유형 id / url: 공유 주소
 const FEEDBACK_FIELDS = { type: '', region: '', page: '', item: '', url: '' };
 
+// 안내별 의견(‘이 안내가 도움이 되었나요?’): 지원 카드와 제도·상황·지원 유형 상세 아래의 작은 버튼이에요.
+// 응답은 같은 주소의 서버 함수(api/feedback.js)가 날짜·지역·안내 id·응답 종류만 건수로 더해요(이름·학교·연락처·IP 주소·자유 입력은 받지 않아요).
+// 서버가 저장소(Upstash Redis)에 연결돼 ‘준비됨’이라고 답할 때만 버튼을 그려요. 연결 전이나 GitHub Pages에서는 아무것도 보이지 않아요.
+// 끄려면 빈 문자열로 둬요. 연결·확인 절차: docs/feedback-and-analytics.md
+const FEEDBACK_API = '/api/feedback';
+// 방문 통계(Vercel Web Analytics, 쿠키 없음). Vercel 대시보드에서 Web Analytics를 켠 뒤에만 true로 바꿔요(켜기 전에는 스크립트를 넣지 않아요)
+const WEB_ANALYTICS = false;
+
 // 만든 사람 표시(공통 하단 서비스 안내 맨 끝 · 업데이트 내역 창 맨 아래에만 작은 글자로). 헤더·첫 화면·하단 메뉴에는 넣지 않아요.
 // 공개 별칭과 공개 블로그 주소만 적어요(실명·학교·연락처·계정 정보는 넣지 않아요). 주소를 바꿀 때는 여기 한 곳만 고쳐요
 const SITE_AUTHOR = { name: '진진쌤', blogUrl: 'https://blog.naver.com/jinjinssem' };

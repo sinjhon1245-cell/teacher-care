@@ -28,6 +28,8 @@
 index.html              스크립트 로드 순서 정의(공통 → 지역 → 화면)
 style.css               전체 스타일(모바일 반응형 포함). 글꼴·크기·부품 규칙은 docs/design-system.md
 app.js                  화면 렌더링·상태 관리. 특정 지역 이름·번호를 두지 않아요
+api/
+  feedback.js           안내별 의견 저장(Vercel 서버 함수, 응답 건수만 · 저장소 연결 전에는 버튼이 보이지 않아요)
 data/
   common.js             전국 공통 데이터 + 지역 등록 도구(registerRegion)
   regions/
@@ -48,6 +50,7 @@ tools/
   check-links.js        공식 링크 접속 점검(배포 전·정기 점검): 200·이동·404·403·시간 초과
   generate-maintenance-report.js  운영 점검 리포트 만들기 → docs/maintenance-report.md
   check-all.js          위 세 가지를 한 번에(일상 점검)
+  feedback-report.js    안내별 의견 집계(운영자용, 읽기 전용 토큰으로 실행)
   data/regional-gaps.js 서울·경기·인천·부산·충북·강원·울산·전북·경남·제주·대구·대전 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
   lib/                  점검 도구가 함께 쓰는 계산(최신성·gap·데이터 읽기)
 docs/
@@ -67,6 +70,7 @@ docs/
   usability-results-template.md  사용성 테스트 관찰 기록표·결과 집계·개선사항 보고 빈 양식
   usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽)
   feedback-form-spec.md       의견 받기 양식 명세(현재 비활성)
+  feedback-and-analytics.md   안내별 의견·방문 통계 구조, 개인정보 원칙, 켜는 방법과 집계
 ```
 
 ### 공통 데이터(`data/common.js`)

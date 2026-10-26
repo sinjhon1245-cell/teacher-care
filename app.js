@@ -49,6 +49,9 @@ const App = {
     // 최초 진입: 지금 화면을 기록만 하고(replace) 새 항목은 만들지 않아요. 스크롤은 우리가 직접 맞춰요
     try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) { /* 무시 */ }
     this.recordHistory('replace');
+    // 의견 버튼: 이번 방문에서 이미 확인한 준비 상태면 바로 다시 그려요(공유 주소의 스크롤 위치를 맞추기 전에)
+    Feedback.init();
+    initAnalytics();
     if (linked) this.scrollToTarget();
   },
 
@@ -516,6 +519,7 @@ const App = {
         <button type="button" class="tool-btn" data-url="${escapeAttr(url)}" onclick="App.copyLink(this.dataset.url)" aria-label="${escapeAttr(label)} 링크 복사">링크 복사</button>
         <button type="button" class="tool-btn" data-title="${escapeAttr(label)}" onclick="App.printTarget(this)" aria-label="${escapeAttr(label)} 인쇄하기">인쇄하기</button>
       </div>
+      ${withFeedback ? Feedback.block(feedbackTargetOf(state, label)) : ''}
       ${withFeedback ? feedbackLine(state, label) : ''}
     `;
   },
@@ -1557,6 +1561,7 @@ const App = {
         ${this.supportDetail(p)}
         ${actionButtons(programChannels(p))}
         <p class="muted small">${sourceLine(R, p)}</p>
+        ${Feedback.block({ kind: 'program', id: programFeedbackId(p), label: p.t })}
       </li>
     `).join('');
     const directory = R.orgs.map(o => `
@@ -1681,7 +1686,7 @@ const App = {
             <p>교사를 위한 교육활동 보호·대응 가이드예요.</p>
             <p>공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.</p>
             <p>실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.</p>
-            <p>선택한 지역, 체크 상태(대응 절차·행동 체크), 업데이트 알림 확인 여부만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
+            <p>${privacyNote()}</p>
           </div>
           <div class="footer-side">
             <div class="footer-official">
@@ -2138,6 +2143,197 @@ function buildFeedbackUrl(st, type) {
 function feedbackLine(st, label) {
   if (!feedbackEnabled()) return '';
   return `<p class="fb-line">정보가 달라졌거나 보완이 필요하면 알려주세요. <a href="${escapeAttr(buildFeedbackUrl(st, 'general'))}" target="_blank" rel="noopener" aria-label="${escapeAttr(label)} 의견 보내기 (의견 양식, 새 창)">의견 보내기 <span aria-hidden="true">↗</span></a></p>`;
+}
+
+// 상세 상태(shareTools의 state)에서 의견 대상을 꺼내요: 제도(benefit)·상황(situ)·지원 유형(supportType)
+function feedbackTargetOf(st, label) {
+  if (st.benefit) return { kind: 'benefit', id: st.benefit, label };
+  if (st.situ && String(st.situ).startsWith('situ:')) return { kind: 'situ', id: String(st.situ).slice(5), label };
+  if (st.supportType && st.supportType !== 'all' && st.supportType !== 'related') return { kind: 'type', id: st.supportType, label };
+  return null;
+}
+
+// 서비스 안내의 ‘무엇을 저장하나요’ 문장. 의견 버튼·방문 통계가 실제로 켜졌을 때만 그 내용을 더해요
+function privacyNote() {
+  const local = '선택한 지역, 체크 상태(대응 절차·행동 체크), 업데이트 알림 확인 여부는 이 기기에만 저장해요.';
+  const fb = Feedback.ready ? ' ‘이 안내가 도움이 되었나요?’에 답하면 응답 종류·안내 이름·지역·날짜만 서버에 건수로 저장하고, 이름·학교·연락처·IP 주소는 저장하지 않아요.' : '';
+  const va = analyticsOn() ? ' 방문 통계는 쿠키 없이 페이지 조회 수만 집계해요(Vercel Web Analytics).' : '';
+  return fb || va ? local + fb + va : '선택한 지역, 체크 상태(대응 절차·행동 체크), 업데이트 알림 확인 여부만 이 기기에 저장하고, 서버로 보내지 않아요.';
+}
+
+// ── 안내별 의견(‘이 안내가 도움이 되었나요?’) ──
+// 서버 함수(FEEDBACK_API)가 ‘준비됨’이라고 답할 때만 버튼을 그려요(저장소 연결 전·GitHub Pages에서는 아무것도 없어요).
+// 보내는 값: 지역·안내 종류와 id·응답 종류·부족한 이유(정해진 4개 중 하나)뿐이에요. 자유 입력·검색어·체크 상태는 보내지 않아요.
+// 저장에 성공했다는 답(200 { ok: true })을 받았을 때만 ‘보냈어요’로 바꾸고, 같은 기기에서 같은 안내에는 다시 묻지 않아요(STORAGE_FEEDBACK)
+const STORAGE_FEEDBACK = 'teacher-care-feedback-v1';     // { '지역|종류:id': { c: 응답, d: 'YYYY-MM-DD' } }
+const SESSION_FEEDBACK_READY = 'teacher-care-feedback-ready'; // 이번 방문에서 확인한 서버 준비 상태('1'/'0')
+const FEEDBACK_REASONS = [
+  ['missing', '찾는 정보가 없어요'],
+  ['unclear', '안내가 이해하기 어려워요'],
+  ['outdated', '정보가 오래된 것 같아요'],
+  ['broken-link', '링크가 제대로 열리지 않아요']
+];
+
+// 시간 제한(AbortSignal.timeout이 없는 오래된 브라우저에서도 동작하게)
+function timeoutSignal(ms) {
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') return AbortSignal.timeout(ms);
+  if (typeof AbortController === 'undefined') return undefined;
+  const c = new AbortController();
+  setTimeout(() => c.abort(), ms);
+  return c.signal;
+}
+
+// 지원 카드(지역 사업)는 id가 없어서 이름으로 짧은 id를 만들어요(같은 이름이면 같은 id, tools/feedback-report.js가 이름으로 되돌려요)
+function programFeedbackId(p) {
+  let h = 0x811c9dc5;
+  for (const ch of String(p.t)) { h ^= ch.codePointAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return 'p-' + h.toString(16).padStart(8, '0');
+}
+
+const Feedback = {
+  ready: false,
+  ui: {},      // 화면에만 있는 상태: { open: 이유 고르기 펼침, busy: 보내는 중, error: 저장 실패 }
+  targets: {},
+
+  // 같은 주소의 서버 함수만 써요. GitHub Pages(정적 호스팅)나 파일로 연 화면에서는 묻지도 않아요
+  available() {
+    return typeof FEEDBACK_API === 'string' && /^\/api\/[a-z-]+$/.test(FEEDBACK_API)
+      && /^https?:$/.test(location.protocol) && !/\.github\.io$/.test(location.hostname);
+  },
+
+  async init() {
+    if (!this.available()) return;
+    let cached = null;
+    try { cached = sessionStorage.getItem(SESSION_FEEDBACK_READY); } catch (e) {}
+    let ready = cached === '1';
+    if (cached === null) {
+      try {
+        const res = await fetch(FEEDBACK_API, { headers: { Accept: 'application/json' }, signal: timeoutSignal(4000) });
+        const body = res.ok ? await res.json() : null;
+        ready = !!(body && body.ready === true);
+      } catch (e) { ready = false; }
+      try { sessionStorage.setItem(SESSION_FEEDBACK_READY, ready ? '1' : '0'); } catch (e) {}
+    }
+    if (ready && !this.ready) { this.ready = true; App.render(); }
+  },
+
+  sentMap() {
+    try { const v = JSON.parse(storeGet(STORAGE_FEEDBACK) || '{}'); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; }
+  },
+
+  keyOf(t) { return `${App.state.regionId || 'common'}|${t.kind}:${t.id}`; },
+
+  // t: { kind: program·benefit·situ·type, id, label }
+  block(t) {
+    if (!this.ready || !t || !t.id) return '';
+    const key = this.keyOf(t);
+    this.targets[key] = t;
+    const sent = this.sentMap()[key];
+    const ui = this.ui[key] || {};
+    const label = escapeAttr(t.label || '이 안내');
+    if (sent) {
+      return `<div class="fb-mini" data-fb-key="${escapeAttr(key)}"><p class="fb-mini-done" role="status">${sent.c === 'helpful' ? '‘도움이 되었어요’' : '‘정보가 부족해요’'}로 의견을 보냈어요. 고마워요.</p></div>`;
+    }
+    const dis = ui.busy ? ' disabled' : '';
+    const reasons = ui.open ? `
+      <div class="fb-reasons">
+        <p class="fb-reasons-q">어떤 점이 부족했나요? <span class="fb-mini-hint">하나를 고르면 바로 보내져요</span></p>
+        <div class="fb-mini-row" role="group" aria-label="${label} 부족한 점">
+          ${FEEDBACK_REASONS.map(([id, text]) => `<button type="button" class="fb-pill fb-pill-reason"${dis} onclick="Feedback.send(this, 'needs-more', '${id}')">${text}</button>`).join('')}
+          <button type="button" class="fb-pill fb-pill-plain"${dis} onclick="Feedback.send(this, 'needs-more', '')">이유 없이 보내기</button>
+        </div>
+      </div>` : '';
+    const status = ui.busy ? '보내는 중이에요…' : ui.error ? '<span class="fb-error">의견을 저장하지 못했어요. 잠시 뒤 다시 눌러 주세요.</span>' : '';
+    return `
+      <div class="fb-mini" data-fb-key="${escapeAttr(key)}">
+        <p class="fb-mini-q">이 안내가 도움이 되었나요?</p>
+        <div class="fb-mini-row" role="group" aria-label="${label} 의견">
+          <button type="button" class="fb-pill"${dis} onclick="Feedback.send(this, 'helpful', '')"><span aria-hidden="true">👍</span> 도움이 되었어요</button>
+          <button type="button" class="fb-pill${ui.open ? ' is-open' : ''}" aria-expanded="${ui.open ? 'true' : 'false'}"${dis} onclick="Feedback.toggle(this)"><span aria-hidden="true">💬</span> 정보가 부족해요</button>
+        </div>
+        ${reasons}
+        <p class="fb-mini-status" role="status" aria-live="polite">${status}</p>
+        <p class="fb-mini-note">선생님의 의견은 더 정확하고 유용한 안내를 만드는 데 활용돼요. 응답 종류만 저장하고 이름·학교·연락처는 받지 않아요.</p>
+      </div>`;
+  },
+
+  // 다시 그리기는 이 블록만(검색어·스크롤·펼친 상세는 그대로)
+  refresh(key, focusSel) {
+    const t = this.targets[key];
+    if (!t) return;
+    document.querySelectorAll(`[data-fb-key="${CSS.escape(key)}"]`).forEach(el => {
+      el.outerHTML = this.block(t);
+    });
+    if (focusSel) {
+      const el = document.querySelector(`[data-fb-key="${CSS.escape(key)}"] ${focusSel}`);
+      if (el) el.focus();
+    }
+  },
+
+  toggle(btn) {
+    const key = btn.closest('[data-fb-key]').dataset.fbKey;
+    const ui = this.ui[key] = this.ui[key] || {};
+    if (ui.busy) return;
+    ui.open = !ui.open;
+    ui.error = false;
+    this.refresh(key, ui.open ? '.fb-pill-reason' : '.fb-pill[aria-expanded]');
+  },
+
+  async send(btn, choice, reason) {
+    const key = btn.closest('[data-fb-key]').dataset.fbKey;
+    const t = this.targets[key];
+    const ui = this.ui[key] = this.ui[key] || {};
+    if (!t || ui.busy || this.sentMap()[key]) return; // 보내는 중 두 번 누르기·이미 보낸 안내는 무시해요
+    ui.busy = true;
+    ui.error = false;
+    this.refresh(key);
+    let ok = false;
+    try {
+      const res = await fetch(FEEDBACK_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ v: 1, region: App.state.regionId || 'common', kind: t.kind, id: t.id, choice, reason }),
+        signal: timeoutSignal(6000)
+      });
+      const body = res.ok ? await res.json() : null;
+      ok = !!(body && body.ok === true);
+    } catch (e) { ok = false; }
+    ui.busy = false;
+    if (ok) {
+      const map = this.sentMap();
+      map[key] = { c: choice, d: UpdateUI.today() };
+      storeSet(STORAGE_FEEDBACK, JSON.stringify(map));
+      delete this.ui[key];
+      this.refresh(key, '.fb-mini-done');
+    } else {
+      ui.error = true;
+      this.refresh(key, '.fb-mini-status');
+    }
+  }
+};
+
+// ── 방문 통계(Vercel Web Analytics) ──
+// WEB_ANALYTICS가 true이고 Vercel 주소에서 열었을 때만 스크립트를 넣어요(쿠키 없음, 페이지 조회만).
+// 주소에는 지역·화면·항목만 남기고 나머지 값은 지워서 보내요
+const ANALYTICS_PARAMS = ['region', 'page', 'type', 'benefit', 'compare', 'situ', 'step'];
+function analyticsOn() {
+  return WEB_ANALYTICS === true && /(^|\.)vercel\.app$/.test(location.hostname);
+}
+function initAnalytics() {
+  if (!analyticsOn() || window.va) return;
+  window.va = function () { (window.vaq = window.vaq || []).push(arguments); };
+  window.va('beforeSend', event => {
+    try {
+      const url = new URL(event.url);
+      [...url.searchParams.keys()].forEach(k => { if (!ANALYTICS_PARAMS.includes(k)) url.searchParams.delete(k); });
+      url.hash = '';
+      return { ...event, url: url.toString() };
+    } catch (e) { return null; }
+  });
+  const s = document.createElement('script');
+  s.defer = true;
+  s.src = '/_vercel/insights/script.js';
+  document.head.appendChild(s);
 }
 
 function latestDate(sources) {

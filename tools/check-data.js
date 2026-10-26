@@ -693,6 +693,23 @@ REGION_ORDER.forEach(id => {
 if (!(STEPS.length >= 1 && STEPS.length <= 9)) errors.push(`STEPS는 1~9단계여야 해요(공유 주소 step=1~9): ${STEPS.length}`);
 if (typeof FEEDBACK_URL !== 'string') errors.push('FEEDBACK_URL은 문자열이어야 해요(없으면 빈 문자열)');
 else if (FEEDBACK_URL && !/^https:\/\/(docs\.google\.com\/forms|forms\.gle)\//.test(FEEDBACK_URL)) errors.push(`FEEDBACK_URL은 관리하는 Google 설문 주소(https)만 넣어요: ${FEEDBACK_URL}`);
+// 안내별 의견(FEEDBACK_API)과 방문 통계(WEB_ANALYTICS): 같은 사이트의 서버 함수 경로만, 통계는 true/false만.
+// 서버 함수(api/feedback.js)가 받는 지역 목록은 REGION_ORDER + 'common'과 같아야 해요(새 지역을 넣으면 함께 고쳐요)
+{
+  const FEEDBACK_API = vm.runInContext('typeof FEEDBACK_API === "undefined" ? undefined : FEEDBACK_API', ctx);
+  const WEB_ANALYTICS = vm.runInContext('typeof WEB_ANALYTICS === "undefined" ? undefined : WEB_ANALYTICS', ctx);
+  if (typeof FEEDBACK_API !== 'string') errors.push('FEEDBACK_API는 문자열이어야 해요(끄려면 빈 문자열)');
+  else if (FEEDBACK_API && FEEDBACK_API !== '/api/feedback') errors.push(`FEEDBACK_API는 같은 사이트의 '/api/feedback'만 써요: ${FEEDBACK_API}`);
+  if (typeof WEB_ANALYTICS !== 'boolean') errors.push('WEB_ANALYTICS는 true/false여야 해요');
+  const apiFile = path.join(root, 'api', 'feedback.js');
+  if (FEEDBACK_API && !fs.existsSync(apiFile)) errors.push('FEEDBACK_API를 쓰려면 api/feedback.js가 있어야 해요');
+  if (fs.existsSync(apiFile)) {
+    const m = /const REGIONS = \[([^\]]*)\]/.exec(fs.readFileSync(apiFile, 'utf8'));
+    const apiRegions = m ? [...m[1].matchAll(/'([a-z]+)'/g)].map(x => x[1]) : [];
+    const want = ['common', ...REGION_ORDER];
+    if (JSON.stringify(apiRegions) !== JSON.stringify(want)) errors.push(`api/feedback.js REGIONS가 REGION_ORDER + common과 달라요: ${apiRegions.join(',')}`);
+  }
+}
 // 만든 사람 표시: 공개 별칭과 https 블로그 주소 두 칸만(다른 개인 정보 칸은 두지 않아요)
 {
   const SITE_AUTHOR = vm.runInContext('typeof SITE_AUTHOR === "undefined" ? undefined : SITE_AUTHOR', ctx);

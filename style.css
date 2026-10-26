@@ -978,6 +978,28 @@ body.is-landing { padding-bottom: 0; }
 .fb-privacy { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.875rem; }
 .fb-line { margin: 8px 0 0; font-size: var(--fs-sm); color: var(--muted); }
 
+/* 안내별 의견(‘이 안내가 도움이 되었나요?’): 카드·상세 맨 아래의 작은 줄. 서버가 준비됐을 때만 그려져요 */
+.fb-mini { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: var(--fs-sm); color: var(--muted); }
+.share-row + .fb-mini { margin-top: 12px; }
+.fb-mini-q, .fb-reasons-q { margin: 0 0 8px; font-weight: 600; color: var(--text); }
+.fb-mini-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.fb-pill {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 6px 12px; cursor: pointer;
+  border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface);
+  font-size: var(--fs-sm); font-weight: 600; line-height: var(--lh-ui); color: var(--text); text-align: left;
+}
+.fb-pill:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.fb-pill.is-open { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+.fb-pill:disabled { cursor: default; opacity: .55; }
+.fb-pill-plain { border-style: dashed; color: var(--muted); }
+.fb-reasons { margin-top: 10px; }
+.fb-mini-hint { font-weight: 400; color: var(--muted); }
+.fb-mini-status { margin: 6px 0 0; min-height: 0; }
+.fb-mini-status:empty { display: none; }
+.fb-error { color: var(--danger); font-weight: 600; }
+.fb-mini-done { margin: 0; color: var(--primary); font-weight: 600; }
+.fb-mini-note { margin: 8px 0 0; font-size: var(--fs-xs); color: var(--muted); }
+
 .toast {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
   background: var(--text); color: #fff; padding: 10px 18px; border-radius: var(--radius-sm);
@@ -1194,7 +1216,7 @@ body.is-landing { padding-bottom: 0; }
   body { padding: 0 !important; font-size: 10.5pt; line-height: 1.55; }
   .site-header, .bottom-nav, .site-footer, .skip-link, .toast, .region-dd, .header-call, .emergency-note,
   .guide-search-panel, .filter-panel, .tool-panel, .share-row, .btn-row, .channel-row, .chevron, .stepper,
-  .fb-card, .fb-line, .finder-hint, .update-banner, .update-line, .update-dialog,
+  .fb-card, .fb-line, .fb-mini, .finder-hint, .update-banner, .update-line, .update-dialog,
   .rec-links, .link-btn, .check-note, .progress-row, .landing { display: none !important; }
   [data-print-hide] { display: none !important; }
   .print-head { display: block; margin: 0 0 10pt; padding-bottom: 6pt; border-bottom: 1.5pt solid #111; }
