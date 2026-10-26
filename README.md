@@ -48,6 +48,7 @@ tools/
   check-links.js        공식 링크 접속 점검(배포 전·정기 점검): 200·이동·404·403·시간 초과
   generate-maintenance-report.js  운영 점검 리포트 만들기 → docs/maintenance-report.md
   check-all.js          위 세 가지를 한 번에(일상 점검)
+  build-usability-kit.js  사용성 테스트 인쇄본 만들기: docs/usability-test-kit.html → usability-test-kit.pdf(크롬 필요)
   data/regional-gaps.js 서울·경기·인천·부산·충북·강원·울산·전북·경남·제주·대구·대전 정보 깊이(gap) 원본 데이터(사이트는 읽지 않아요)
   lib/                  점검 도구가 함께 쓰는 계산(최신성·gap·데이터 읽기)
 docs/
@@ -65,7 +66,9 @@ docs/
   official-source-spotcheck-2026-10-23.md  12개 지역 선택 항목 독립 교차검증(2026-10-23, 최종 감사 전 기록)
   usability-test-teachers.md  교사 사용성 테스트 가이드(진행 방법·과제 카드 6개·성공 기준·분석 기준)
   usability-results-template.md  사용성 테스트 관찰 기록표·결과 집계·개선사항 보고 빈 양식
-  usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽)
+  usability-test-kit.pdf      사용성 테스트 인쇄본(과제 카드·진행자 안내·관찰 기록표, A4 11쪽, 12개 지역 기준)
+  usability-test-kit.html     인쇄본 원본(고친 뒤 tools/build-usability-kit.js로 PDF를 다시 만들어요)
+  usability-walkthrough-2026-10-26.md  교사 테스트 전 연구자 워크스루 기록(교사 참여 없음, 관찰 후보)
   feedback-form-spec.md       의견 받기 양식 명세(현재 비활성)
 ```
 
