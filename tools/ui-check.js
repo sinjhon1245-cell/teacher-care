@@ -108,17 +108,17 @@
         App.state.quick = null;
         App.render();
 
-        // 11) 현재 지역 줄: ‘다른 지역 보기’가 카드 안에 있고 지역 이름과 겹치지 않아요
+        // 11) 현재 지역 줄: ‘지역 다시 선택’이 카드 안에 있고 지역 이름과 겹치지 않아요
         const sw = document.getElementById('region-switch');
         const lab = card && card.querySelector('.panel-label');
-        if (!sw || !visible(sw)) fail(id, pg, '다른 지역 보기', '없음');
+        if (!sw || !visible(sw)) fail(id, pg, '지역 다시 선택', '없음');
         else {
           const s = sw.getBoundingClientRect(), c = card.getBoundingClientRect(), l = lab && lab.getBoundingClientRect();
-          if (s.right > c.right - parseFloat(getComputedStyle(card).paddingRight) + 1) fail(id, pg, '다른 지역 보기', '카드 밖으로 나가요');
-          if (l && visible(lab) && s.left < l.right - 1 && l.left < s.right - 1 && s.top < l.bottom - 1 && l.top < s.bottom - 1) fail(id, pg, '다른 지역 보기', '지역 이름과 겹쳐요');
+          if (s.right > c.right - parseFloat(getComputedStyle(card).paddingRight) + 1) fail(id, pg, '지역 다시 선택', '카드 밖으로 나가요');
+          if (l && visible(lab) && s.left < l.right - 1 && l.left < s.right - 1 && s.top < l.bottom - 1 && l.top < s.bottom - 1) fail(id, pg, '지역 다시 선택', '지역 이름과 겹쳐요');
         }
 
-        // 12) 다른 지역 보기 → 지역 선택 화면: 카드 수·현재 지역 표시·높이·줄 균형·넘침, 돌아가기로 원래 홈
+        // 12) 지역 다시 선택 → 지역 선택 화면: 카드 수·현재 지역 표시·높이·줄 균형·넘침, 돌아가기로 원래 홈
         App.openRegionChooser();
         await wait(60);
         const cards = [...document.querySelectorAll('.region-card')];

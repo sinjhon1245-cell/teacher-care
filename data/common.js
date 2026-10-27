@@ -117,7 +117,7 @@ const BENEFIT_CATEGORIES = [
 ];
 
 const BENEFITS = [
-  { id: 'special-leave', category: 'rest', t: '특별휴가', e: '🌤️', employment: 'public', badges: ['5일 범위', '해당 시 5일 범위 추가'],
+  { id: 'special-leave', category: 'rest', t: '특별휴가', icon: 'calendar', employment: 'public', badges: ['5일 범위', '해당 시 5일 범위 추가'],
     verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-02-27', reviewStatus: 'verified',
     recognition: '교육활동 침해 피해 교원이어야 해요. 위원회 심의 전에도 학교장 판단으로 허가할 수 있고, 나중에 침해가 아니라고 판단되면 병가·연가로 정정돼요.',
     actions: [{ id: 'tell', t: '학교 관리자에게 현재 상황과 회복이 필요하다는 점 알리기' }, { id: 'ask', t: '특별휴가 부여 여부와 사용 시기를 학교장에게 확인하기' }, { id: 'timeline', t: '사건 경과를 시간순으로 정리하기' }, { id: 'proof', t: '신고서·진단서 등 나중에 갖출 증빙 확인하기' }, { id: 'next', t: '회복이 더 필요하면 병가 제도도 확인하기' }],
@@ -140,7 +140,7 @@ const BENEFITS = [
     basis: '교원지위법 제23조, 「교원휴가에 관한 예규」 제8조, 교육활동 보호 매뉴얼(2026) 71~72쪽',
     supportLinks: { q: '상담이나 치료도 필요하신가요?', types: ['counsel', 'care-cost'] } },
 
-  { id: 'sick-leave', category: 'rest', t: '일반 병가', e: '🏥', employment: 'public', badges: ['연 60일 범위', '연 6일 넘으면 진단서'],
+  { id: 'sick-leave', category: 'rest', t: '일반 병가', icon: 'medical', employment: 'public', badges: ['연 60일 범위', '연 6일 넘으면 진단서'],
     verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-10-02', reviewStatus: 'verified',
     recognition: '교육활동 침해나 공무상 인정은 필요 없어요. 질병·부상으로 직무를 수행할 수 없으면 돼요.',
     actions: [{ id: 'special', t: '교육활동 침해로 쉬는 것이라면 특별휴가 대상인지 먼저 확인하기' }, { id: 'diag', t: '연간 6일을 넘을 것 같으면 진단서 준비하기' }, { id: 'ask', t: '학교에 병가 신청 방법 확인하기' }, { id: 'official', t: '공무상 질병·부상 가능성이 있으면 공무상 병가도 확인하기' }],
@@ -158,7 +158,7 @@ const BENEFITS = [
     basis: '국가공무원 복무규정 제18조제1항·제3항, 「교원휴가에 관한 예규」 제6조',
     supportLinks: { q: '치료나 상담을 함께 받고 있나요?', types: ['counsel', 'care-cost'] } },
 
-  { id: 'official-sick-leave', category: 'rest', t: '공무상 병가', e: '🩹', employment: 'public', badges: ['연 180일 범위', '공무상 판단 필요'],
+  { id: 'official-sick-leave', category: 'rest', t: '공무상 병가', icon: 'briefcase', employment: 'public', badges: ['연 180일 범위', '공무상 판단 필요'],
     verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-02', reviewStatus: 'verified',
     recognition: '공무상 질병·부상인지 판단이 필요해요. 6일을 넘으면 공무상 요양 승인을 거쳐요.',
     actions: [{ id: 'diag', t: '진단서·소견서 확인하기' }, { id: 'ask', t: '공무상 질병·부상 해당 가능성을 학교에 문의하기' }, { id: 'care', t: '6일을 넘길 것 같으면 공무상 요양 승인 절차 확인하기' }, { id: 'keep', t: '사건 관련 자료 보존하기' }],
@@ -180,7 +180,7 @@ const BENEFITS = [
     basis: '국가공무원 복무규정 제18조제2항, 「국가공무원 복무·징계 관련 예규」(인사혁신처 예규 제225호), 교육활동 보호 매뉴얼(2026) 70·72쪽',
     supportLinks: { q: '치료비나 공무상 재해 관련 상담이 필요하신가요?', types: ['care-cost', 'legal'] } },
 
-  { id: 'disease-leave', category: 'long', t: '질병휴직', e: '🛌', employment: 'check', badges: ['1년 이내', '부득이하면 1년 연장'],
+  { id: 'disease-leave', category: 'long', t: '질병휴직', icon: 'bed', employment: 'check', badges: ['1년 이내', '부득이하면 1년 연장'],
     verifiedAt: '2026-10-03', reviewStatus: 'verified',
     cause: '원인과 관계없이 신체·정신상의 장애로 장기요양이 필요할 때',
     recognition: '공무상 인정은 필요 없어요. 장기요양이 필요하다는 의학적 판단이 필요해요.',
@@ -199,7 +199,7 @@ const BENEFITS = [
     basis: '교육공무원법 제44조제1항제1호·제45조제1항제1호·제32조제3항, 사립학교법 제59조',
     supportLinks: { q: '휴직 중에도 상담·치료 지원을 받을 수 있는지 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
-  { id: 'official-disease-leave', category: 'long', t: '공무상 질병휴직', e: '🩺', employment: 'public', badges: ['3년 이내', '조건 충족 시 연장 가능'],
+  { id: 'official-disease-leave', category: 'long', t: '공무상 질병휴직', icon: 'pulse', employment: 'public', badges: ['3년 이내', '조건 충족 시 연장 가능'],
     verifiedAt: '2026-10-03', reviewStatus: 'verified',
     cause: '공무수행 과정의 부상·질병(공무상 재해)으로 장기요양이 필요할 때',
     recognition: '공무원연금공단의 공무상 요양(재요양) 승인이 필요해요. 교육활동 침해 인정만으로는 적용되지 않아요.',
@@ -219,7 +219,7 @@ const BENEFITS = [
     basis: '교육공무원법 제45조제1항제1호 단서, 교육공무원임용령 제19조제2항·제3항, 공무원 재해보상법 제4조',
     supportLinks: { q: '법률 또는 공무상 재해 상담이 필요하신가요?', types: ['legal', 'care-cost'] } },
 
-  { id: 'official-medical-care', category: 'care', t: '공무상 요양', e: '📋', employment: 'public', badges: ['3년 안에 청구'],
+  { id: 'official-medical-care', category: 'care', t: '공무상 요양', icon: 'document', employment: 'public', badges: ['3년 안에 청구'],
     verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-01', reviewStatus: 'verified',
     actions: [{ id: 'docs', t: '진단서(요양기간 기재)와 처음 진료한 병원 의무기록 준비하기' }, { id: 'story', t: '재해 경위를 시간순으로 정리하기' }, { id: 'confirm', t: '학교(기관장) 확인 절차 문의하기' }, { id: 'deadline', t: '사유 발생일부터 3년 안에 청구해야 한다는 점 기억하기' }],
     keywords: ['공무상 요양', '요양', '요양급여', '공무원연금공단', '공무상', '공상', '재해', '산재'],
@@ -238,7 +238,7 @@ const BENEFITS = [
     basis: '공무원 재해보상법 제4조·제9조·제22조·제27조·제54조, 같은 법 시행령 제28조, 공무원연금공단 공무상 요양 승인 안내',
     supportLinks: { q: '치료비 지원이나 법률 상담도 확인해 보세요.', types: ['care-cost', 'legal'] } },
 
-  { id: 'separation', category: 'protect', t: '즉시 분리', e: '🤝', employment: 'all', badges: ['위원회 결과 전에도'],
+  { id: 'separation', category: 'protect', t: '즉시 분리', icon: 'separate', employment: 'all', badges: ['위원회 결과 전에도'],
     verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
     actions: [{ id: 'tell', t: '분리를 원한다는 뜻을 학교에 바로 알리기' }, { id: 'how', t: '수업·동선에서 바라는 분리 방식 정리하기' }, { id: 'period', t: '분리 기간과 장소를 학교에 확인하기' }],
     keywords: ['분리', '즉시 분리', '마주치기', '가해 학생'],
@@ -255,7 +255,7 @@ const BENEFITS = [
     basis: '교원지위법 제20조제2항, 같은 법 시행령 제17조, 교육활동 보호 매뉴얼(2026) 40쪽',
     supportLinks: { q: '신변 위협이 계속되나요?', types: ['safety'] } },
 
-  { id: 'protection-request', category: 'protect', t: '보호조치 요청', e: '🛡️', employment: 'all',
+  { id: 'protection-request', category: 'protect', t: '보호조치 요청', icon: 'shield', employment: 'all',
     verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
     actions: [{ id: 'list', t: '필요한 보호조치(상담·치료·휴가 등) 정리하기' }, { id: 'ask', t: '학교장·담당자에게 보호조치 요청하기' }, { id: 'receipt', t: '치료·상담 영수증 보관하기' }],
     keywords: ['보호조치', '보호조치 요청', '치유', '교권 회복'],
@@ -271,7 +271,7 @@ const BENEFITS = [
     basis: '교원지위법 제20조제1항·제5항, 같은 법 시행령 제19조, 교육활동 보호 매뉴얼(2026) 70·72~73쪽',
     supportLinks: { q: '지역의 상담·치료비 지원을 확인해 보세요.', types: ['counsel', 'care-cost'] } },
 
-  { id: 'transfer', category: 'work', t: '비정기 전보', e: '🏫', employment: 'check', badges: ['지역별 기준'],
+  { id: 'transfer', category: 'work', t: '비정기 전보', icon: 'transfer', employment: 'check', badges: ['지역별 기준'],
     verifiedAt: '2026-10-03', reviewStatus: 'verified',
     actions: [{ id: 'ask', t: '학교장에게 전보 희망 알리기' }, { id: 'rule', t: '지역 인사 기준과 시기 확인하기' }, { id: 'docs', t: '조치결정 통지서 등 처리 결과 보관하기' }],
     keywords: ['전보', '비정기 전보', '비정기전보', '학교 옮기기', '근무지', '인사'],
@@ -286,7 +286,7 @@ const BENEFITS = [
     refs: ['jiwi-decree', 'manual'],
     basis: '교원지위법 시행령 제2조의3제2항제3호, 교육활동 보호 매뉴얼(2026) 71쪽' },
 
-  { id: 'return-to-work', category: 'return', t: '복귀 준비(복직)', e: '🌱', employment: 'public', badges: ['30일 이내 신고'],
+  { id: 'return-to-work', category: 'return', t: '복귀 준비(복직)', icon: 'sprout', employment: 'public', badges: ['30일 이내 신고'],
     verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
     actions: [{ id: 'report', t: '휴직 사유가 없어지면 30일 이내 복직 신고하기' }, { id: 'protect', t: '복귀 뒤 필요한 보호조치(분리 등)를 학교와 상의하기' }, { id: 'support', t: '복귀 뒤에도 이용할 상담·회복 지원 확인하기' }],
     keywords: ['복직', '복귀', '복귀 준비', '출근', '휴직 끝'],
@@ -333,12 +333,13 @@ const RECOVERY_PATH = [
 ];
 const RECOVERY_NOTE = '각 제도는 자동으로 이어지는 것이 아니며, 적용 대상과 승인 요건이 서로 달라요.';
 
-// 홈 ‘지금 어떤 도움이 필요하신가요?’ — 5메뉴로 들어가는 입구
+// 홈 ‘지금 어떤 도움이 필요하신가요?’ — 5메뉴로 들어가는 입구. 제목은 할 일(~확인·~찾기), 설명은 그 화면에 있는 것 한 줄
+// icon은 app.js의 ICONS 이름(단색 선형). urgent는 긴급 입구(아이콘만 경고 색)
 const HOME_ENTRIES = [
-  { page: 'proc', e: '🚨', t: '지금 사건이 발생했어요', d: '안전 확보부터 보고·기록까지 순서대로' },
-  { page: 'guide', e: '🔎', t: '이런 상황도 교육활동 침해일까요?', d: '38개 상황에서 먼저 할 일 찾기' },
-  { page: 'care', e: '🌤️', t: '쉬거나 회복할 방법을 알고 싶어요', d: '휴가·병가·휴직과 보호 제도' },
-  { page: 'support', e: '🤝', t: '상담·법률·경호 지원이 필요해요', d: '내 지역에서 받을 수 있는 지원' }
+  { page: 'proc', icon: 'alert', urgent: true, t: '지금 해야 할 대응 확인', d: '안전 확보부터 보고·기록까지 순서대로' },
+  { page: 'guide', icon: 'question', t: '상황별 대응 찾기', d: '38개 상황에서 먼저 할 일 확인' },
+  { page: 'care', icon: 'care', t: '쉬거나 회복할 방법 찾기', d: '휴가·병가·휴직과 보호 제도' },
+  { page: 'support', icon: 'support', t: '상담·법률·경호 지원 찾기', d: '내 지역에서 받을 수 있는 지원' }
 ];
 
 // 홈 ‘놓치기 쉬운 제도’(BENEFITS id). 지역을 고르면 지역 데이터 highlights[id]의 한 줄이 함께 보여요(금액은 지역 데이터에만)

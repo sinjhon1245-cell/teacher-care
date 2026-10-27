@@ -53,7 +53,7 @@ const App = {
   },
 
   // 첫 화면에서 지역을 고르면 기존 저장 방식(setRegion) 그대로 저장하고 바로 홈으로 가요.
-  // ‘다른 지역 보기’로 다시 연 화면이면 그 기록을 새 지역 홈으로 바꿔요(뒤로가기 = 이전 지역 홈).
+  // ‘지역 다시 선택’으로 다시 연 화면이면 그 기록을 새 지역 홈으로 바꿔요(뒤로가기 = 이전 지역 홈).
   // 지금 지역을 다시 고르면 setRegion이 아무것도 하지 않으니, 그 지역을 저장하고 원래 홈으로 돌아가요
   // (공유 주소로 들어와 화면 지역과 저장 지역이 다를 때도, 직접 고른 지역이 다음 방문에 이어지게)
   chooseRegion(id) {
@@ -65,11 +65,12 @@ const App = {
     window.scrollTo(0, 0);
   },
 
-  // 홈 연락처 카드의 ‘다른 지역 보기’: 처음 방문 때의 지역 선택 화면을 다시 열어요.
+  // 홈 연락처 카드의 ‘지역 다시 선택’과 헤더 지역 목록의 ‘지역 선택 화면 열기’: 처음 방문 때의 지역 선택 화면을 다시 열어요.
   // 저장된 지역·체크·교육지원청 선택은 그대로 두고(다른 지역을 고를 때만 setRegion이 바꿔요) 기록을 하나 쌓아,
-  // 뒤로가기나 ‘돌아가기’로 지금 홈에 그대로 돌아와요
-  openRegionChooser() {
+  // 뒤로가기나 ‘돌아가기’로 연 화면(홈 또는 다른 메뉴)에 그대로 돌아와요. returnFocusId: 돌아온 뒤 초점을 둘 버튼
+  openRegionChooser(returnFocusId) {
     if (!this.R) return;
+    this._chooserFocus = returnFocusId || 'region-switch';
     this.saveScroll();
     this._navigating = true;
     this.setState({ onboarding: true, page: 'home' });
@@ -81,13 +82,14 @@ const App = {
   },
 
   // 지역 선택 화면 닫기(돌아가기·Esc·지금 지역 다시 고르기). 이 화면을 연 기록이면 뒤로가기와 똑같이 돌아가
-  // 같은 홈이 기록에 두 번 쌓이지 않아요. 돌아온 뒤 ‘다른 지역 보기’ 버튼에 초점을 둬요
+  // 같은 화면이 기록에 두 번 쌓이지 않아요. 돌아온 뒤 이 화면을 연 버튼(없으면 헤더 지역 버튼)에 초점을 둬요
   closeRegionChooser(reselected) {
     const R = this.R;
     if (!R) return;
+    const focusId = this._chooserFocus || 'region-switch';
     const after = () => {
       if (reselected) this.showToast(R.name + ' 기준으로 안내해요');
-      const btn = document.getElementById('region-switch');
+      const btn = document.getElementById(focusId) || document.getElementById('region-dd-btn');
       if (btn) btn.focus({ preventScroll: true });
     };
     if (history.state && history.state.chooser) {
@@ -103,7 +105,7 @@ const App = {
   },
 
   // 지역 없이 공통 대응부터 보기. ‘미선택’은 저장하지 않아 다음 새 방문에는 다시 지역 선택 화면이 나와요.
-  // ‘다른 지역 보기’에서 눌렀으면 이 탭만 공통 화면이 되고 저장된 지역은 지우지 않아요(다음 방문은 그 지역)
+  // ‘지역 다시 선택’에서 눌렀으면 이 탭만 공통 화면이 되고 저장된 지역은 지우지 않아요(다음 방문은 그 지역)
   skipOnboarding() {
     this.nav('home', { onboarding: false, regionId: null, area: '', supportType: 'all', related: null });
   },
@@ -145,7 +147,7 @@ const App = {
   // 기록(history.state) = 탐색 중 세부 상태(관련 지원 묶음, 스크롤 위치 등). 검색어·체크·스크롤은 주소에 넣지 않아요
   historyState() {
     const S = this.state;
-    // chooser: ‘다른 지역 보기’로 연 지역 선택 화면(앞으로가기로 다시 열 수 있게 기록해요)
+    // chooser: ‘지역 다시 선택’으로 연 지역 선택 화면(앞으로가기로 다시 열 수 있게 기록해요)
     return { tc: 1, page: S.page, region: S.regionId, chooser: !!(S.onboarding && S.regionId), step: S.step, benefit: S.benefit, situ: S.situ, compare: S.compare, supportType: S.supportType, related: S.related, scrollY: 0 };
   },
 
@@ -188,7 +190,7 @@ const App = {
     const after = this._afterRestore;
     this._afterRestore = null;
     if (!st || !st.tc) {
-      // 우리 기록이 아니면(본문 바로가기 #main 등) 그대로 둬요. 다만 ‘다른 지역 보기’ 화면은 닫아 그 앞 화면으로 돌아가요
+      // 우리 기록이 아니면(본문 바로가기 #main 등) 그대로 둬요. 다만 ‘지역 다시 선택’ 화면은 닫아 그 앞 화면으로 돌아가요
       if (this.state.onboarding && this.R) {
         this._restoring = true;
         this.setState({ onboarding: false });
@@ -501,7 +503,7 @@ const App = {
       <div class="block act-box act-${scope}">
         <p class="block-title act-title">${title} <span class="act-count">${n}/${items.length}</span></p>
         <ul class="check-list act-list">${rows}</ul>
-        <p class="block-desc">스스로 확인해 볼 항목이에요(제출 서류 목록이 아니에요). 체크는 이 기기에만 저장되고 서버로 보내지 않아요.</p>
+        <p class="block-desc">제출 서류가 아니라 스스로 확인해 볼 항목이에요. 체크는 이 기기에만 저장되고 서버로 보내지 않아요.</p>
       </div>
     `;
   },
@@ -542,7 +544,7 @@ const App = {
   // 헤더 지역 선택: 기본 select 대신 사이트 디자인에 맞춘 listbox(동작은 RegionMenu, 변경은 App.setRegion)
   renderRegionSelect() {
     const cur = this.state.regionId;
-    const opts = REGION_ORDER.map(id => `
+    const opts = REGION_LIST.map(id => `
       <li id="region-opt-${id}" class="region-dd-opt" role="option" aria-selected="${cur === id}" aria-label="${REGIONS[id].short}" data-id="${id}"
         onclick="RegionMenu.pick('${id}')" onmousemove="RegionMenu.focusOpt('${id}')">
         <span>${REGIONS[id].short}</span><span class="region-dd-check" aria-hidden="true">✓</span>
@@ -555,15 +557,18 @@ const App = {
           onclick="RegionMenu.toggle()" onkeydown="RegionMenu.buttonKey(event)">
           <span>${cur ? REGIONS[cur].short : '지역 선택'}</span><span class="region-dd-caret" aria-hidden="true"></span>
         </button>
-        <ul class="region-dd-list" id="region-dd-list" role="listbox" aria-label="근무 지역" tabindex="-1" hidden
-          onkeydown="RegionMenu.listKey(event)">${opts}</ul>
+        <div class="region-dd-panel" id="region-dd-panel" hidden>
+          <ul class="region-dd-list" id="region-dd-list" role="listbox" aria-label="근무 지역" tabindex="-1"
+            onkeydown="RegionMenu.listKey(event)">${opts}</ul>
+          ${cur ? `<button type="button" class="region-dd-more" id="region-dd-more" onclick="RegionMenu.openChooser()" onkeydown="RegionMenu.moreKey(event)">지역 선택 화면 열기</button>` : ''}
+        </div>
       </div>
     `;
   },
 
   // 지역이 아직 없을 때 보여 주는 선택 버튼
   renderRegionPicker(title) {
-    const btns = REGION_ORDER.map(id =>
+    const btns = REGION_LIST.map(id =>
       `<button class="region-pick" onclick="App.setRegion('${id}')">${REGIONS[id].short}</button>`
     ).join('');
     return `
@@ -661,10 +666,10 @@ const App = {
   },
 
   // ══════════════ 첫 방문: 지역 선택 첫 화면 ══════════════
-  // 홈의 ‘다른 지역 보기’도 같은 화면을 써요. 그때는 지금 지역이 있어 그 카드에 ‘현재’를 표시하고, 맨 위에 돌아가기를 둬요
+  // 홈의 ‘지역 다시 선택’과 헤더 지역 목록의 ‘지역 선택 화면 열기’도 같은 화면을 써요. 그때는 지금 지역이 있어 그 카드에 ‘현재’를 표시하고, 맨 위에 돌아가기를 둬요
   renderLanding() {
     const cur = this.R ? this.state.regionId : null;
-    const cards = REGION_ORDER.map(id => {
+    const cards = REGION_LIST.map(id => {
       const now = id === cur;
       return `
       <li><button class="region-card${now ? ' is-current' : ''}" onclick="App.chooseRegion('${id}')" ${now ? 'aria-current="true" ' : ''}aria-label="${REGIONS[id].short} 안내 보기${now ? ', 현재 지역' : ''}">
@@ -716,15 +721,15 @@ const App = {
   renderHero() {
     const R = this.R;
     // 연락처 패널: 장식이 아니라 현재 지역의 연락·지원 경로를 바로 쓰는 기능 영역
-    // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역(+ 다른 지역 보기) → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
+    // 번호 개수와 관계없이 칸 순서는 같아요: 현재 지역(+ 지역 다시 선택) → 연락처(대표 블록·학교급별 묶음) → 지원 방법 보기(마지막 줄)
     // DOM에서 hero-copy보다 앞에 둬요: 한 열 화면(960px 이하)에서 보이는 순서(카드 → 제목) = 키보드·화면 읽기 순서.
     // 두 열 화면에서는 CSS grid 배치로 오른쪽 열에 보여요
-    // ‘다른 지역 보기’는 전화 버튼보다 눈에 덜 띄는 작은 글자 버튼이에요. 처음 방문 때의 지역 선택 화면을 다시 열어요
+    // ‘지역 다시 선택’은 전화 버튼보다 눈에 덜 띄는 작은 글자 버튼이에요. 처음 방문 때의 지역 선택 화면을 다시 열어요
     const panel = `
       <aside class="region-panel" id="contacts" aria-label="현재 지역 연락처">
         <div class="panel-head">
           <p class="panel-label">현재 지역 <strong>${R.name}</strong></p>
-          <button type="button" class="link-btn small panel-switch" id="region-switch" onclick="App.openRegionChooser()">다른 지역 보기<span aria-hidden="true"> ›</span></button>
+          <button type="button" class="link-btn small panel-switch" id="region-switch" onclick="App.openRegionChooser('region-switch')">지역 다시 선택<span aria-hidden="true"> ›</span></button>
         </div>
         ${this.contactBlock(R)}
         <button class="btn btn-secondary cc-more" onclick="App.nav('support')">지원 방법 보기</button>
@@ -751,7 +756,7 @@ const App = {
 
   // 공통 모드 첫 화면: 특정 시·도 번호·기관·사업 없이 안내 기준(전국 공통)과 지역 선택만 보여 줘요
   renderCommonHero() {
-    const btns = REGION_ORDER.map(id =>
+    const btns = REGION_LIST.map(id =>
       `<button class="region-pick" onclick="App.setRegion('${id}')">${REGIONS[id].short}</button>`
     ).join('');
     return `
@@ -801,7 +806,7 @@ const App = {
 
   // 공통 모드: 등록된 지역 외 교사를 위한 짧은 안내
   renderOutsideNote() {
-    const names = REGION_ORDER.map(id => REGIONS[id].short).join('·');
+    const names = REGION_LIST.map(id => REGIONS[id].short).join('·');
     return `
       <section class="section">
         <div class="outside-note">
@@ -854,8 +859,8 @@ const App = {
   // 홈 ‘지금 어떤 도움이 필요하신가요?’: 5메뉴로 들어가는 입구 4개(정보는 각 화면에서)
   renderEntries() {
     const cards = HOME_ENTRIES.map(x => `
-      <li><button class="entry-card" onclick="App.nav('${x.page}')">
-        <span class="entry-icon" aria-hidden="true">${x.e}</span>
+      <li><button class="entry-card${x.urgent ? ' is-urgent' : ''}" onclick="App.nav('${x.page}')">
+        ${iconSvg(x.icon, 'entry-icon')}
         <span class="entry-text"><span class="entry-title">${x.t}</span><span class="entry-desc">${x.d}</span></span>
         <span class="entry-go" aria-hidden="true">→</span>
       </button></li>
@@ -878,7 +883,7 @@ const App = {
       return `
         <li class="hl-card">
           <button class="hl-btn" onclick="App.openBenefit('${b.id}')">
-            <span class="hl-title"><span aria-hidden="true">${b.e}</span> ${b.t}</span>
+            <span class="hl-title">${iconSvg(b.icon, 'hl-icon')}${b.t}</span>
             <span class="bf-badges">${benefitBadges(b)}</span>
             <span class="hl-text">${h.d}</span>
             ${local ? `<span class="hl-local"><strong>${R.short}</strong> ${local}</span>` : ''}
@@ -1147,7 +1152,7 @@ const App = {
       return `
         <li class="action prot ${open ? 'open' : ''}" id="bf-${b.id}" data-bf="${b.id}">
           <button class="action-head" aria-expanded="${open}" onclick="App.toggle('benefit','${b.id}')">
-            <span class="prot-icon" aria-hidden="true">${b.e}</span>
+            ${iconSvg(b.icon, 'prot-icon')}
             <span class="action-label bf-head"><span class="bf-title">${b.t}</span><span class="prot-sum">${b.d}</span><span class="bf-badges">${benefitBadges(b)}</span></span>
             <span class="chevron" aria-hidden="true"></span>
           </button>
@@ -1543,7 +1548,7 @@ const App = {
     const items = programs.map(p => `
       <li class="support-item" data-sp="${escapeAttr([p.t, p.sum, programAreas(p).join(' '), SUPPORT_TYPES.filter(t => inType(p, t)).map(t => t.label + ' ' + t.desc).join(' '), p.org].join(' '))}">
         <div class="support-head">
-          <h3 class="sub-title">${p.t}</h3>
+          <h3 class="sub-title">${titleHtml(p.t)}</h3>
           ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : periodPassed(p) ? '<span class="badge badge-accent">기간 확인 필요</span>' : ''}
         </div>
         ${periodPassed(p) ? callout('caution', '기간 확인', `공식 안내의 기간(${fmtDate(p.validUntil)}까지)이 지났어요. 지금도 운영하는지, 지원 내용·신청 방법이 바뀌었는지 공식 안내나 담당 기관에 먼저 확인하세요.`, 'support-period') : ''}
@@ -1569,7 +1574,7 @@ const App = {
       <section class="section page">
         ${this.eyebrow('연결')}
         <h1 class="page-title">지원 찾기</h1>
-        <p class="muted">현재 지역(${R.name})에서 이용할 수 있는 상담·치료·법률·경호 등의 지원을 찾아보세요.</p>
+        <p class="muted">${R.name}에서 이용할 수 있는 상담·치료·법률·경호 등 지원을 찾아보세요.</p>
         ${narrow ? '' : careNote}
         ${this.renderHub(R)}
         <div class="tool-panel">
@@ -1681,7 +1686,7 @@ const App = {
             <p>교사를 위한 교육활동 보호·대응 가이드예요.</p>
             <p>공식 기관이 운영하는 서비스가 아니며, 시·도교육청 공식 자료를 바탕으로 정리했어요.</p>
             <p>실제 사안의 판단과 절차는 학교와 ${R ? R.office : '소속 시·도교육청'}, 소속 교육지원청의 최신 안내를 따라 주세요.</p>
-            <p>선택한 지역, 체크 상태(대응 절차·행동 체크), 업데이트 알림 확인 여부만 이 기기에 저장하고, 서버로 보내지 않아요.</p>
+            <p>선택한 지역, 대응 절차·행동 체크, 업데이트 알림 확인 여부만 이 기기에 저장하고 서버로 보내지 않아요.</p>
           </div>
           <div class="footer-side">
             <div class="footer-official">
@@ -1722,21 +1727,57 @@ const App = {
   // ══════════════ 모바일 하단 내비게이션 ══════════════
   renderBottomNav() {
     const S = this.state;
-    const icons = {
-      home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
-      proc: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
-      guide: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
-      care: '<path d="M12 20s-7-4.3-8.9-8.6A4.9 4.9 0 0 1 12 6.6a4.9 4.9 0 0 1 8.9 4.8C19 15.7 12 20 12 20z"/>',
-      support: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'
-    };
     const tabs = PAGES.map(([id, label]) => `
       <button class="bn-btn ${S.page === id ? 'active' : ''}" ${S.page === id ? 'aria-current="page"' : ''} onclick="App.nav('${id}')">
-        <svg viewBox="0 0 24 24" aria-hidden="true">${icons[id]}</svg><span>${label}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[id]}</svg><span>${label}</span>
       </button>
     `).join('');
     return `<nav class="bottom-nav" aria-label="하단 메뉴">${tabs}</nav>`;
   }
 };
+
+// 화면에 보이는 지역 순서: 가나다순(지역 선택 카드·헤더 지역 목록·공통 화면의 지역 버튼이 같은 순서).
+// 데이터 등록 순서(REGION_ORDER)와 지역 id·공유 주소는 그대로예요
+const REGION_LIST = REGION_ORDER.slice().sort((a, b) => REGIONS[a].short.localeCompare(REGIONS[b].short, 'ko'));
+
+// ── 단색 선형 아이콘(24×24, 선 색은 글자색을 따라요) ──
+// 하단 메뉴(home·proc·guide·care·support)와 홈 입구(HOME_ENTRIES.icon)·회복·보호 제도(BENEFITS.icon)가 같은 모양 규칙을 써요.
+// 아이콘은 장식이라 화면 읽기에는 숨기고(aria-hidden), 이름은 옆의 제목이 맡아요. 새 이름은 tools/check-data.js가 이 목록과 대조해요
+const ICONS = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  proc: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+  guide: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
+  care: '<path d="M12 20s-7-4.3-8.9-8.6A4.9 4.9 0 0 1 12 6.6a4.9 4.9 0 0 1 8.9 4.8C19 15.7 12 20 12 20z"/>',
+  support: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  alert: '<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5h.01"/>',
+  question: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.7-2.4 2.1-2.4 3.6M12 17h.01"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  medical: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M12 8v8M8 12h8"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M12 11v5M9.5 13.5h5"/>',
+  bed: '<path d="M3 18V7M3 14h18v4M21 14v-2.5A2.5 2.5 0 0 0 18.5 9H11v5"/><circle cx="7" cy="11" r="1.6"/>',
+  pulse: '<path d="M3 12h4l2.5-6 5 12 2.5-6h4"/>',
+  document: '<path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M8.5 13h7M8.5 17h5"/>',
+  separate: '<path d="M12 4v16M9 12H3M6 9l-3 3 3 3M15 12h6M18 9l3 3-3 3"/>',
+  shield: '<path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/>',
+  transfer: '<path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/>',
+  sprout: '<path d="M12 20v-8"/><path d="M12 12c0-3.5-2.6-5.5-7-5.5 0 3.6 2.6 5.5 7 5.5zM12 10c0-3.2 2.4-5 6.5-5 0 3.2-2.4 5-6.5 5z"/>'
+};
+
+function iconSvg(name, cls) {
+  return ICONS[name] ? `<svg class="ico${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name]}</svg>` : '';
+}
+
+// 지원 이름 끝의 괄호 설명(예: ‘교원보호공제(○○학교안전공제회)’)은 이름 아래 보조 줄로 나눠 보여 줘요.
+// 데이터(p.t)는 그대로이고 화면만 나눠요. 화면 읽기에는 괄호를 그대로 읽어 줘요. 괄호가 끝에 없거나 앞부분이 너무 짧으면 그대로 둬요
+function splitTitle(t) {
+  const m = /^(.{2,}?)\s*\(([^()]+)\)$/.exec(t || '');
+  return m ? { main: m[1], note: m[2] } : { main: t, note: '' };
+}
+
+function titleHtml(t) {
+  const { main, note } = splitTitle(t);
+  return note ? `${main}<span class="title-note"><span class="sr-only">(</span>${note}<span class="sr-only">)</span></span>` : main;
+}
 
 // ── 회복·보호(BENEFITS)·지원 유형(SUPPORT_TYPES) 헬퍼 ──
 function benefitById(id) {
@@ -2398,25 +2439,30 @@ const UpdateUI = {
 // 키보드: 버튼에서 Enter·Space·↓·↑로 열기, 목록에서 ↑↓·Home·End로 이동, Enter·Space로 선택, Esc·Tab으로 닫기
 const RegionMenu = {
   els() {
-    return { box: document.getElementById('region-dd'), btn: document.getElementById('region-dd-btn'), list: document.getElementById('region-dd-list') };
+    return {
+      box: document.getElementById('region-dd'), btn: document.getElementById('region-dd-btn'),
+      panel: document.getElementById('region-dd-panel'), list: document.getElementById('region-dd-list'), more: document.getElementById('region-dd-more')
+    };
   },
   isOpen() {
-    const { list } = this.els();
-    return !!list && !list.hidden;
+    const { panel } = this.els();
+    return !!panel && !panel.hidden;
   },
   open(toEnd) {
-    const { btn, list } = this.els();
+    const { btn, panel, list } = this.els();
     if (!list) return;
-    list.hidden = false;
+    panel.hidden = false;
+    // 글자를 크게 키워 헤더가 높아져도 목록 상자가 화면 아래로 넘치지 않게, 남은 높이 안에서 스크롤해요
+    panel.style.maxHeight = Math.max(160, window.innerHeight - panel.getBoundingClientRect().top - 12) + 'px';
     btn.setAttribute('aria-expanded', 'true');
-    const start = App.state.regionId || REGION_ORDER[toEnd ? REGION_ORDER.length - 1 : 0];
+    const start = App.state.regionId || REGION_LIST[toEnd ? REGION_LIST.length - 1 : 0];
     this.focusOpt(start);
     list.focus();
   },
   close(returnFocus) {
-    const { btn, list } = this.els();
-    if (!list || list.hidden) return;
-    list.hidden = true;
+    const { btn, panel } = this.els();
+    if (!panel || panel.hidden) return;
+    panel.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
     if (returnFocus) btn.focus();
   },
@@ -2449,19 +2495,31 @@ const RegionMenu = {
     }
   },
   listKey(e) {
-    const i = REGION_ORDER.indexOf(this.current());
-    const move = n => { e.preventDefault(); this.focusOpt(REGION_ORDER[(n + REGION_ORDER.length) % REGION_ORDER.length]); };
+    const i = REGION_LIST.indexOf(this.current());
+    const move = n => { e.preventDefault(); this.focusOpt(REGION_LIST[(n + REGION_LIST.length) % REGION_LIST.length]); };
     if (e.key === 'ArrowDown') move(i + 1);
     else if (e.key === 'ArrowUp') move(i - 1);
     else if (e.key === 'Home') move(0);
-    else if (e.key === 'End') move(REGION_ORDER.length - 1);
+    else if (e.key === 'End') move(REGION_LIST.length - 1);
     else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (this.current()) this.pick(this.current()); }
     else if (e.key === 'Escape') { e.preventDefault(); this.close(true); }
-    else if (e.key === 'Tab') this.close(false);
+    // Tab은 목록 아래 ‘지역 선택 화면 열기’로 가요(그 버튼이 없으면 닫아요). Shift+Tab은 닫고 지역 버튼으로 돌아가요
+    else if (e.key === 'Tab' && (e.shiftKey || !this.els().more)) this.close(false);
+  },
+  // 목록 아래 ‘지역 선택 화면 열기’: Esc로 닫고, 여기서 Tab으로 나가면 목록도 닫아요
+  moreKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); this.close(true); }
+    else if (e.key === 'Tab' && !e.shiftKey) this.close(false);
+    else if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); this.els().list.focus(); }
+  },
+  // 처음 방문 때의 12개 지역 선택 화면을 다시 열어요. 저장된 지역·체크는 다른 지역을 고를 때만 바뀌어요
+  openChooser() {
+    this.close(false);
+    App.openRegionChooser('region-dd-btn');
   }
 };
 
-// ‘다른 지역 보기’로 연 지역 선택 화면은 Esc로도 닫아요(처음 방문 화면은 돌아갈 곳이 없어 그대로예요)
+// ‘지역 다시 선택’으로 연 지역 선택 화면은 Esc로도 닫아요(처음 방문 화면은 돌아갈 곳이 없어 그대로예요)
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && App.state.onboarding && App.R) App.closeRegionChooser();
 });

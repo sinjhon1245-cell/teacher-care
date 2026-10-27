@@ -350,13 +350,20 @@ const checkRefs = (tag, refs) => {
 // 회복·보호에는 ‘내가 사용할 제도’만. 기관이 주는 지원 id가 들어오면 오류(지원 찾기로)
 const SUPPORT_LIKE = ['counseling', 'treatment-cost', 'legal-consult', 'mutual-aid', 'security', 'mediation', 'property-damage'];
 
+// 아이콘: BENEFITS·HOME_ENTRIES의 icon은 app.js의 ICONS 이름이어야 해요(컬러 이모지 대신 단색 선형 아이콘)
+const ICON_NAMES = (() => {
+  const block = (fs.readFileSync(path.join(root, 'app.js'), 'utf8').match(/const ICONS = \{([\s\S]*?)\n\};/) || [])[1] || '';
+  return new Set([...block.matchAll(/^\s*'?([a-z][a-z-]*)'?:/gm)].map(m => m[1]));
+})();
+if (ICON_NAMES.size < 5) errors.push('app.js에서 ICONS 목록을 읽지 못했어요');
 BENEFITS.forEach((x, i) => {
   const tag = `BENEFITS[${i}] (${x.t})`;
   if (!x.id || !/^[a-z]+(?:-[a-z]+)*$/.test(x.id)) errors.push(`${tag} id 형식 오류: ${x.id}`);
   else if (BENEFIT_IDS.has(x.id)) errors.push(`${tag} id 중복`);
   BENEFIT_IDS.add(x.id);
   if (SUPPORT_LIKE.includes(x.id)) errors.push(`${tag} 외부 지원은 회복·보호가 아니라 지원 찾기(SUPPORT_TYPES)에 둬요`);
-  for (const f of ['t', 'd', 'e', 'what', 'who', 'limit', 'when', 'apply', 'basis']) if (!x[f]) errors.push(`${tag} ${f} 없음`);
+  for (const f of ['t', 'd', 'icon', 'what', 'who', 'limit', 'when', 'apply', 'basis']) if (!x[f]) errors.push(`${tag} ${f} 없음`);
+  if (x.icon && !ICON_NAMES.has(x.icon)) errors.push(`${tag} icon ‘${x.icon}’이 app.js ICONS에 없어요`);
   if (!CATEGORY_IDS.has(x.category)) errors.push(`${tag} category 값이 잘못됐어요: ${x.category}`);
   if (!Object.prototype.hasOwnProperty.call(EMPLOYMENT_SCOPES, x.employment)) errors.push(`${tag} employment 값이 잘못됐어요: ${x.employment}`);
   if ((x.missed || []).length > 2) errors.push(`${tag} ‘놓치기 쉬워요’는 2개까지예요: ${x.missed.length}개`);
@@ -402,6 +409,7 @@ if (!/자동으로 이어지는 것이 아니/.test(RECOVERY_NOTE || '')) errors
 // 홈
 HOME_ENTRIES.forEach((h, i) => {
   if (!PAGE_IDS.includes(h.page) || h.page === 'home') errors.push(`HOME_ENTRIES[${i}] page가 잘못됐어요: ${h.page}`);
+  if (!ICON_NAMES.has(h.icon)) errors.push(`HOME_ENTRIES[${i}] icon ‘${h.icon}’이 app.js ICONS에 없어요`);
   checkCommon(`HOME_ENTRIES[${i}]`, [h.t, h.d].join(' '));
 });
 ['proc', 'guide', 'care', 'support'].forEach(p => { if (!HOME_ENTRIES.some(h => h.page === p)) errors.push(`HOME_ENTRIES에 ${p} 입구가 없어요`); });
