@@ -356,7 +356,8 @@ details[open] > summary > .chevron::before { transform: translateY(2px) rotate(2
   padding: 4px 2px 12px; margin-bottom: 12px; border-bottom: 2px solid var(--primary);
 }
 .result-head .muted { margin: 2px 0 0; }
-.result-count { margin: 0; font-size: 1.125rem; font-weight: 700; line-height: var(--lh-tight); color: var(--primary-hover); }
+/* 결과 개수 줄은 목록의 h2예요(제목 계층 h1 → h2 → h3). 모양은 문단일 때와 같게 제목 공통 글자 간격(본문 값을 물려받아요)·줄바꿈을 되돌려요 */
+.result-count { margin: 0; font-size: 1.125rem; font-weight: 700; line-height: var(--lh-tight); letter-spacing: inherit; text-wrap: pretty; color: var(--primary-hover); }
 
 /* ══════════════ 헤더 ══════════════ */
 .site-header {

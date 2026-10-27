@@ -1377,7 +1377,7 @@ const App = {
         `;
       }).join('');
       return `
-        <div class="result-head"><p class="result-count">큰 상황으로 바로 찾기</p></div>
+        <div class="result-head"><h2 class="result-count">큰 상황으로 바로 찾기</h2></div>
         <ul class="action-list">${groupRows}</ul>
       `;
     }
@@ -1414,7 +1414,7 @@ const App = {
       ${hint}
       <div class="result-head" aria-live="polite">
         <div>
-          <p class="result-count">${matches.length}개 상황을 찾았어요</p>
+          <h2 class="result-count">${matches.length}개 상황을 찾았어요</h2>
           <p class="muted small">현재 조건: ${conditionParts.join(' · ')}</p>
         </div>
         <button class="btn btn-secondary" onclick="App.clearGuideTools()">검색·필터 초기화</button>
@@ -1584,7 +1584,7 @@ const App = {
         </div>
         <div class="result-head" aria-live="polite">
           <div>
-            <p class="result-count">${relMode ? `이 상황과 관련된 지원: ${relTypes.map(t => t.label).join(' · ')}` : `${R.short} ${cur ? cur.label + ' 지원' : '지원 전체'} ${programs.length}건`}</p>
+            <h2 class="result-count">${relMode ? `이 상황과 관련된 지원: ${relTypes.map(t => t.label).join(' · ')}` : `${R.short} ${cur ? cur.label + ' 지원' : '지원 전체'} ${programs.length}건`}</h2>
             ${relMode ? `<p class="muted small">${(this.situById(S.related.situId) || { title: '선택한 상황' }).title} · ${R.short} 지원 ${programs.length}건</p>` : ''}
           </div>
           ${relMode || cur ? `<button class="btn btn-secondary" onclick="App.setState({ supportType: 'all' })">전체 보기</button>` : ''}
