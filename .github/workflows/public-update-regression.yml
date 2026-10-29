@@ -1,0 +1,33 @@
+name: Public updates and data regression
+
+on:
+  pull_request:
+    paths:
+      - 'app.js'
+      - 'data/**'
+      - 'tools/check-data.js'
+      - 'tools/check-public-updates.js'
+      - '.github/workflows/public-update-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check app.js
+          node --check data/updates.js
+          node --check tools/check-data.js
+          node --check tools/check-public-updates.js
+      - name: Public update behavior
+        run: node tools/check-public-updates.js
+      - name: Content and source consistency
+        run: node tools/check-data.js
