@@ -2272,7 +2272,8 @@ const UpdateUI = {
   _bannerClosed: null,
   _trigger: null,
 
-  list() { return typeof UPDATES !== 'undefined' && Array.isArray(UPDATES) ? UPDATES : []; },
+  // 공개 화면에서는 실제 지원 내용 변경만 표시합니다. 숨긴 항목의 id는 원본 기록에 유지합니다.
+  list() { return typeof UPDATES !== 'undefined' && Array.isArray(UPDATES) ? UPDATES.filter(u => u.visibility !== 'internal' && u.type !== '기능 개선') : []; },
   latest() { return this.list()[0] || null; },
   seenId() { return this._seen || storeGet(STORAGE_UPDATE_SEEN); },
   unread() { const u = this.latest(); return !!u && this.seenId() !== u.id; },
@@ -2326,10 +2327,10 @@ const UpdateUI = {
     const u = this.latest();
     if (!u) return '';
     return `<div class="footer-update">
-      <p class="footer-side-title">최근 업데이트</p>
+      <p class="footer-side-title">최근 지원 정보 변경</p>
       <p><span class="footer-update-date">${this.day(u.date).full}</span> ${u.title}</p>
       <p class="footer-update-meta">${this.day(u.date).full} 기준 · ${REGION_ORDER.length}개 시·도 안내</p>
-      <button type="button" class="link-btn small" id="footer-update-btn" aria-haspopup="dialog" onclick="UpdateUI.open('footer-update-btn')">전체 업데이트 보기 <span aria-hidden="true">→</span></button>
+      <button type="button" class="link-btn small" id="footer-update-btn" aria-haspopup="dialog" onclick="UpdateUI.open('footer-update-btn')">지원 정보 변경 내역 보기 <span aria-hidden="true">→</span></button>
     </div>`;
   },
 
@@ -2343,10 +2344,10 @@ const UpdateUI = {
       </li>`).join('');
     return `<div class="update-dialog-body">
       <div class="update-dialog-head">
-        <h2 class="update-dialog-title" id="update-dialog-title" tabindex="-1">업데이트 내역</h2>
+        <h2 class="update-dialog-title" id="update-dialog-title" tabindex="-1">지원 정보 변경 내역</h2>
         <button type="button" class="update-dialog-close" aria-label="업데이트 내역 닫기" onclick="UpdateUI.close()"><span aria-hidden="true">×</span></button>
       </div>
-      <p class="update-dialog-note">선생님 곁에에서 달라진 점을 최신순으로 알려 드려요.</p>
+      <p class="update-dialog-note">지원 지역, 법령, 지원 제도와 연락처 등 실제 안내 내용이 달라진 사항을 알려 드려요.</p>
       <ol class="update-list">${items}</ol>
       <div class="update-dialog-foot">${authorCredit()}<button type="button" class="btn btn-secondary" onclick="UpdateUI.close()">닫기</button></div>
     </div>`;
