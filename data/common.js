@@ -1482,7 +1482,7 @@ const SITUS = [
     "dont": "교사가 혼자 장시간 상대하거나 물리적으로 퇴거시키려 하기",
     "programs": "출입 관리 강화, 행정·법률 지원, 필요 시 경호",
     "orgs": "학교장, 경찰 112, {HOT}",
-    "legalCaution": "예약 없이 학교를 방문했다는 사실만으로 교육활동 침해가 되는 것은 아니며, 출입 절차 위반·업무 방해·위협 여부 등을 구체적으로 확인해야 해요.",
+    "legalCaution": "예약 없이 학교를 방문했다는 사실만으로 교육활동 침해가 되는 것은 아니며, 출입 절차 위반·업무 방해·위협 여부 등을 구체적으로 확인해야 해요. 다만 학교민원 과정에서 교육활동 침해나 업무방해가 우려되면 학교장에게 「초·중등교육법」 제35조제3항과 같은 법 시행령 제65조에 따른 중지 요청·필요 조치를 요청할 수 있어요(2026. 10. 29. 시행).",
     "regionVariants": {}
   },
   {
@@ -1530,7 +1530,7 @@ const SITUS = [
     "dont": "신체적으로 끌어내거나 밀치는 등 직접적인 물리력으로 대응하기",
     "programs": "행정 지원, 법률 상담, 필요 시 경찰·경호 연계",
     "orgs": "학교장, 경찰 112, {HOT1}",
-    "legalCaution": "평화적인 의견 표명이나 적법한 집회·민원 활동과 실제 업무 방해·퇴거 불응은 구분해서 봐야 해요.",
+    "legalCaution": "평화적인 의견 표명이나 적법한 집회·민원 활동과 실제 업무 방해·퇴거 불응은 구분해서 봐야 해요. 학교민원 중 교육활동 침해나 업무방해가 우려되면 학교장은 그 우려를 알리고 행위 중지를 먼저 요청해야 해요. 요청에 따르지 않으면 전화·면담 종료, 퇴거, 일시적 출입 제한, 수사기관 신고 등 필요한 조치를 할 수 있고, 긴급하면 사전 중지 요청 없이 조치할 수 있어요(「초·중등교육법 시행령」 제65조, 2026. 10. 29. 시행).",
     "regionVariants": {}
   },
   {
@@ -2365,7 +2365,9 @@ const COMMON_PUBLIC_SOURCES = [
   { id: 'accident-act', title: '공무원 재해보상법 제4조(공무상 재해)·제9조(급여 청구)·제22조(요양급여)·제54조(시효)', url: 'https://www.law.go.kr/법령/공무원재해보상법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'accident-decree', title: '공무원 재해보상법 시행령 제28조(공무상 요양 승인 신청)', url: 'https://www.law.go.kr/법령/공무원재해보상법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'geps', title: '공무원연금공단 — 공무상 요양 승인(구비서류·청구 기한)', url: 'https://www.geps.or.kr/bizInformation_accidentCompensation_healthCare_careApproval', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
-  { id: 'gukga', title: '국가공무원법 제73조(휴직의 효력) — 휴직 사유 소멸·기간 종료 후 30일 이내 신고와 복직', url: 'https://www.law.go.kr/법령/국가공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] }
+  { id: 'gukga', title: '국가공무원법 제73조(휴직의 효력) — 휴직 사유 소멸·기간 종료 후 30일 이내 신고와 복직', url: 'https://www.law.go.kr/법령/국가공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'school-complaint-law', title: '「초·중등교육법」(법률 제21580호, 2026. 10. 29. 시행) 제35조제3항(학교장 필요 조치)·제37조(학교민원대응팀 등)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285599&chrClsCd=010202&urlMode=lsInfoP&efYd=20261029&ancYnChk=0', verifiedAt: '2026-10-29', sourceUpdatedAt: '2026-04-28', region: 'common', uses: ['guide', 'support'] },
+  { id: 'school-complaint-decree', title: '「초·중등교육법 시행령」(대통령령 제36785호, 2026. 10. 29. 시행) 제65조(퇴거요청 등 조치 절차)', url: 'https://www.law.go.kr/법령/초ㆍ중등교육법시행령', verifiedAt: '2026-10-29', sourceUpdatedAt: '2026-10-27', region: 'common', uses: ['guide', 'support'] }
 ];
 
 // 내부 교차검증에 쓴 자료(화면에 출력하지 않아요). 공통 기준이 여러 시·도 자료에서도 같은지 확인한 기록이에요.
