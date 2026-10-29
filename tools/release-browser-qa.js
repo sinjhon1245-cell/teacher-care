@@ -44,7 +44,7 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
     assert.equal(content.programs,161);
     assert.equal(content.publicLatest,'2026-10-29-school-complaint-procedure');
     assert.ok(content.situation.includes('긴급'));
-    await page.evaluate(() => {App.setRegion('incheon');App.nav('home');});
+    await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');});
     const source=fs.readFileSync(path.join(ROOT,'tools/ui-check.js'),'utf8');
     let combos=0;
     for (const width of [360,375,390,768,769,881,961,1024,1440]) {
@@ -59,7 +59,7 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
     assert.equal(combos,540);
     for (const width of [375,768,1440]) {
       await page.setViewportSize({width,height:900});
-      await page.evaluate(() => {App.setRegion('incheon');App.nav('home');window.scrollTo(0,0)});
+      await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');window.scrollTo(0,0)});
       await page.screenshot({path:path.join(SCREEN_DIR,'home-'+width+'.png'),fullPage:true});
       for (const screen of ['home','guide','care','support']) {
         const result=await page.evaluate(pg => {
