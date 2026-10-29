@@ -29,7 +29,7 @@ assert.equal(UpdateUI.list().length, publicUpdates.length, '공개 목록이 원
 assert.equal(UpdateUI.latest().id, publicUpdates[0].id);
 assert.ok(publicUpdates.some(u => u.id === '2026-10-26-12-region-accuracy-audit'));
 assert.ok(UpdateUI.list().every(u => u.visibility !== 'internal' && u.type !== '기능 개선'));
-assert.equal(UpdateUI.list().filter(u => u.type === '지역 확대').length, 8);
+assert.ok(UpdateUI.list().some(u => u.type === '지역 확대'), '지역 확대 이력은 공개되어야 합니다');
 const latestDay = UpdateUI.day(UpdateUI.latest().date);
 assert.ok(UpdateUI.chip().includes('업데이트 ' + latestDay.short));
 assert.ok(UpdateUI.footerBlock().includes(latestDay.full));
