@@ -2275,7 +2275,15 @@ const UpdateUI = {
   // 공개 화면에서는 실제 지원 내용 변경만 표시합니다. 숨긴 항목의 id는 원본 기록에 유지합니다.
   list() { return typeof UPDATES !== 'undefined' && Array.isArray(UPDATES) ? UPDATES.filter(u => u.visibility !== 'internal' && u.type !== '기능 개선') : []; },
   latest() { return this.list()[0] || null; },
-  seenId() { return this._seen || storeGet(STORAGE_UPDATE_SEEN); },
+  seenId() {
+    const id = this._seen || storeGet(STORAGE_UPDATE_SEEN);
+    if (!id || typeof UPDATES === 'undefined' || !Array.isArray(UPDATES)) return id;
+    // 예전 최신 UI 소식을 이미 읽었다면, 그보다 오래된 공개 정보 변경을 '새 소식'으로 다시 알리지 않아요.
+    const seenIndex = UPDATES.findIndex(u => u.id === id);
+    const latest = this.latest();
+    const publicIndex = latest ? UPDATES.findIndex(u => u.id === latest.id) : -1;
+    return seenIndex !== -1 && publicIndex !== -1 && seenIndex <= publicIndex ? latest.id : id;
+  },
   unread() { const u = this.latest(); return !!u && this.seenId() !== u.id; },
   day(iso) { const [y, m, d] = iso.split('-'); return { full: `${y}.${m}.${d}`, short: `${m}.${d}` }; },
   today() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); }, // 한국 날짜
