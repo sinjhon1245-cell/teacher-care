@@ -23,13 +23,16 @@ const context = vm.createContext({
 vm.runInContext(updates + '\n' + uiSource + '\nvar TEST = { UPDATES, UpdateUI };', context, { timeout: 1000 });
 const { UPDATES, UpdateUI } = context.TEST;
 
-assert.equal(UPDATES.length, 12, '업데이트 원본은 12건 보존해야 합니다');
-assert.equal(UpdateUI.list().length, 10, '공개 변경 내역은 10건이어야 합니다');
-assert.equal(UpdateUI.latest().id, '2026-10-26-12-region-accuracy-audit');
+const publicUpdates = UPDATES.filter(u => u.visibility !== 'internal' && u.type !== '기능 개선');
+assert.equal(UPDATES.filter(u => u.visibility === 'internal').length, 2, '기존 두 UI 변경은 내부 이력에 보존해야 합니다');
+assert.equal(UpdateUI.list().length, publicUpdates.length, '공개 목록이 원본의 공개 항목과 같아야 합니다');
+assert.equal(UpdateUI.latest().id, publicUpdates[0].id);
+assert.ok(publicUpdates.some(u => u.id === '2026-10-26-12-region-accuracy-audit'));
 assert.ok(UpdateUI.list().every(u => u.visibility !== 'internal' && u.type !== '기능 개선'));
 assert.equal(UpdateUI.list().filter(u => u.type === '지역 확대').length, 8);
-assert.ok(UpdateUI.chip().includes('업데이트 10.26'));
-assert.ok(UpdateUI.footerBlock().includes('2026.10.26'));
+const latestDay = UpdateUI.day(UpdateUI.latest().date);
+assert.ok(UpdateUI.chip().includes('업데이트 ' + latestDay.short));
+assert.ok(UpdateUI.footerBlock().includes(latestDay.full));
 assert.ok(UpdateUI.footerBlock().includes('지원 정보 변경 내역 보기'));
 const dialog = UpdateUI.dialogHtml();
 assert.ok(dialog.includes('지원 정보 변경 내역'));
@@ -38,10 +41,10 @@ assert.ok(!dialog.includes('지역 선택과 화면 읽기 다듬기'));
 assert.ok(!dialog.includes('홈에서 다른 지역 안내 보기'));
 
 savedId = '2026-10-27-design-refine';
-assert.equal(UpdateUI.unread(), false, '이전에 최신 UI 소식을 읽은 이용자에게 과거 내용을 새 소식으로 표시하면 안 됩니다');
+assert.equal(UpdateUI.unread(), UpdateUI.latest().date > '2026-10-27', '지난 UI 소식을 읽었을 때 새 실제 정보 변경이 있으면 알리고, 과거 소식은 다시 알리지 않습니다');
 savedId = '2026-10-23-daejeon';
 assert.equal(UpdateUI.unread(), true, '기존 공개 변경을 읽지 않은 이용자는 새 소식을 받아야 합니다');
 savedId = null;
 assert.equal(UpdateUI.unread(), true, '첫 방문자는 공개 최신 내용을 새 소식으로 인식해야 합니다');
 
-console.log('PASS public updates: 12 source · 10 public · latest 2026-10-26 · read-state/backward compatibility');
+console.log(`PASS public updates: ${UPDATES.length} source · ${publicUpdates.length} public · latest ${UpdateUI.latest().date} · read-state/backward compatibility`);
