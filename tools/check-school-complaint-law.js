@@ -35,6 +35,18 @@ assert.ok(minwon, 'Daejeon school complaint program missing');
 assert.ok(minwon.caution.includes('시행령') && minwon.caution.includes('중지 요청'), 'Daejeon enactment wording missing');
 assert.ok(!/미공포|시행령으로 정하니/.test(minwon.caution), 'Old not-yet-enacted warning remains');
 assert.ok(daejeon.sources.some(s => s.title.includes('대통령령 제36785호')));
+for (const phrase of ['제37조제3항', '제4항', '직접 처리를 요청', '전용 연락처', '이첩 서식']) {
+  assert.ok(minwon.caution.includes(phrase), 'Daejeon verification/caveat missing: ' + phrase);
+}
+assert.ok(minwon.apply.includes('학교장이 관할 교육지원청에'), 'Daejeon escalation must be school-head led');
+assert.ok(minwon.apply.includes('먼저 확인'), 'Unverified local contact and form must be checked');
+assert.ok(!minwon.contact, 'Do not invent a direct school-minwon team number');
+const gwTreatment = REGIONS.gangwon.programs.find(p => p.t === '마음 건강 치료비(정신건강의학과)');
+assert.ok(gwTreatment, 'Gangwon treatment program missing');
+assert.equal(gwTreatment.validUntil, '2026-11-30');
+assert.equal(gwTreatment.reviewBy, '2026-11-02');
+assert.equal(gwTreatment.verifiedAt, '2026-10-26', 'Cannot advance verifiedAt without rereading the official attachment');
+assert.ok(gwTreatment.sum.includes('11월 30일까지') && gwTreatment.sum.includes('접수할 수 없어요'), 'Gangwon deadline must be visible in summary');
 const updates = read('data/updates.js');
 assert.ok(updates.includes('2026-10-29-school-complaint-procedure'), 'Content-only change not announced');
 assert.ok(!updates.includes('visibility: \'internal\',\n    date: \'2026-10-29\''), 'Legal update accidentally hidden');
