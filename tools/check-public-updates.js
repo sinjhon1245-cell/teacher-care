@@ -14,6 +14,8 @@ assert.ok(start >= 0 && end > start, 'app.js UpdateUI 객체를 찾지 못했습
 const uiSource = app.slice(start, end + 3);
 let savedId = null;
 const context = vm.createContext({
+  STORAGE_UPDATE_SEEN: 'teacher-care-update-seen',
+  STORAGE_UPDATE_BANNER: 'teacher-care-update-banner-closed',
   storeGet: key => key === 'teacher-care-update-seen' ? savedId : null,
   storeSet: () => {},
   authorCredit: () => '',
