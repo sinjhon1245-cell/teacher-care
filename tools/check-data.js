@@ -666,6 +666,9 @@ console.log(`합계 시·군·구 ${total}곳`);
       if (isRealDate(u.date || '') && u.date > (process.env.CHECK_TODAY || require('./lib/freshness').kstToday())) errors.push(`${tag} 미래 날짜예요(반영된 날을 적어요): ${u.date}`);
       if (i > 0 && UPDATES[i - 1].date < u.date) errors.push(`${tag} 최신순이 아니에요(새 업데이트는 맨 위에 적어요)`);
       if (!(UPDATE_TYPES || []).includes(u.type)) errors.push(`${tag} type은 ${(UPDATE_TYPES || []).join('·')} 중 하나여야 해요: ${u.type}`);
+      if (u.visibility !== undefined && !['public', 'internal'].includes(u.visibility)) errors.push(`${tag} visibility는 public·internal 중 하나여야 해요`);
+      if (u.type === '기능 개선' && u.visibility !== 'internal') errors.push(`${tag} 기능·화면 변경은 공개 업데이트에서 제외해야 해요(visibility: internal)`);
+      if (u.visibility === 'internal' && u.showBanner) errors.push(`${tag} 내부 기술 변경에는 공개 안내바를 띄우지 않아요`);
       if (!u.title || !u.summary) errors.push(`${tag} title·summary가 필요해요`);
       if (u.details !== undefined && (!Array.isArray(u.details) || u.details.some(d => typeof d !== 'string' || !d))) errors.push(`${tag} details는 문장 배열이어야 해요`);
       if (u.showBanner && !u.banner) errors.push(`${tag} showBanner면 banner(안내바 한 줄)가 필요해요`);
@@ -674,7 +677,9 @@ console.log(`합계 시·군·구 ${total}곳`);
       const text = [u.title, u.summary, u.banner, ...(u.details || [])].join(' ');
       if (phonesIn(text).length) errors.push(`${tag} 업데이트 문장에 전화번호를 적지 않아요(번호는 지역 화면에서 안내): ${phonesIn(text).join(', ')}`);
     });
-    console.log(`업데이트 내역: ${UPDATES.length}건 · 최신 ${UPDATES[0].date} ${UPDATES[0].title} · 안내바 후보 ${UPDATES.filter(u => u.showBanner).length}`);
+    const publicUpdates = UPDATES.filter(u => u.visibility !== 'internal' && u.type !== '기능 개선');
+    if (!publicUpdates.length) errors.push('공개 지원 정보 변경 내역이 없어요');
+    console.log(`업데이트 원본: ${UPDATES.length}건 · 공개 지원 정보 변경: ${publicUpdates.length}건 · 공개 최신 ${publicUpdates[0]?.date || '-'} · 안내바 후보 ${publicUpdates.filter(u => u.showBanner).length}`);
   }
 }
 
