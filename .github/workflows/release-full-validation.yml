@@ -1,0 +1,58 @@
+name: Full legal and release regression
+
+on:
+  pull_request:
+    paths:
+      - 'app.js'
+      - 'index.html'
+      - 'data/**'
+      - 'tools/**'
+      - '.github/workflows/release-full-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  content-and-links:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 19
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax and enacted-law content
+        run: |
+          node --check app.js
+          node --check data/common.js
+          node --check data/regions/daejeon.js
+          node --check tools/check-school-complaint-law.js
+          node tools/check-school-complaint-law.js
+      - name: Full data, official links and maintenance report
+        run: node tools/check-all.js --verbose
+
+  responsive-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 19
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Full UI regression
+        run: node tools/release-browser-qa.js
+        env:
+          QA_SCREEN_DIR: /tmp/teacher-care-release-qa
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: teacher-care-pr10-screens
+          path: /tmp/teacher-care-release-qa
+          if-no-files-found: ignore
+          retention-days: 7
