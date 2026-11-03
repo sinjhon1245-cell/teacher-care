@@ -9,7 +9,7 @@
 - 통합교육청 조직도: https://gen.go.kr/sub/page.php?page_code=introduce_06_02
 - 광주권 상담 https://forteacher.gen.go.kr/sub/page.php?page_code=support_07 / 법률 https://forteacher.gen.go.kr/sub/page.php?page_code=support_05
 - 전남권 법률상담(2026. 6. 9. 수정) https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=642&mi=1815
-- 전남권 심리상담/치료(2026 공지) https://www.jne.go.kr/thsupport/na/ntt/selectNttList.do?bbsId=339
+- 전남권 심리상담/치료(2026. 3. 24. 운영계획 원문 게시물) https://www.jne.go.kr/thsupport/na/ntt/selectNttInfo.do?mi=667&nttSn=5172350
 - 전남권 공제 안내 https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=646&mi=1813
 - 「교원지위법」 신고·심의 및 「초·중등교육법」 제37조 학교민원 대응을 함께 제공.
 
