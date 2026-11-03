@@ -1154,8 +1154,9 @@ const App = {
   fieldGrid(x, phone) {
     const v = k => x[k] ? (phone ? linkifyPhone(x[k]) : x[k]) : '';
     const col = keys => {
-      const rows = BENEFIT_FIELDS.filter(([k]) => keys.includes(k)).map(([k, label]) => [label, v(k)]).filter(([, val]) => val);
-      return rows.length ? `<dl class="facts bf-col">${rows.map(([k, val]) => `<div><dt>${k}</dt><dd>${val}</dd></div>`).join('')}</dl>` : '';
+      const rows = BENEFIT_FIELDS.filter(([k]) => keys.includes(k)).map(([k, label]) => [k, label, v(k)]).filter(([, , val]) => val);
+      // 데이터는 그대로 두고 질문의 의미(언제/어떻게)를 시각적으로만 구분해요.
+      return rows.length ? `<dl class="facts bf-col">${rows.map(([key, label, val]) => `<div data-field="${key}"><dt>${label}</dt><dd>${val}</dd></div>`).join('')}</dl>` : '';
     };
     const left = col(['what', 'who', 'limit']);
     const right = col(['when', 'apply', 'prepare']);
@@ -1315,7 +1316,7 @@ const App = {
             ${this.situBenefits(s)}
             <div class="block situ-supports">
               <p class="block-title">연결 가능한 지원</p>
-              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', s.orgs]])}
+              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\{(HOT1|HOT2|HOT)\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
               ${types.length ? `<ul class="link-list">${types.map(t => supportChip(t, this.R)).join('')}</ul>` : ''}
             </div>
           </div>
