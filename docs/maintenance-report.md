@@ -6,14 +6,14 @@
 | 항목 | 값 |
 | --- | --- |
 | 생성일 | 2026-11-04 (한국 시간) |
-| asset version | 20261103-7 |
+| asset version | 20261104-1 |
 | 최근 전체 확인일 | 2026-10-03 (모든 지역 안내를 마지막으로 다 확인한 날) |
 | 확인일 범위 | 2026-09-24 ~ 2026-11-04 (항목 560건) |
 
 | 점검 | 결과 |
 | --- | --- |
 | 데이터 검증 | PASS (오류 0 · 주의 10) |
-| 공식 링크 | PASS(확인 필요 있음) (489개) |
+| 공식 링크 | PASS (489개) |
 | 오래된 정보 | 0 |
 | 재검토 필요 | 10 (reviewStatus 8 · 재확인일 지남 2) |
 | 지역 gap | 78 (+ 영역 밖 49) |
@@ -231,16 +231,14 @@
 
 ## 링크 현황
 
-점검 시각: 2026-11-04 01:11(한국 시간) · 링크 489개(사용 위치 694곳)
+점검 시각: 2026-11-04 08:25(한국 시간) · 링크 489개(사용 위치 694곳)
 
 | 정상 | redirect | 확인 필요 | broken |
 | ---: | ---: | ---: | ---: |
-| 452 | 35 | 2 | 0 |
+| 454 | 35 | 0 | 0 |
 
 | 판정 | 상태 | 주소 | 위치 | 메모 |
 | --- | --- | --- | --- | --- |
-| 확인 필요 | 500 | https://www.gwe.go.kr/promotion/bbs/view.do?key=bTI0MTEyMjUyOTQ2NDA=&bbsSn=57056 | data/regions/gangwon.js:40 | 서버 오류(잠시 뒤 다시 확인) |
-| 확인 필요 | 400 | https://www.pen.go.kr/main/na/ntt/selectNttInfo.do?mi=30361&bbsId=2342&nttSn=1165028 | data/regions/busan.js:32, data/regions/busan.js:98 |  |
 | 이동(redirect) | 200 | https://forteacher.gen.go.kr/sub/page.php?page_code=support_05 → https://forteacher.jge.go.kr/sub/page.php?page_code=support_05 | data/regions/jeonnamgwangju.js:24, data/regions/jeonnamgwangju.js:90 |  |
 | 이동(redirect) | 200 | https://forteacher.gen.go.kr/sub/page.php?page_code=support_07 → https://forteacher.jge.go.kr/sub/page.php?page_code=support_07 | data/regions/jeonnamgwangju.js:23, data/regions/jeonnamgwangju.js:46, data/regions/jeonnamgwangju.js:89 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dep/jo/jobshare/selectJobShareView.do?dept_cd=7240365&mi=8210 → https://www.dge.go.kr/dep/sso/index.do | data/regions/daegu.js:41 |  |
