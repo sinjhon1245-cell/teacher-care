@@ -548,7 +548,7 @@ const App = {
     const cur = this.state.regionId;
     const opts = REGION_LIST.map(id => `
       <li id="region-opt-${id}" class="region-dd-opt" role="option" aria-selected="${cur === id}" aria-label="${REGIONS[id].short}" data-id="${id}"
-        onclick="RegionMenu.pick('${id}')" onmousemove="RegionMenu.focusOpt('${id}')">
+        onclick="RegionMenu.pick('${id}')" onmousemove="RegionMenu.hover(event, '${id}')">
         <span class="region-dd-name">${REGIONS[id].short}</span><span class="region-dd-check" aria-hidden="true">✓</span>
       </li>
     `).join('');
@@ -2550,8 +2550,22 @@ const RegionMenu = {
     if (!list) return;
     list.querySelectorAll('.region-dd-opt').forEach(li => li.classList.toggle('focused', li.dataset.id === id));
     list.setAttribute('aria-activedescendant', 'region-opt-' + id);
+    // 목록 칸(시트는 목록, 상자는 상자 자체)만 스크롤해요. scrollIntoView는 뒤의 화면까지 움직일 수 있어 쓰지 않아요
     const li = document.getElementById('region-opt-' + id);
-    if (li && this.isOpen()) li.scrollIntoView({ block: 'nearest' });
+    const { panel } = this.els();
+    const box = li && this.isOpen() && [list, panel].find(el => el.scrollHeight > el.clientHeight + 1);
+    if (box) {
+      const r = li.getBoundingClientRect(), b = box.getBoundingClientRect();
+      if (r.top < b.top) box.scrollTop -= b.top - r.top;
+      else if (r.bottom > b.bottom) box.scrollTop += r.bottom - b.bottom;
+    }
+  },
+  // 마우스를 실제로 움직였을 때만 가리킨 항목을 바꿔요(Safari는 마우스가 멈춰 있어도 화면이 바뀌면 mousemove를 보내,
+  // 방향키로 옮긴 항목이 마우스 아래 항목으로 되돌아가요)
+  hover(e, id) {
+    if (this._mx === e.clientX && this._my === e.clientY) return;
+    this._mx = e.clientX; this._my = e.clientY;
+    this.focusOpt(id);
   },
   current() {
     const { list } = this.els();
