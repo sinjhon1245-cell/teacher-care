@@ -34,21 +34,23 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
   page.on('pageerror', e => errors.push(e.message));
   try {
     await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
-    await page.waitForFunction(() => typeof App !== 'undefined' && REGION_ORDER.length === 14);
+    await page.waitForFunction(() => typeof App !== 'undefined' && REGION_ORDER.length === 15);
     const content=await page.evaluate(() => {
       const item = SITUS.find(x => x.id === 'refusal-to-leave-occupation');
       return {regionCount:REGION_ORDER.length,programs:Object.values(REGIONS).reduce((n,r)=>n+r.programs.length,0),
-        existingPrograms:REGION_ORDER.filter(id=>!['gyeongbuk','sejong'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
-        before13:REGION_ORDER.filter(id=>id!=='sejong').reduce((n,id)=>n+REGIONS[id].programs.length,0),
+        existingPrograms:REGION_ORDER.filter(id=>!['gyeongbuk','sejong','chungnam'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
+        before13:REGION_ORDER.filter(id=>!['sejong','chungnam'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
+        before14:REGION_ORDER.filter(id=>id!=='chungnam').reduce((n,id)=>n+REGIONS[id].programs.length,0),
         agencyOnly:REGION_ORDER.filter(id=>!REGIONS[id].offices.length),
         publicLatest:UpdateUI.latest().id,situation:item.legalCaution};
     });
-    assert.equal(content.regionCount,14);
+    assert.equal(content.regionCount,15);
     assert.equal(content.existingPrograms,161,'기존 12개 지역의 지원 프로그램 161개가 그대로여야 해요');
     assert.equal(content.before13,174,'경북까지 13개 지역의 지원 프로그램 174개가 그대로여야 해요');
+    assert.equal(content.before14,180,'세종까지 14개 지역 지원 프로그램 180개가 그대로여야 해요');
     assert.deepEqual(content.agencyOnly,['sejong'],'교육지원청이 없는 지역은 세종 하나예요');
-    assert.equal(content.programs,180);
-    assert.equal(content.publicLatest,'2026-11-03-sejong');
+    assert.equal(content.programs,184);
+    assert.equal(content.publicLatest,'2026-11-03-chungnam');
     assert.ok(content.situation.includes('긴급'));
     await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');});
     const source=fs.readFileSync(path.join(ROOT,'tools/ui-check.js'),'utf8');
@@ -59,10 +61,10 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
       combos+=result.조합;
       console.log('UI '+width+': '+result.조합+' combinations; errors='+result.실패);
       if (result.실패) console.log(JSON.stringify(result.fails.slice(0,14)));
-      assert.equal(result.조합,70,'Unexpected region/menu combinations for '+width);
+      assert.equal(result.조합,75,'Unexpected region/menu combinations for '+width);
       assert.equal(result.실패,0,'UI regression at '+width+'px');
     }
-    assert.equal(combos,630);
+    assert.equal(combos,675);
     for (const width of [375,768,1440]) {
       await page.setViewportSize({width,height:900});
       await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');window.scrollTo(0,0)});
@@ -104,13 +106,13 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
         return out;
       },size);
       const tag='chooser '+width+'px '+(size?'200%':'100%')+' '+r.per.join('·');
-      assert.equal(r.n,14,tag);assert.ok(!r.partialRow,tag+' rows before the last must be full');
+      assert.equal(r.n,15,tag);assert.ok(!r.partialRow,tag+' rows before the last must be full');
       assert.equal(r.wrapped,0,tag+' region name wrapped');assert.equal(r.over,0,tag+' card overflow');
       assert.equal(r.small,0,tag+' card under 44px');assert.ok(r.height<=1,tag+' card heights differ');assert.ok(r.hscroll<=0,tag+' horizontal overflow');
       chooserChecks++;
     }
     assert.equal(errors.length,0,'Uncaught browser errors: '+JSON.stringify(errors));
-    console.log('PASS 630/630 responsive UI combinations (기존 13개 지역 585 포함), 200% text 12 pages, region chooser '+chooserChecks+'/14 (7 widths × 100·200%), 3 screenshots, zero browser JS errors');
+    console.log('PASS 675/675 responsive UI combinations (기존 14개 지역 630 포함), 200% text 12 pages, region chooser '+chooserChecks+'/14 (7 widths × 100·200%), 3 screenshots, zero browser JS errors');
   } finally {
     await page.close();await browser.close();await new Promise(resolve=>server.close(resolve));
   }
