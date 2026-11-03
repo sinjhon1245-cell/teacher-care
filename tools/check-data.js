@@ -304,7 +304,8 @@ const REGION_BRANDS = {
   daejeon: ['교육활동보호관', '에듀힐링센터', '바로ON', '마음봄동행단', '사안조사동행단', '우리학교 변호사', '뭉클'],
   gyeongbuk: ['교권 온(溫)힘 변호인단', '교권보호 긴급지원단', '행복학교거점지원센터'],
   // ‘학교지원본부’는 다른 시·도 문장에도 쓰이는 일반 이름이라 넣지 않아요
-  sejong: ['바로샘', '우리변호사']
+  sejong: ['바로샘', '우리변호사'],
+  chungnam: ['교원안심 온콜', '교권보호관']
 };
 const regionWords = () => REGION_ORDER.flatMap(id => [REGIONS[id].short, REGIONS[id].name, REGIONS[id].office, ...(REGION_BRANDS[id] || [])]);
 function commonTextIssues(tag, text) {
