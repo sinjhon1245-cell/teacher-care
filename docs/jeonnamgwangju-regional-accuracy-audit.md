@@ -9,7 +9,7 @@
 - 통합교육청 조직도: https://gen.go.kr/sub/page.php?page_code=introduce_06_02
 - 광주권 상담 https://forteacher.gen.go.kr/sub/page.php?page_code=support_07 / 법률 https://forteacher.gen.go.kr/sub/page.php?page_code=support_05
 - 전남권 법률상담(2026. 6. 9. 수정) https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=642&mi=1815
-- 전남권 심리상담/치료(2026. 3. 24. 운영계획 원문 게시물) https://www.jne.go.kr/thsupport/na/ntt/selectNttInfo.do?mi=667&nttSn=5172350
+- 전남권 심리상담/치료: ~~2026. 3. 24. 운영계획 원문 게시물(nttSn=5172350)~~ — 2026-11-04 게시물 삭제 확인, 아래 ‘링크 정정’ 참고
 - 전남권 공제 안내 https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=646&mi=1813
 - 「교원지위법」 신고·심의 및 「초·중등교육법」 제37조 학교민원 대응을 함께 제공.
 
@@ -39,3 +39,15 @@
 - GitHub Pages [배포 실행](https://github.com/sinjhon1245-cell/teacher-care/actions/runs/41643098942) 완료·success; head `fdc95075`와 일치 확인.
 - 사이트 리소스 버전 `20261103-4`. 이번 병합은 지원 지역 추가와 출처 링크 정확화가 목적이며 기존 지역 데이터 파일·UI 컴포넌트는 변경하지 않았다.
 - **후속 점검:** 통합 후 공제 보장 조건, 상담·치료비 세부 금액·2026 신청 문서, 교육지원청별 실제 홈페이지와 교권 직통 전화, 2027 예정 신설 기능의 실제 시행 확인. 자세한 미확인 사항은 위 표를 유지한다.
+
+## 2026-11-04 링크 정정(전남권 상담·치료 운영계획 공지)
+- 링크 검사에서 `https://www.jne.go.kr/thsupport/na/ntt/selectNttInfo.do?mi=667&nttSn=5172350`(2026. 3. 24. ‘2026 교육활동보호센터 상담·치료 운영계획’ 공지)이 끊김으로 나왔다.
+- 다시 확인: 3회 재시도와 `bbsId=339`를 붙인 주소 모두 HTTP 200 + 211바이트 안내 페이지(`alert('게시물이 존재하지않습니다.')`)를 돌려준다. 같은 게시판의 다른 글(nttSn=5179659)은 정상으로 열린다. [업무자료 게시판 목록](https://www.jne.go.kr/thsupport/na/ntt/selectNttList.do?mi=667&bbsId=339)에서도 70번(2026. 3. 17.)과 71번(2026. 6. 9.) 사이에 해당 글이 없다. **게시물 삭제로 판정**했다(일시 오류 아님).
+- CI에서는 같은 주소가 연결 시간 초과(확인 필요)로 분류됐다. 해외 러너가 jne.go.kr에 닿지 못한 것이고, 국내에서 직접 열어 삭제를 확인했다.
+- 정정 내용(지원 카드 ‘전남권 교육활동보호센터 개인상담·심리치료 신청 안내’는 그대로 유지):
+  - 출처 `sources[4]`: 삭제된 공지 → [업무자료실](https://www.jne.go.kr/thsupport/na/ntt/selectNttList.do?mi=667&bbsId=339)(‘교육활동 침해 및 교직스트레스로 인한 교원 개인상담 및 심리치료 신청서 양식’, 2025. 10. 2. 게시). 제목을 ‘전남권 교육활동보호센터 업무자료실(개인상담·심리치료 신청서 양식)’로 바꾸고 게시일(`sourceUpdatedAt`)은 목록 페이지라 넣지 않았다.
+  - 바로가기: ‘전남권 2026 상담·치료 운영계획 공지’ → [전남권 교육활동보호센터 심리상담 신청 안내](https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=641&mi=1814)(지원 대상·신청 절차·신청서 서식 내려받기가 있는 공식 안내, 기존 `sources[5]`와 같은 주소).
+  - 요약·신청 자격·신청 방법 문장에서 ‘2026 운영계획 공지’를 ‘공식 심리상담 안내·업무자료실’로 바꿨다.
+- **계속 보류:** 심리상담 안내 페이지에는 ‘교원 1인당 100만원 이내’, ‘침해 신고일로부터 6개월 이내 신청’, ‘1년 이내 종결’ 같은 조건이 있지만, 통합(2026. 7. 1.) 이후에도 그대로인지, 광주권에도 적용되는지는 확인하지 않았다. 그래서 금액·회기·신청 기한은 이번에도 화면에 넣지 않았다(주의 문장 그대로). `reviewStatus: review-needed`도 그대로다.
+- 참고(별도 확인 대상): 심리상담 안내 페이지 하단의 ‘최근 업데이트 일시’는 2026-10-15인데, 기존 `sources[5]` 제목은 ‘2025년 갱신’, `sourceUpdatedAt`은 2025-10-01이다. 이 표시가 본문 개정일인지 단순 페이지 갱신 시각인지 확인되지 않아, 이번 링크 정정에서는 바꾸지 않았다.
+- 같은 CI에서 DNS 오류로 끊김 처리된 제주교육청 공식 주소 2개(`https://www.jje.go.kr`, `https://www.jje.go.kr/forteacher/index.jje`)는 국내 DNS·Google·Cloudflare 모두 `211.248.117.111`로 풀리고, 3회 재시도 모두 HTTP 200(교육활동보호센터 본문)으로 열려 **일시적 DNS 오류**로 판정하고 바꾸지 않았다.
