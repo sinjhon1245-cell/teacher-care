@@ -37,7 +37,7 @@ registerRegion({
     { title: '2026 학교민원처리 매뉴얼 안내(교육부 「학교민원 처리 매뉴얼」, 교육활동보호센터 자료마당 2026. 3. 10. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50047', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-03-10', region: 'gangwon', uses: ['guide', 'support'] },
     { title: '「강원특별자치도교육청 행정기구 설치조례」 제2조의2·[별표 2] 교육지원청의 명칭·위치 및 관할구역(2026. 10. 2. 신설·시행)', url: 'https://www.law.go.kr/자치법규/강원특별자치도교육청행정기구설치조례', verifiedAt: '2026-10-07', sourceUpdatedAt: '2026-10-02', region: 'gangwon', uses: ['finder'] },
     { title: '강원특별자치도교육청 — 교육지원청 안내(누리집 주소)', url: 'https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDY0NTg%3D', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['finder'] },
-    { title: '강원특별자치도교육청 보도자료 「교권보호지원단, 교육활동 보호 위한 현장 대응 강화」(2026. 10. 20.)·붙임 교육활동보호 지원 현황(2026. 7. 1.~10. 16.)', url: 'https://www.gwe.go.kr/promotion/bbs/view.do?key=bTI0MTEyMjUyOTQ2NDA=&bbsSn=57056', verifiedAt: '2026-10-26', sourceUpdatedAt: '2026-10-20', region: 'gangwon', uses: ['support'] }
+    { title: '강원특별자치도교육청 보도자료 「교권보호지원단, 교육활동 보호 위한 현장 대응 강화」(2026. 10. 20.)·붙임 교육활동보호 지원 현황(2026. 7. 1.~10. 16.)', url: 'https://www.gwe.go.kr/promotion/bbs/view.do?key=bTI2MTEwMjkzMzg2NjA=&bbsSn=57056', verifiedAt: '2026-11-04', sourceUpdatedAt: '2026-10-20', region: 'gangwon', uses: ['support'] }
   ],
 
   // 2026 공식 자료에서 교육활동보호 전용 단일 대표번호는 확인되지 않았어요(강원 게시 매뉴얼은 교육부 전국본).
