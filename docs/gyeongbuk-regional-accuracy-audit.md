@@ -143,3 +143,14 @@
 - 측정(375·480·768·769·1024·1280·1440px × 100·200%, 현재 지역 ‘현재’ 표시 포함): 14/14 — 지역명 줄바꿈 0, 카드 글자 넘침 0, 카드 높이 차이 0(100%: 56·64·120px, 200%: 78·146px), 44px 미만 0, 가로 넘침 0. 375×812·768×1024·1366×768·1440×900 첫 화면에 카드 13장과 112 안내가 모두 들어와요.
 - 다시 실행한 검사: check-data 오류 0(주의 2, 기존), check-all **STATUS PASS**(링크 445개 broken 0, 확인 필요 1 — 기존 강원·부산), 학교민원 법령 검사(기존 12곳·161개)·공개 업데이트 검사 PASS, 브라우저 **585/585**(기존 12곳 540 포함) + 지역 선택 14/14, 200% 글자 12화면 넘침 0, JS 오류 0, 경북 흐름 20/20.
 - 경북 데이터(지원 13개·출처 19개·교육지원청 22곳)와 `data/updates.js`(경북 지역 추가 한 건)는 바꾸지 않았어요. 화면 배치 변경은 공개 업데이트에 적지 않아요. asset version은 아직 배포하지 않은 `20261103-1` 그대로예요.
+
+## 8. 배포 기록(2026-11-03)
+
+- 사용자 승인(지역 선택 배치 수정 뒤 모든 검사 통과 시 병합·배포) 뒤 PR #14(https://github.com/sinjhon1245-cell/teacher-care/pull/14)의 `abac5f8`로 `main`을 fast-forward했어요(`a717904..abac5f8`, 13:37 KST). GitHub에서 PR #14는 병합으로 표시돼요. force push·merge commit은 쓰지 않았어요.
+- 배포 전 GitHub Actions(`abac5f8`): Public updates and data regression 성공, Full legal and release regression의 responsive-browser 성공. content-and-links는 첫 실행에서 법령정보(www.law.go.kr) 링크 5개가 실행 환경 DNS 조회 실패로 ‘끊김’이었고(경북 링크 아님, 같은 주소는 로컬에서 모두 200), 실패한 작업만 다시 실행해 STATUS PASS(링크 445개, 끊김 0)였어요.
+- 로컬 추가 확인: WebKit(Safari 엔진)에서도 585/585·지역 선택 14/14, Netlify 미리보기에서 지역 선택 14/14·경북 흐름 20/20.
+- Vercel Production: 배포 `DWA8q8EqoAvh8xwB6ZRq8f7Z8FQR`(GitHub 상태 ‘Deployment has completed’) → https://teacher-care.vercel.app/
+- GitHub Pages: 빌드 성공(`abac5f8`, 2026-11-03 13:37 KST) → https://sinjhon1245-cell.github.io/teacher-care/
+- 두 주소 모두 사이트 파일 19개(`index.html`·`?v=` 파일 17개·아이콘)가 `abac5f8`과 바이트 단위로 같고 asset version `20261103-1`이에요.
+- 배포 뒤 실제 주소 검사(두 주소 각각): 지역 13곳·지원 프로그램 174개(기존 12개 지역 161개 그대로), 경북 13개·출처 19개·교육지원청 22곳, 대표 054-1395와 직통 054-450-4343·4344, 최신 공개 업데이트 `2026-11-03-gyeongbuk`(지역 확대 한 건, 화면 변경 항목 없음) / `tools/ui-check.js` 9너비 **585/585** / 지역 선택 375·480·768·769·1024·1280·1440px × 글자 100·200% **14/14** / 경북 흐름 20/20(홈 전화 링크, 교육지원청 찾기 22개 시·군·칠곡군 → 칠곡교육지원청·군위 안내, 지원 카드 13개, 전화 링크 = 데이터 번호, 공제 한도, 검색, 공유 주소) / 브라우저 JS 오류 0.
+- 세종 검토 PR #15(https://github.com/sinjhon1245-cell/teacher-care/pull/15)는 초안 그대로 두었어요(병합하지 않음).
