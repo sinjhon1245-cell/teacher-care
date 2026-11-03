@@ -28,6 +28,7 @@ jobs:
           node --check data/common.js
           node --check data/regions/daejeon.js
           node --check data/regions/gyeongbuk.js
+          node --check data/regions/sejong.js
           node --check tools/check-school-complaint-law.js
           node tools/check-school-complaint-law.js
       - name: Full data, official links and maintenance report

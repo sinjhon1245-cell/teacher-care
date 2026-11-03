@@ -4,7 +4,7 @@
 // 사용법
 //   1) 사이트(로컬 또는 배포 주소)를 브라우저로 열어요.
 //   2) 개발자 도구 콘솔에 이 파일 내용을 붙여 넣고 실행해요 → 표와 요약 객체가 나와요.
-//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 13곳이면 13 × 5메뉴 × 9너비 = 585개 조합, 그중 기존 12곳은 540개).
+//   3) 화면 너비 360·375·390·768·769·881·961·1024·1440에서 각각 실행해요(지역 14곳이면 14 × 5메뉴 × 9너비 = 630개 조합, 그중 경북까지 13곳은 585개).
 //      결과 객체의 ‘조합’ 값이 실제로 검사한 지역 × 메뉴 수예요(너비마다 따로 세요).
 //      개발자 도구의 기기 모드로 너비를 바꾸고, 바꾼 뒤에는 새로고침 없이 다시 실행해도 돼요.
 // 끝나면 처음 보던 지역·메뉴로 돌아가요.
@@ -76,6 +76,21 @@
       if (bnShown && parseFloat(getComputedStyle(document.body).paddingBottom) < bn.getBoundingClientRect().height - 1) fail(id, pg, '하단 메뉴', '본문 아래 여백이 메뉴보다 작아요');
 
       if (pg === 'home') {
+        // 3-1) 내 교육지원청 찾기 / 담당 기관 안내: 교육지원청이 있는 지역은 시·군·구 고르기(관할 수와 같은 선택지),
+        //      교육지원청이 없는 지역(agency만)은 고르기 없이 담당 기관 카드 하나와 기관 누리집 버튼
+        const finder = document.getElementById('finder');
+        if (!finder) fail(id, pg, '찾기 구역', '없음');
+        else if (R.offices.length) {
+          const opts = [...finder.querySelectorAll('#finder-area option')].filter(o => o.value).length;
+          const want = new Set(R.offices.flatMap(o => o.areas)).size;
+          if (opts !== want) fail(id, pg, '교육지원청 찾기 선택지', `${opts}개(기대 ${want})`);
+          if (!finder.querySelector('h2').innerText.includes('교육지원청')) fail(id, pg, '교육지원청 찾기 제목', finder.querySelector('h2').innerText);
+        } else {
+          if (finder.querySelector('#finder-area')) fail(id, pg, '담당 기관 안내', '시·군·구 고르기가 있어요');
+          const res = finder.querySelector('.result');
+          if (!R.agency || !res || !res.innerText.includes(R.agency.name)) fail(id, pg, '담당 기관 안내', '담당 기관 카드가 없어요');
+          else if (!res.querySelector(`a[href="${R.agency.url}"]`)) fail(id, pg, '담당 기관 안내', '기관 누리집 버튼이 없어요');
+        }
         // 4) 연락처 카드: 데이터의 번호가 모두 있고, 대표가 있으면 첫 전화가 대표
         const card = document.getElementById('contacts');
         const tels = card ? [...card.querySelectorAll('a[href^="tel:"]')].filter(visible) : [];
@@ -130,7 +145,7 @@
         const rows = {};
         cards.forEach(c => { const t = Math.round(c.getBoundingClientRect().top); rows[t] = (rows[t] || 0) + 1; });
         const per = Object.keys(rows).sort((a, b) => a - b).map(k => rows[k]);
-        // 칸 수는 화면 너비로 정해요(13곳: 5·5·3 / 4·4·4·1 / 3·3·3·3·1 / 2×6 + 1). 마지막 줄만 덜 차도 되고, 그 앞 줄은 모두 꽉 차야 해요
+        // 칸 수는 화면 너비로 정해요(14곳: 5·5·4 / 4·4·4·2 / 3·3·3·3·2 / 2×7). 마지막 줄만 덜 차도 되고, 그 앞 줄은 모두 꽉 차야 해요
         const cols = Math.max(...per);
         if (per.slice(0, -1).some(n => n !== cols)) fail(id, pg, '지역 선택 줄 채움', per.join('/'));
         cards.forEach(c => {

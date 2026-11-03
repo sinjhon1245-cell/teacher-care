@@ -745,7 +745,7 @@ const App = {
             <p class="hero-sub">선택한 지역의 교육청 공식 자료를 바탕으로 신고·대응·법률·심리 지원 절차를 안내해요.</p>
             <div class="hero-actions">
               <button class="btn btn-primary" onclick="App.nav('proc')">지금 대응 절차 확인</button>
-              <button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기</button>
+              <button class="btn btn-secondary" onclick="App.goHome('finder')">${finderLabel(this.R)}</button>
             </div>
             ${this.emergencyNote()}
           </div>
@@ -946,6 +946,28 @@ const App = {
           <h2 class="h2">내 교육지원청 찾기</h2>
           <p class="muted">교육활동 침해 신고와 지역교권보호위원회 심의는 소속 교육지원청이 담당해요. 먼저 근무 지역을 골라 주세요.</p>
           ${this.renderRegionPicker('근무 지역')}
+        </section>
+      `;
+    }
+    // 교육지원청이 없는 지역(세종): 시·군·구 선택 없이 담당 기관 하나를 바로 보여 줘요
+    if (hasAgencyOnly(R)) {
+      const a = R.agency;
+      return `
+        <section class="section" id="finder">
+          ${this.eyebrow('연결')}
+          <h2 class="h2">${finderLabel(R)}</h2>
+          <p class="muted">${a.note}</p>
+          <div class="result">
+            <p class="result-title">${a.name}</p>
+            <p class="muted small">담당 · ${a.dept} · 관할 · ${a.area}</p>
+            ${this.facts([
+              ['연락처', linkifyPhone(a.contact)],
+              ['신고·심의', '{HOT2}'],
+              ['법률·심리·치료', '{HOT1}']
+            ])}
+            ${actionButtons(officeChannels(a))}
+          </div>
+          ${this.renderSources('finder')}
         </section>
       `;
     }
@@ -1504,11 +1526,11 @@ const App = {
             : fold('hubInfo', `${R.short} 연락 안내`, '전화하기 전에 알아 두면 좋은 내용', `<p class="muted small hub-summary">${linkifyPhone(R.hotSummary || R.menuNote || '')}</p>`)}
         </div>
         <div class="hub-links">
-          ${fold('hubLinks', '바로 이용하기', `공식 지원 링크·교육지원청 찾기`, `
+          ${fold('hubLinks', '바로 이용하기', `공식 지원 링크·${hasAgencyOnly(R) ? '담당 기관 안내' : '교육지원청 찾기'}`, `
           <p class="hub-links-title">바로 이용하기</p>
           <ul class="link-list">
             ${linkHtml}
-            <li><button type="button" class="link-row hub-link" onclick="App.goHome('finder')"><span class="link-row-text"><span class="link-row-title">내 교육지원청 찾기</span><span class="link-row-meta">시·군·구로 담당 교육지원청 찾기</span></span><span class="chevron right" aria-hidden="true"></span></button></li>
+            <li><button type="button" class="link-row hub-link" onclick="App.goHome('finder')"><span class="link-row-text"><span class="link-row-title">${finderLabel(R)}</span><span class="link-row-meta">${hasAgencyOnly(R) ? '교육지원청 대신 ' + R.agency.name.replace(R.office, '').trim() + '가 맡아요' : '시·군·구로 담당 교육지원청 찾기'}</span></span><span class="chevron right" aria-hidden="true"></span></button></li>
           </ul>`)}
         </div>
       </div>
@@ -1607,7 +1629,7 @@ const App = {
         <h2 class="h2">기관 연락처</h2>
         <ul class="directory">
           ${directory}
-          <li><span class="dir-name">담당 교육지원청</span><span class="dir-contact"><button class="link-btn" onclick="App.goHome('finder')">내 교육지원청 찾기</button></span></li>
+          <li><span class="dir-name">${hasAgencyOnly(R) ? '담당 기관' : '담당 교육지원청'}</span><span class="dir-contact"><button class="link-btn" onclick="App.goHome('finder')">${finderLabel(R)}</button></span></li>
           <li><span class="dir-name">경찰(긴급 상황)</span><span class="dir-contact"><a href="tel:112">112</a></span></li>
         </ul>
         ${this.renderSources('support')}
@@ -1636,7 +1658,7 @@ const App = {
             <p class="block-desc">회복·보호에서 함께 확인할 수 있는 제도예요.</p>
             <ul class="link-list cols">${careIds.map(benefitChip).join('')}</ul>
           </div>` : ''}
-        ${t.id === 'office' ? `<button class="btn btn-secondary" onclick="App.goHome('finder')">내 교육지원청 찾기 →</button>` : ''}
+        ${t.id === 'office' ? `<button class="btn btn-secondary" onclick="App.goHome('finder')">${finderLabel(this.R)} →</button>` : ''}
         ${this.shareTools({ page: 'support', supportType: t.id, regionId: this.state.regionId }, '지원 찾기 · ' + t.label, true)}
       </div>
     `;
@@ -2093,6 +2115,15 @@ function initialRegionId() {
 
 // ── 지역 데이터 도우미 ──
 // 교육지원청 목록 → [{ area, office }] (시·군·구 가나다순)
+// 교육지원청이 없고 담당 기관 하나(agency)만 있는 지역(세종). 지역을 고르지 않았으면 false
+function hasAgencyOnly(R) {
+  return !!(R && R.agency && !R.offices.length);
+}
+// ‘내 교육지원청 찾기’ 자리의 이름: 교육지원청이 없는 지역은 ‘담당 기관 안내’
+function finderLabel(R) {
+  return hasAgencyOnly(R) ? '담당 기관 안내' : '내 교육지원청 찾기';
+}
+
 function regionAreas(R) {
   return R.offices
     .flatMap(o => o.areas.map(area => ({ area, office: o })))

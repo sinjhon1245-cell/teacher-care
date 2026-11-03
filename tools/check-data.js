@@ -302,7 +302,9 @@ const REGION_BRANDS = {
   daegu: ['교육권보호센터', '다품 긴급 법률 지원', '교육활동지원변호사단', '맞춤형 에듀케어', '다:행복한 소통', '교원지원심의위원회'],
   // ‘우리학교 변호사’는 제주와 대전 교육청 모두의 실제 사업명이라 두 지역에 함께 둬요(다른 지역·공통 문장에는 여전히 쓰지 않아요)
   daejeon: ['교육활동보호관', '에듀힐링센터', '바로ON', '마음봄동행단', '사안조사동행단', '우리학교 변호사', '뭉클'],
-  gyeongbuk: ['교권 온(溫)힘 변호인단', '교권보호 긴급지원단', '행복학교거점지원센터']
+  gyeongbuk: ['교권 온(溫)힘 변호인단', '교권보호 긴급지원단', '행복학교거점지원센터'],
+  // ‘학교지원본부’는 다른 시·도 문장에도 쓰이는 일반 이름이라 넣지 않아요
+  sejong: ['바로샘', '우리변호사']
 };
 const regionWords = () => REGION_ORDER.flatMap(id => [REGIONS[id].short, REGIONS[id].name, REGIONS[id].office, ...(REGION_BRANDS[id] || [])]);
 function commonTextIssues(tag, text) {
@@ -605,6 +607,17 @@ for (const id of REGION_ORDER) {
     errors.push(`${tag} 시·군·구 수가 달라요: 데이터 ${seen.size}곳, 기대 ${r.expectedAreas}곳`);
   }
   total += seen.size;
+  // 교육지원청이 없는 지역(세종): offices는 비우고 담당 기관(agency) 하나만 둬요. 교육지원청을 만들어 넣지 않아요
+  if (!r.offices.length) {
+    const a = r.agency;
+    if (!a) errors.push(`${tag} 교육지원청(offices)이 없으면 담당 기관(agency)이 있어야 해요`);
+    else {
+      ['name', 'dept', 'area', 'contact', 'url', 'note'].filter(k => !a[k]).forEach(k => errors.push(`${tag} agency.${k}가 없어요`));
+      if (a.url) checkUrl(tag, `agency.url (${a.name})`, a.url);
+      for (const n of phonesIn(a.contact || '')) if (!isValidPhone(n)) errors.push(`${tag} 전화번호 형식 오류: ${n} — agency.contact`);
+      if (r.expectedAreas !== undefined) errors.push(`${tag} 담당 기관만 있는 지역에는 expectedAreas를 두지 않아요`);
+    }
+  } else if (r.agency !== undefined) errors.push(`${tag} 교육지원청(offices)이 있는 지역에는 agency를 두지 않아요`);
 
   // 역할별 대표 연락처(선택): 라벨·번호가 모두 있어야 하고, 헤더 버튼이 거는 hot은 그중 하나여야 해요
   if (r.hotContacts !== undefined) {
