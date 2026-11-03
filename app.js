@@ -442,6 +442,8 @@ const App = {
     const S = this.state;
     const R = this.R;
     document.body.classList.toggle('is-landing', S.onboarding);
+    // 헤더를 다시 그리면 지역 변경 메뉴는 닫힌 상태로 그려져요. 시트가 열려 있던 경우의 본문 스크롤 잠금도 함께 풀어요
+    document.body.classList.remove('region-sheet-open');
     if (S.onboarding) {
       document.getElementById('app').innerHTML = this.renderLanding();
       return;
@@ -547,9 +549,10 @@ const App = {
     const opts = REGION_LIST.map(id => `
       <li id="region-opt-${id}" class="region-dd-opt" role="option" aria-selected="${cur === id}" aria-label="${REGIONS[id].short}" data-id="${id}"
         onclick="RegionMenu.pick('${id}')" onmousemove="RegionMenu.focusOpt('${id}')">
-        <span>${REGIONS[id].short}</span><span class="region-dd-check" aria-hidden="true">✓</span>
+        <span class="region-dd-name">${REGIONS[id].short}</span><span class="region-dd-check" aria-hidden="true">✓</span>
       </li>
     `).join('');
+    // PC(769px 이상)는 버튼 아래 4열 상자, 768px 이하는 화면 아래에서 올라오는 시트(제목·닫기·배경). 목록·키보드 동작은 같아요
     return `
       <div class="region-dd ${cur ? '' : 'empty'}" id="region-dd">
         <button type="button" class="region-dd-btn" id="region-dd-btn" aria-haspopup="listbox" aria-expanded="false"
@@ -557,7 +560,12 @@ const App = {
           onclick="RegionMenu.toggle()" onkeydown="RegionMenu.buttonKey(event)">
           <span>${cur ? REGIONS[cur].short : '지역 선택'}</span><span class="region-dd-caret" aria-hidden="true"></span>
         </button>
-        <div class="region-dd-panel" id="region-dd-panel" hidden>
+        <div class="region-dd-backdrop" id="region-dd-backdrop" hidden onclick="RegionMenu.close(true)"></div>
+        <div class="region-dd-panel" id="region-dd-panel" hidden aria-labelledby="region-dd-title">
+          <div class="region-dd-head">
+            <p class="region-dd-title" id="region-dd-title">지역 변경</p>
+            <button type="button" class="region-dd-close" id="region-dd-close" aria-label="지역 변경 닫기" onclick="RegionMenu.close(true)" onkeydown="RegionMenu.closeKey(event)"><span aria-hidden="true">×</span></button>
+          </div>
           <ul class="region-dd-list" id="region-dd-list" role="listbox" aria-label="근무 지역" tabindex="-1"
             onkeydown="RegionMenu.listKey(event)">${opts}</ul>
           ${cur ? `<button type="button" class="region-dd-more" id="region-dd-more" onclick="RegionMenu.openChooser()" onkeydown="RegionMenu.moreKey(event)">지역 선택 화면 열기</button>` : ''}
@@ -654,7 +662,6 @@ const App = {
         <div class="header-inner">
           <button class="brand" onclick="App.nav('home')" aria-label="선생님 곁에 홈">
             <img class="brand-logo" src="assets/brand/logo-horizontal.png" alt="" width="159" height="40">
-            <span class="brand-compact"><img class="brand-symbol" src="assets/brand/logo-symbol.png" alt="" width="32" height="30"><span class="brand-name">선생님 곁에</span></span>
           </button>
           <nav class="main-nav" aria-label="주요 메뉴">${navHtml}</nav>
           ${this.renderRegionSelect()}
@@ -683,7 +690,7 @@ const App = {
       <main id="main" class="landing">
         <div class="landing-inner">
           ${back}
-          <p class="landing-brand"><img class="brand-symbol" src="assets/brand/logo-symbol.png" alt="" width="32" height="30"><span class="brand-name">선생님 곁에</span></p>
+          <p class="landing-brand"><img class="landing-logo" src="assets/brand/logo-horizontal.png" alt="선생님 곁에" width="191" height="48"></p>
           <h1 class="landing-title" id="landing-title" tabindex="-1">어느 지역의 안내를 볼까요?</h1>
           <p class="landing-sub">교육활동 보호·대응 정보를 확인할 근무 지역을 선택해 주세요.</p>
           <ul class="region-cards" aria-label="근무 지역 선택">${cards}</ul>
@@ -2477,57 +2484,92 @@ const UpdateUI = {
 
 // ── 헤더 지역 선택 목록(listbox) ──
 // 열림 상태는 화면을 다시 그리지 않고 DOM에서만 바꿔요. 지역을 고르면 App.setRegion()이 저장·렌더링을 맡아요.
-// 키보드: 버튼에서 Enter·Space·↓·↑로 열기, 목록에서 ↑↓·Home·End로 이동, Enter·Space로 선택, Esc·Tab으로 닫기
+// 769px 이상은 버튼 아래 4열 상자(바깥 누르기·Tab으로 닫힘), 768px 이하는 화면 아래 시트(배경·제목·닫기, 본문 스크롤 잠금,
+// 안에서만 스크롤, 초점이 시트 안에서만 돌아요). 지역 변경 메뉴를 열고 닫아도 보던 화면 위치는 그대로예요.
+// 키보드: 버튼에서 Enter·Space·↓·↑로 열기, 목록에서 ←→(한 칸)·↑↓(한 줄)·Home·End로 이동, Enter·Space로 선택, Esc로 닫기
 const RegionMenu = {
+  sheetQuery: '(max-width: 768px)',
   els() {
     return {
       box: document.getElementById('region-dd'), btn: document.getElementById('region-dd-btn'),
-      panel: document.getElementById('region-dd-panel'), list: document.getElementById('region-dd-list'), more: document.getElementById('region-dd-more')
+      panel: document.getElementById('region-dd-panel'), list: document.getElementById('region-dd-list'), more: document.getElementById('region-dd-more'),
+      backdrop: document.getElementById('region-dd-backdrop'), closeBtn: document.getElementById('region-dd-close')
     };
   },
   isOpen() {
     const { panel } = this.els();
     return !!panel && !panel.hidden;
   },
+  isSheet() {
+    return window.matchMedia(this.sheetQuery).matches;
+  },
   open(toEnd) {
-    const { btn, panel, list } = this.els();
+    const { btn, panel, list, backdrop } = this.els();
     if (!list) return;
+    const sheet = this.isSheet();
+    this._sheet = sheet;
     panel.hidden = false;
-    // 글자를 크게 키워 헤더가 높아져도 목록 상자가 화면 아래로 넘치지 않게, 남은 높이 안에서 스크롤해요
-    panel.style.maxHeight = Math.max(160, window.innerHeight - panel.getBoundingClientRect().top - 12) + 'px';
+    if (sheet) {
+      // 시트: 높이는 CSS(100dvh·안전 영역)가 정해요. 본문은 잠그고 시트 안만 스크롤해요(스크롤 위치는 그대로)
+      panel.style.maxHeight = '';
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      backdrop.hidden = false;
+      document.body.classList.add('region-sheet-open');
+    } else {
+      // 글자를 크게 키워 헤더가 높아져도 목록 상자가 화면 아래로 넘치지 않게, 남은 높이 안에서 스크롤해요
+      panel.style.maxHeight = Math.max(160, window.innerHeight - panel.getBoundingClientRect().top - 12) + 'px';
+      // 헤더가 두 줄로 접혀 지역 버튼이 왼쪽에 오면, 상자가 화면 왼쪽 밖으로 나가지 않게 오른쪽으로 밀어요
+      panel.style.right = '';
+      const left = panel.getBoundingClientRect().left;
+      if (left < 16) panel.style.right = (left - 16) + 'px';
+    }
     btn.setAttribute('aria-expanded', 'true');
     const start = App.state.regionId || REGION_LIST[toEnd ? REGION_LIST.length - 1 : 0];
     this.focusOpt(start);
-    list.focus();
+    list.focus({ preventScroll: true });
   },
   close(returnFocus) {
-    const { btn, panel } = this.els();
+    const { btn, panel, backdrop } = this.els();
     if (!panel || panel.hidden) return;
     panel.hidden = true;
+    panel.removeAttribute('role');
+    panel.removeAttribute('aria-modal');
+    if (backdrop) backdrop.hidden = true;
+    document.body.classList.remove('region-sheet-open');
+    this._sheet = false;
     btn.setAttribute('aria-expanded', 'false');
-    if (returnFocus) btn.focus();
+    if (returnFocus) btn.focus({ preventScroll: true });
   },
   toggle() {
     this.isOpen() ? this.close(true) : this.open();
   },
-  // 키보드·마우스로 가리킨 항목(aria-activedescendant)
+  // 키보드·마우스로 가리킨 항목(aria-activedescendant). 시트 안에서 보이지 않으면 시트 안에서만 스크롤해요
   focusOpt(id) {
     const { list } = this.els();
     if (!list) return;
     list.querySelectorAll('.region-dd-opt').forEach(li => li.classList.toggle('focused', li.dataset.id === id));
     list.setAttribute('aria-activedescendant', 'region-opt-' + id);
+    const li = document.getElementById('region-opt-' + id);
+    if (li && this.isOpen()) li.scrollIntoView({ block: 'nearest' });
   },
   current() {
     const { list } = this.els();
     const li = list && list.querySelector('.region-dd-opt.focused');
     return li ? li.dataset.id : null;
   },
+  // 목록의 열 수(화면 너비에 따라 2~4열)
+  cols() {
+    const { list } = this.els();
+    if (!list) return 1;
+    return getComputedStyle(list).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
+  },
   pick(id) {
     this.close(false);
     App.setRegion(id);
     // 다시 그려진 헤더의 버튼으로 초점을 돌려요(키보드 사용자가 위치를 잃지 않도록)
     const { btn } = this.els();
-    if (btn) btn.focus();
+    if (btn) btn.focus({ preventScroll: true });
   },
   buttonKey(e) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -2536,24 +2578,42 @@ const RegionMenu = {
     }
   },
   listKey(e) {
-    const i = REGION_LIST.indexOf(this.current());
-    const move = n => { e.preventDefault(); this.focusOpt(REGION_LIST[(n + REGION_LIST.length) % REGION_LIST.length]); };
-    if (e.key === 'ArrowDown') move(i + 1);
-    else if (e.key === 'ArrowUp') move(i - 1);
+    const n = REGION_LIST.length;
+    const i = Math.max(0, REGION_LIST.indexOf(this.current()));
+    const cols = this.cols();
+    const move = to => { e.preventDefault(); this.focusOpt(REGION_LIST[Math.min(n - 1, Math.max(0, to))]); };
+    const { more, closeBtn } = this.els();
+    if (e.key === 'ArrowRight') move(i + 1);
+    else if (e.key === 'ArrowLeft') move(i - 1);
+    else if (e.key === 'ArrowDown') move(i + cols < n ? i + cols : i);
+    else if (e.key === 'ArrowUp') move(i - cols >= 0 ? i - cols : i);
     else if (e.key === 'Home') move(0);
-    else if (e.key === 'End') move(REGION_LIST.length - 1);
+    else if (e.key === 'End') move(n - 1);
     else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (this.current()) this.pick(this.current()); }
     else if (e.key === 'Escape') { e.preventDefault(); this.close(true); }
-    // Tab은 목록 아래 ‘지역 선택 화면 열기’로 가요(그 버튼이 없으면 닫아요). Shift+Tab은 닫고 지역 버튼으로 돌아가요
-    else if (e.key === 'Tab' && (e.shiftKey || !this.els().more)) this.close(false);
+    else if (e.key === 'Tab' && this._sheet) {
+      // 시트: 닫기 → 목록 → ‘지역 선택 화면 열기’ 사이에서만 초점이 돌아요
+      e.preventDefault();
+      (e.shiftKey ? closeBtn : (more || closeBtn)).focus();
+    }
+    // 상자: Tab은 목록 아래 ‘지역 선택 화면 열기’로 가요(그 버튼이 없으면 닫아요). Shift+Tab은 닫고 지역 버튼으로 돌아가요
+    else if (e.key === 'Tab' && (e.shiftKey || !more)) this.close(false);
   },
-  // 목록 아래 ‘지역 선택 화면 열기’: Esc로 닫고, 여기서 Tab으로 나가면 목록도 닫아요
+  // 목록 아래 ‘지역 선택 화면 열기’: Esc로 닫고, 상자에서는 Tab으로 나가면 닫아요(시트에서는 닫기 버튼으로 돌아가요)
   moreKey(e) {
+    const { list, closeBtn } = this.els();
     if (e.key === 'Escape') { e.preventDefault(); this.close(true); }
-    else if (e.key === 'Tab' && !e.shiftKey) this.close(false);
-    else if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); this.els().list.focus(); }
+    else if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); list.focus({ preventScroll: true }); }
+    else if (e.key === 'Tab' && this._sheet) { e.preventDefault(); closeBtn.focus(); }
+    else if (e.key === 'Tab') this.close(false);
   },
-  // 처음 방문 때의 12개 지역 선택 화면을 다시 열어요. 저장된 지역·체크는 다른 지역을 고를 때만 바뀌어요
+  // 시트의 닫기 버튼: Esc로 닫고, Tab은 목록으로, Shift+Tab은 마지막 버튼으로(시트 밖으로 나가지 않아요)
+  closeKey(e) {
+    const { list, more } = this.els();
+    if (e.key === 'Escape') { e.preventDefault(); this.close(true); }
+    else if (e.key === 'Tab') { e.preventDefault(); (e.shiftKey ? (more || list) : list).focus({ preventScroll: true }); }
+  },
+  // 처음 방문 때의 지역 선택 화면을 다시 열어요. 저장된 지역·체크는 다른 지역을 고를 때만 바뀌어요
   openChooser() {
     this.close(false);
     App.openRegionChooser('region-dd-btn');
@@ -2563,6 +2623,11 @@ const RegionMenu = {
 // ‘지역 다시 선택’으로 연 지역 선택 화면은 Esc로도 닫아요(처음 방문 화면은 돌아갈 곳이 없어 그대로예요)
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && App.state.onboarding && App.R) App.closeRegionChooser();
+});
+
+// 화면 너비가 바뀌어 상자 ↔ 시트가 달라지면 닫아요(회전 등). 다시 열면 맞는 모양으로 열려요
+window.addEventListener('resize', () => {
+  if (RegionMenu.isOpen() && RegionMenu._sheet !== RegionMenu.isSheet()) RegionMenu.close(false);
 });
 
 // 목록 바깥을 누르면 닫아요
