@@ -100,3 +100,13 @@
 - asset version `20261103-1`(경북 배포 값) → `20261103-2`(`index.html` 19곳), `docs/maintenance-report.md`는 이 커밋에서만 `node tools/check-all.js`로 다시 만들었어요. 배포 QA의 최신 공개 업데이트를 `2026-11-03-sejong`으로, 공개 업데이트 검사의 지역 수를 14로 맞췄어요.
 - 배포 전 검사(작업 트리): check-all **STATUS PASS**(링크 458개 broken 0, 확인 필요 3 — 함양교육지원청 시간 초과·강원 500·부산 400, 모두 기존 링크), 학교민원 법령 검사 PASS, 브라우저 **630/630**·지역 선택 14/14·JS 오류 0, 세종 흐름 21/21.
 - `main` 병합·배포는 모든 검사(PR CI 포함) 통과 뒤 fast-forward로만 해요. 배포 뒤 Vercel·GitHub Pages에서 지역 선택·담당 기관·신청 경로를 다시 확인해 이 장에 적어요.
+
+## 6. 배포 기록(2026-11-03)
+
+- PR #16(https://github.com/sinjhon1245-cell/teacher-care/pull/16)의 `da731e2`로 `main`을 fast-forward했어요(`7235910..da731e2`, 17:24 KST). GitHub에서 PR #16은 병합으로 표시돼요. force push·merge commit은 쓰지 않았어요. 앞선 검토 PR #15는 초안 그대로예요.
+- 배포 전 GitHub Actions(`da731e2`): Public updates and data regression 성공, Full legal and release regression(content-and-links STATUS PASS — 링크 458개 끊김 0, responsive-browser 성공) 모두 성공.
+- 로컬 추가 확인(WebKit, Safari 엔진): 630/630. 지역 선택 검사는 375px·200%에서 카드 0장으로 한 번 실패했는데, 앞 검사의 `closeRegionChooser()`가 부르는 `history.back()`의 popstate가 WebKit에서 늦게 도착해 바로 다시 연 지역 선택 화면을 닫은 검사 순서 문제였어요(닫기와 다시 열기 사이를 400ms 이상 두면 매번 14장). 닫은 뒤 500ms를 기다리게 한 검사 사본으로 630/630·지역 선택 14/14를 확인했어요. 사이트 코드는 바꾸지 않았고, 검사 도구 보강은 후속 과제로 남겨요.
+- Vercel Production: 배포 `6AAkBENyzkLQyzND9BJhfBUE3yaL`(GitHub 상태 ‘Deployment has completed’) → https://teacher-care.vercel.app/
+- GitHub Pages: 빌드 성공(`da731e2`, 2026-11-03 17:24 KST) → https://sinjhon1245-cell.github.io/teacher-care/
+- 두 주소 모두 사이트 파일 20개(`index.html`·`?v=` 파일 18개·아이콘)가 `da731e2`와 바이트 단위로 같고 asset version `20261103-2`예요.
+- 배포 뒤 실제 주소 검사(두 주소 각각): 지역 14곳·지원 프로그램 180개(기존 12곳 161·경북까지 13곳 174 그대로), 세종 6개·출처 13개·교육지원청 0·담당 기관 학교지원본부, 대표 044-414-9572·직통 9573·9575, 최신 공개 업데이트 `2026-11-03-sejong`(지역 확대 한 건) / `tools/ui-check.js` 9너비 **630/630** / 세종 흐름 21/21(지역 선택 14곳 가나다순, 담당 기관 안내 375·768·1440px와 200%에서 고르기 없음·기관 카드·누리집 버튼·넘침 0, 홈·허브·기관 연락처·유형 버튼 이름, 바로 이용하기 4개 = 학교지원본부 교육활동보호 쪽, 전화 링크 = 데이터 번호, 공제 금액·044-1395 없음, 대구 찾기 그대로) / 경북 흐름 20/20 / 지역 선택 7너비 × 100·200% 14/14(5·5·4 / 4·4·4·2 / 3·3·3·3·2 / 2×7) / JS 오류 0.
