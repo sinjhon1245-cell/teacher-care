@@ -77,8 +77,36 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
       }
       await page.evaluate(() => {document.documentElement.style.fontSize='';App.nav('home')});
     }
+    // 지역 선택 화면: 너비 7개 × 글자 100·200%. 칸 수는 너비로 정해요(마지막 줄만 덜 차도 돼요). 지역명 줄바꿈·넘침·누르는 영역·높이·가로 넘침
+    let chooserChecks=0;
+    for (const width of [375,480,768,769,1024,1280,1440]) for (const size of ['','32px']) {
+      await page.setViewportSize({width,height:900});
+      const r=await page.evaluate(async size => {
+        App.setRegion('incheon');App.setState({onboarding:false});
+        document.documentElement.style.fontSize=size;App.openRegionChooser();
+        await new Promise(res=>setTimeout(res,80));
+        const cards=[...document.querySelectorAll('.region-card')];const rows={};
+        cards.forEach(c=>{const t=Math.round(c.getBoundingClientRect().top);rows[t]=(rows[t]||0)+1;});
+        const per=Object.keys(rows).sort((a,b)=>a-b).map(k=>rows[k]);const cols=Math.max(...per);
+        const hs=cards.map(c=>c.getBoundingClientRect().height);
+        const out={n:cards.length,per,cols,
+          partialRow:per.slice(0,-1).some(n=>n!==cols),
+          wrapped:cards.filter(c=>{const n=c.querySelector('.region-card-name');return n.getBoundingClientRect().height>parseFloat(getComputedStyle(n).lineHeight)*1.5;}).length,
+          over:cards.filter(c=>c.scrollWidth-c.clientWidth>1).length,
+          small:cards.filter(c=>{const q=c.getBoundingClientRect();return q.width<44||q.height<44;}).length,
+          height:Math.max(...hs)-Math.min(...hs),
+          hscroll:document.documentElement.scrollWidth-document.documentElement.clientWidth};
+        App.closeRegionChooser();document.documentElement.style.fontSize='';
+        return out;
+      },size);
+      const tag='chooser '+width+'px '+(size?'200%':'100%')+' '+r.per.join('·');
+      assert.equal(r.n,13,tag);assert.ok(!r.partialRow,tag+' rows before the last must be full');
+      assert.equal(r.wrapped,0,tag+' region name wrapped');assert.equal(r.over,0,tag+' card overflow');
+      assert.equal(r.small,0,tag+' card under 44px');assert.ok(r.height<=1,tag+' card heights differ');assert.ok(r.hscroll<=0,tag+' horizontal overflow');
+      chooserChecks++;
+    }
     assert.equal(errors.length,0,'Uncaught browser errors: '+JSON.stringify(errors));
-    console.log('PASS 585/585 responsive UI combinations (기존 12개 지역 540 포함), 200% text 12 pages, 3 screenshots, zero browser JS errors');
+    console.log('PASS 585/585 responsive UI combinations (기존 12개 지역 540 포함), 200% text 12 pages, region chooser '+chooserChecks+'/14 (7 widths × 100·200%), 3 screenshots, zero browser JS errors');
   } finally {
     await page.close();await browser.close();await new Promise(resolve=>server.close(resolve));
   }

@@ -118,7 +118,7 @@
           if (l && visible(lab) && s.left < l.right - 1 && l.left < s.right - 1 && s.top < l.bottom - 1 && l.top < s.bottom - 1) fail(id, pg, '지역 다시 선택', '지역 이름과 겹쳐요');
         }
 
-        // 12) 지역 다시 선택 → 지역 선택 화면: 카드 수·현재 지역 표시·높이·줄 균형·넘침, 돌아가기로 원래 홈
+        // 12) 지역 다시 선택 → 지역 선택 화면: 카드 수·현재 지역 표시·높이·줄 채움·지역명 줄바꿈·누르는 영역·넘침, 돌아가기로 원래 홈
         App.openRegionChooser();
         await wait(60);
         const cards = [...document.querySelectorAll('.region-card')];
@@ -129,10 +129,18 @@
         if (Math.max(...hs) - Math.min(...hs) > 1) fail(id, pg, '지역 선택 카드 높이', `${Math.min(...hs).toFixed(1)}~${Math.max(...hs).toFixed(1)}px`);
         const rows = {};
         cards.forEach(c => { const t = Math.round(c.getBoundingClientRect().top); rows[t] = (rows[t] || 0) + 1; });
-        const per = Object.values(rows);
-        // 줄마다 카드 수 차이가 1개 이내(예: 13곳 7·6 / 2칸 7줄, 12곳 6×2 / 4×3 / 2칸 6줄). 5·5·1처럼 한 장만 남으면 칸 수를 다시 골라요
-        if (Math.max(...per) - Math.min(...per) > 1) fail(id, pg, '지역 선택 줄 균형', per.join('/'));
-        cards.forEach(c => { if (c.scrollWidth - c.clientWidth > 1) fail(id, pg, '지역 선택 글자 넘침', c.innerText.replace(/\s+/g, ' ').trim()); });
+        const per = Object.keys(rows).sort((a, b) => a - b).map(k => rows[k]);
+        // 칸 수는 화면 너비로 정해요(13곳: 5·5·3 / 4·4·4·1 / 3·3·3·3·1 / 2×6 + 1). 마지막 줄만 덜 차도 되고, 그 앞 줄은 모두 꽉 차야 해요
+        const cols = Math.max(...per);
+        if (per.slice(0, -1).some(n => n !== cols)) fail(id, pg, '지역 선택 줄 채움', per.join('/'));
+        cards.forEach(c => {
+          const label = c.innerText.replace(/\s+/g, ' ').trim();
+          if (c.scrollWidth - c.clientWidth > 1) fail(id, pg, '지역 선택 글자 넘침', label);
+          const nm = c.querySelector('.region-card-name');
+          if (nm && nm.getBoundingClientRect().height > parseFloat(getComputedStyle(nm).lineHeight) * 1.5) fail(id, pg, '지역 선택 지역명 줄바꿈', label);
+          const q = c.getBoundingClientRect();
+          if (q.width < 44 || q.height < 44) fail(id, pg, '지역 선택 누르는 영역', `${label} ${q.width.toFixed(0)}×${q.height.toFixed(0)}px`);
+        });
         const landOver = document.documentElement.scrollWidth - document.documentElement.clientWidth;
         if (landOver > 0) fail(id, pg, '지역 선택 가로 넘침', landOver + 'px');
         if (!document.querySelector('.landing-back')) fail(id, pg, '지역 선택 돌아가기', '없음');
