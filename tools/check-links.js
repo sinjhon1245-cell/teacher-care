@@ -142,6 +142,13 @@ async function run() {
       let r = await check(url);
       // 시간 초과·연결 실패는 한 번 더 시도해요
       if (r.verdict === 'check' && !Number.isInteger(r.status)) r = await check(url);
+      // 도메인을 찾지 못한 경우(DNS)는 해외 CI 러너의 일시적인 이름 풀이 실패와 구분하려고 3초·8초 뒤 두 번 더 확인해요.
+      // 세 번 모두 못 찾으면 그대로 끊김이에요(실제로 없는 도메인은 매번 실패해요)
+      for (const wait of [3000, 8000]) {
+        if (r.status !== 'dns') break;
+        await new Promise(res => setTimeout(res, wait));
+        r = await check(url);
+      }
       active.set(host, active.get(host) - 1);
       results.set(url, r);
       process.stderr.write('.');
