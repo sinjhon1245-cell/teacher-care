@@ -28,3 +28,14 @@
 - 지역 선택 7너비 × 글자 100/200% = 14조합으로 긴 지역 이름·카드 높이·44px 터치 영역을 검사한다.
 - 공식 링크 자동 응답 실패는 404·DNS 오류와 인증/봇 차단·타임아웃을 구분하여 별도 기록한다.
 - **운영 반영 전:** PR CI와 미리보기의 실제 결과를 확인해야 한다. 이 문서는 합격·배포 완료를 선포하지 않는다.
+
+## 2026-11-03 PR #19 운영 반영 결과
+- PR: https://github.com/sinjhon1245-cell/teacher-care/pull/19 (squash merge)
+- PR head: `f32e27f567cd3ad02ac4aeedaa8e489004ad8ab3`; main 운영 데이터 커밋 `fdc95075fc354aa37e276c01e15a5b623e96dedb`.
+- [전체 데이터·링크·화면 회귀 CI](https://github.com/sinjhon1245-cell/teacher-care/actions/runs/41641946062) 성공. 16지역·191개 지원 안내, 기존 15지역·184건 보존, 720/720 반응형 UI, 지역 선택 14/14(200% 포함), 12개 200% 상세 화면, JS 오류 0건.
+- 링크 488개: 정상 381, 이동 30, 자동 확인 필요 77, **끊김 0**. 자동 확인 필요는 인증·연결 시간초과·일시적 서버 응답 등을 포함하며 공식 내용 자체가 모두 원문 확인됐다는 뜻은 아니다.
+- [공개 업데이트·데이터 회귀](https://github.com/sinjhon1245-cell/teacher-care/actions/runs/41641946030) 성공. 데이터 오류 0, 주의 9(기존 강원·대전, 충남 및 신규 전남광주 재검증 상태 포함).
+- Vercel Production status **success**: https://vercel.com/jin-jin2/teacher-care/2ybm73dnnW1dE29RGdQGArP1XUBy (동일한 `fdc95075` 커밋).
+- GitHub Pages [배포 실행](https://github.com/sinjhon1245-cell/teacher-care/actions/runs/41643098942) 완료·success; head `fdc95075`와 일치 확인.
+- 사이트 리소스 버전 `20261103-4`. 이번 병합은 지원 지역 추가와 출처 링크 정확화가 목적이며 기존 지역 데이터 파일·UI 컴포넌트는 변경하지 않았다.
+- **후속 점검:** 통합 후 공제 보장 조건, 상담·치료비 세부 금액·2026 신청 문서, 교육지원청별 실제 홈페이지와 교권 직통 전화, 2027 예정 신설 기능의 실제 시행 확인. 자세한 미확인 사항은 위 표를 유지한다.
