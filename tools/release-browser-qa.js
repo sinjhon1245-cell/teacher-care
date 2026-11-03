@@ -131,14 +131,17 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
         const root=document.querySelector('#bf-official-sick-leave');
         const when=root && root.querySelector('[data-field="when"]');
         const apply=root && root.querySelector('[data-field="apply"]');
+        // 핵심 질문(언제·어떻게 신청)은 색 상자 대신 제목(dt)의 굵기·색으로 나머지 항목과 구분해요
+        const dtStyle=el=>{const dt=el&&el.querySelector('dt');if(!dt)return '';const s=getComputedStyle(dt);return s.fontWeight+' '+s.color;};
+        const plain=root && [...root.querySelectorAll('.facts > div')].find(d=>!['when','apply'].includes(d.dataset.field));
         return {when:!!when,apply:!!apply,
-          whenBg:when?getComputedStyle(when).backgroundColor:'',
-          applyBg:apply?getComputedStyle(apply).backgroundColor:'',
+          whenDt:dtStyle(when),applyDt:dtStyle(apply),plainDt:dtStyle(plain),
           overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
           text:apply?apply.innerText:''};
       });
       assert.ok(benefit.when && benefit.apply,'both benefit questions should have separate blocks');
-      assert.notEqual(benefit.whenBg,benefit.applyBg,'benefit question blocks must be distinguishable');
+      assert.ok(benefit.whenDt && benefit.whenDt===benefit.applyDt,'benefit key questions must share one emphasis style');
+      assert.ok(benefit.plainDt && benefit.whenDt!==benefit.plainDt,'benefit key questions must stand out from other fields');
       assert.ok(benefit.text.includes('경미한'),'six-day exception needs minor-injury qualification');
       assert.ok(benefit.overflow<=1,'benefit detail horizontal overflow');
       await page.screenshot({path:path.join(SCREEN_DIR,'benefit-detail-'+width+'.png')});
