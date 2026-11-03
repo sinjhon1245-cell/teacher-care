@@ -19,7 +19,7 @@ const context = vm.createContext({
   storeGet: key => key === 'teacher-care-update-seen' ? savedId : null,
   storeSet: () => {},
   authorCredit: () => '',
-  REGION_ORDER: Array(13).fill(null),
+  REGION_ORDER: Array(14).fill(null),
   console
 });
 vm.runInContext(updates + '\n' + uiSource + '\nvar TEST = { UPDATES, UpdateUI };', context, { timeout: 1000 });
