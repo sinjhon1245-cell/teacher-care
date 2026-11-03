@@ -1316,7 +1316,7 @@ const App = {
             ${this.situBenefits(s)}
             <div class="block situ-supports">
               <p class="block-title">연결 가능한 지원</p>
-              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\\{(HOT1|HOT2|HOT)\\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
+              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\{(HOT1|HOT2|HOT)\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
               ${types.length ? `<ul class="link-list">${types.map(t => supportChip(t, this.R)).join('')}</ul>` : ''}
             </div>
           </div>
