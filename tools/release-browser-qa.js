@@ -34,14 +34,16 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
   page.on('pageerror', e => errors.push(e.message));
   try {
     await page.goto(base,{waitUntil:'domcontentloaded',timeout:30000});
-    await page.waitForFunction(() => typeof App !== 'undefined' && REGION_ORDER.length === 12);
+    await page.waitForFunction(() => typeof App !== 'undefined' && REGION_ORDER.length === 13);
     const content=await page.evaluate(() => {
       const item = SITUS.find(x => x.id === 'refusal-to-leave-occupation');
       return {regionCount:REGION_ORDER.length,programs:Object.values(REGIONS).reduce((n,r)=>n+r.programs.length,0),
+        existingPrograms:REGION_ORDER.filter(id=>id!=='gyeongbuk').reduce((n,id)=>n+REGIONS[id].programs.length,0),
         publicLatest:UpdateUI.latest().id,situation:item.legalCaution};
     });
-    assert.equal(content.regionCount,12);
-    assert.equal(content.programs,161);
+    assert.equal(content.regionCount,13);
+    assert.equal(content.existingPrograms,161,'기존 12개 지역의 지원 프로그램 161개가 그대로여야 해요');
+    assert.equal(content.programs,174);
     assert.equal(content.publicLatest,'2026-10-29-school-complaint-procedure');
     assert.ok(content.situation.includes('긴급'));
     await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');});
@@ -53,10 +55,10 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
       combos+=result.조합;
       console.log('UI '+width+': '+result.조합+' combinations; errors='+result.실패);
       if (result.실패) console.log(JSON.stringify(result.fails.slice(0,14)));
-      assert.equal(result.조합,60,'Unexpected region/menu combinations for '+width);
+      assert.equal(result.조합,65,'Unexpected region/menu combinations for '+width);
       assert.equal(result.실패,0,'UI regression at '+width+'px');
     }
-    assert.equal(combos,540);
+    assert.equal(combos,585);
     for (const width of [375,768,1440]) {
       await page.setViewportSize({width,height:900});
       await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');window.scrollTo(0,0)});
@@ -76,7 +78,7 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
       await page.evaluate(() => {document.documentElement.style.fontSize='';App.nav('home')});
     }
     assert.equal(errors.length,0,'Uncaught browser errors: '+JSON.stringify(errors));
-    console.log('PASS 540/540 responsive UI combinations, 200% text 12 pages, 3 screenshots, zero browser JS errors');
+    console.log('PASS 585/585 responsive UI combinations (기존 12개 지역 540 포함), 200% text 12 pages, 3 screenshots, zero browser JS errors');
   } finally {
     await page.close();await browser.close();await new Promise(resolve=>server.close(resolve));
   }
