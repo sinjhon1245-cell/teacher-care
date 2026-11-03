@@ -7,13 +7,13 @@ const vm = require('node:vm');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
-const names = ['seoul','gyeonggi','incheon','busan','chungbuk','gangwon','ulsan','jeonbuk','gyeongnam','jeju','daegu','daejeon','gyeongbuk','sejong','chungnam'];
+const names = ['seoul','gyeonggi','incheon','busan','chungbuk','gangwon','ulsan','jeonbuk','gyeongnam','jeju','daegu','daejeon','gyeongbuk','sejong','chungnam','jeonnamgwangju'];
 const ctx = vm.createContext({console});
 vm.runInContext(read('data/common.js') + '\n' +
   names.map(x=>read('data/regions/'+x+'.js')).join('\n')+
   '\nvar CHECK_CHUNGNAM = {REGIONS, REGION_ORDER};',ctx,{timeout:2000});
 const {REGIONS, REGION_ORDER} = ctx.CHECK_CHUNGNAM;
-assert.equal(REGION_ORDER.length,15);
+assert.equal(REGION_ORDER.length,16);
 assert.equal(REGIONS.chungnam.id,'chungnam');
 assert.equal(REGIONS.chungnam.hot,'1588-9331');
 assert.equal(REGIONS.chungnam.hotContacts,undefined,'세부 대표번호는 공식 직통 확인 전 미등록');
@@ -31,11 +31,11 @@ assert.ok(REGIONS.chungnam.programs.every(p=>!p.amount),'미확인 지원금 표
 assert.ok(REGIONS.chungnam.programs.some(p=>p.t.includes('교원안심 온콜')));
 assert.ok(REGIONS.chungnam.programs.some(p=>p.t.includes('학교민원대응팀')));
 assert.ok(!REGIONS.chungnam.programs.some(p=>/공제|법률동행단|200만 원/.test(p.t)),'2026 지역 조건 미확인 프로그램은 미등록');
-const prior = REGION_ORDER.filter(id=>id!=='chungnam');
+const prior = REGION_ORDER.filter(id=>!['chungnam','jeonnamgwangju'].includes(id));
 assert.equal(prior.length,14);
 assert.equal(prior.reduce((sum,id)=>sum+REGIONS[id].programs.length,0),180);
-assert.equal(REGION_ORDER.reduce((sum,id)=>sum+REGIONS[id].programs.length,0),184);
+assert.equal(REGION_ORDER.filter(id=>id!=='jeonnamgwangju').reduce((sum,id)=>sum+REGIONS[id].programs.length,0),184);
 const requiredSourceDomains = ['pf.kakao.com','law.go.kr'];
 for(const d of requiredSourceDomains)
   assert.ok(REGIONS.chungnam.sources.some(s=>new URL(s.url).hostname.endsWith(d)),d+' official source missing');
-console.log('PASS Chungnam: 15 regions / 184 programs, original 14/180, 14 offices / 15 areas, hotline intake distinct from field response, 4 sourced entries, no invented limits');
+console.log('PASS Chungnam preservation: original 15 regions / 184 programs, original 14/180, 14 offices / 15 areas, hotline intake distinct from field response, 4 sourced entries, no invented limits');
