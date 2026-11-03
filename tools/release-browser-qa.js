@@ -49,8 +49,8 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
     assert.equal(content.before13,174,'경북까지 13개 지역의 지원 프로그램 174개가 그대로여야 해요');
     assert.equal(content.before14,180,'세종까지 14개 지역 지원 프로그램 180개가 그대로여야 해요');
     assert.deepEqual(content.agencyOnly,['sejong'],'교육지원청이 없는 지역은 세종 하나예요');
-    assert.equal(content.programs,191);
-    assert.equal(content.publicLatest,'2026-11-03-jeonnamgwangju');
+    assert.equal(content.programs,192);
+    assert.equal(content.publicLatest,'2026-11-03-pr20-accuracy');
     assert.ok(content.situation.includes('긴급'));
     await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');});
     const source=fs.readFileSync(path.join(ROOT,'tools/ui-check.js'),'utf8');
@@ -106,11 +106,53 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
         return out;
       },size);
       const tag='chooser '+width+'px '+(size?'200%':'100%')+' '+r.per.join('·');
-      assert.equal(r.n,16,tag);assert.ok(!r.partialRow,tag+' rows before the last must be full');
+      assert.equal(r.n,16,tag);assert.equal(r.cols, width<=480?2:width<1024?3:4, tag+' unexpected column count');assert.ok(!r.partialRow,tag+' rows before the last must be full');
       assert.equal(r.wrapped,0,tag+' region name wrapped');assert.equal(r.over,0,tag+' card overflow');
       assert.equal(r.small,0,tag+' card under 44px');assert.ok(r.height<=1,tag+' card heights differ');assert.ok(r.hscroll<=0,tag+' horizontal overflow');
       chooserChecks++;
     }
+    // PR #20: 첫 화면 PC 4×4와 제도 세부 항목 시각적 위계, 실제 전화 링크를 별도로 회귀 확인.
+    for (const width of [390,1440]) {
+      await page.setViewportSize({width,height:900});
+      await page.evaluate(() => { App.setRegion('incheon'); App.setState({onboarding:false}); App.nav('home'); App.openRegionChooser(); });
+      await page.screenshot({path:path.join(SCREEN_DIR,'region-chooser-'+width+'.png'),fullPage:true});
+      const layout = await page.evaluate(() => {
+        const cards=[...document.querySelectorAll('.region-card')];
+        const rows={};for(const card of cards){const y=Math.round(card.getBoundingClientRect().top);rows[y]=(rows[y]||0)+1;}
+        return {total:cards.length,rows:Object.values(rows),scroll:document.documentElement.scrollWidth-document.documentElement.clientWidth};
+      });
+      assert.equal(layout.total,16);
+      if (width===1440) assert.deepEqual(layout.rows,[4,4,4,4],'desktop must use exact 4×4 arrangement');
+      assert.equal(layout.scroll,0,'region chooser horizontal overflow');
+      await page.evaluate(() => App.closeRegionChooser());
+
+      await page.evaluate(() => {App.setRegion('incheon');App.openBenefit('official-sick-leave');});
+      const benefit = await page.evaluate(() => {
+        const root=document.querySelector('#bf-official-sick-leave');
+        const when=root && root.querySelector('[data-field="when"]');
+        const apply=root && root.querySelector('[data-field="apply"]');
+        return {when:!!when,apply:!!apply,
+          whenBg:when?getComputedStyle(when).backgroundColor:'',
+          applyBg:apply?getComputedStyle(apply).backgroundColor:'',
+          overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+          text:apply?apply.innerText:''};
+      });
+      assert.ok(benefit.when && benefit.apply,'both benefit questions should have separate blocks');
+      assert.notEqual(benefit.whenBg,benefit.applyBg,'benefit question blocks must be distinguishable');
+      assert.ok(benefit.text.includes('경미한'),'six-day exception needs minor-injury qualification');
+      assert.ok(benefit.overflow<=1,'benefit detail horizontal overflow');
+      await page.screenshot({path:path.join(SCREEN_DIR,'benefit-detail-'+width+'.png')});
+    }
+    await page.evaluate(() => {
+      App.setRegion('incheon');
+      App.nav('guide',{situ:'situ:refusal-to-leave-occupation'});
+    });
+    const contacts=await page.evaluate(() => {
+      const block=document.querySelector('.situ-supports');
+      return block?[...block.querySelectorAll('.facts a[href^="tel:"]')].map(a=>a.getAttribute('href')):[];
+    });
+    assert.ok(contacts.includes('tel:112') && contacts.includes('tel:0321395'),
+      'situation support panel must link 112 and verified Incheon hotline separately');
     assert.equal(errors.length,0,'Uncaught browser errors: '+JSON.stringify(errors));
     console.log('PASS 720/720 responsive UI combinations (기존 15개 지역 675 포함), 200% text 12 pages, region chooser '+chooserChecks+'/14 (7 widths × 100·200%), 3 screenshots, zero browser JS errors');
   } finally {
