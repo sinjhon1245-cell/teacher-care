@@ -32,6 +32,7 @@ jobs:
           node --check data/regions/chungnam.js
           node --check tools/check-school-complaint-law.js
           node tools/check-school-complaint-law.js
+          node tools/check-chungnam-region.js
       - name: Full data, official links and maintenance report
         run: node tools/check-all.js --verbose
 
