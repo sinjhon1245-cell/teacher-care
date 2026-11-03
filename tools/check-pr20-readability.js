@@ -1,0 +1,26 @@
+// PR #20 — 4×4 지역 선택, 지원 질문/연락처 UI, 근거 확인 표현의 보호 회귀.
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { loadSiteData, ROOT } = require('./lib/load-site-data');
+const D=loadSiteData();
+const style=fs.readFileSync(path.join(ROOT,'style.css'),'utf8');
+const app=fs.readFileSync(path.join(ROOT,'app.js'),'utf8');
+assert.equal(D.REGION_ORDER.length,16);
+assert.equal(D.REGION_ORDER.reduce((n,id)=>n+D.REGIONS[id].programs.length,0),192);
+assert.equal(D.REGION_ORDER.filter(id=>id!=='jeonnamgwangju').reduce((n,id)=>n+D.REGIONS[id].programs.length,0),184);
+assert.ok(/@media \(min-width: 1024px\)\s*\{[^}]*\.region-cards \{ grid-template-columns: repeat\(4,/s.test(style),'desktop 4 columns');
+assert.ok(!/\.region-cards \{ grid-template-columns: repeat\(5,/.test(style),'no 5 column chooser');
+assert.ok(/@media \(max-width: 480px\)\s*\{\s*\.region-cards \{ grid-template-columns: repeat\(2,/.test(style));
+assert.ok(style.includes('[data-field="when"]')&&style.includes('[data-field="apply"]'),'distinct benefit item styles');
+assert.ok(style.includes('.situ-supports .facts > div:last-child'),'dedicated contacts panel');
+assert.ok(app.includes('data-field="${key}"'),'field roles should be rendered semantically');
+assert.ok(app.includes("linkifyPhone(String(s.orgs || '')"),'phone numbers in support should be interactive');
+const leave=D.BENEFITS.find(b=>b.id==='official-sick-leave');
+assert.ok(leave&&leave.apply.includes('경미한')&&leave.apply.includes('6일 이내'),'short approval only for minor cases');
+assert.ok(leave.prepare.includes('단독 승인 예외'),'supporting documentation must match eligibility');
+const gw=D.REGIONS.jeonnamgwangju.programs.find(p=>p.t==='광주권 교원보호공제(2026 약관·신청서)');
+assert.ok(gw&&gw.reviewStatus==='review-needed'&&!gw.amount,'no unverified integrated mutual aid benefits');
+assert.ok(gw.caution.includes('통합 이후')&&gw.contact==='062-380-4158');
+console.log('PASS PR20: 16 regions, 192 support entries, prior 15/184 preserved; desktop 4x4, clear benefit fields, tappable situation contacts, minor six-day sick-leave exception and sourced Gwangju-zone coverage');
