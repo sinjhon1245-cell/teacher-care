@@ -28,8 +28,8 @@ registerRegion({
     { title: '「교원의 지위 향상 및 교육활동 보호를 위한 특별법」(지역교권보호위원회)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-11-03', region: 'chungnam', uses: ['guide', 'procedure', 'support'] },
     { title: '「초·중등교육법」 제35조·제37조(2026. 10. 29. 시행 학교민원대응팀·지원 요청)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285599&chrClsCd=010202&urlMode=lsInfoP&efYd=20261029&ancYnChk=0', verifiedAt: '2026-11-03', sourceUpdatedAt: '2026-04-28', region: 'chungnam', uses: ['guide', 'support'] },
     { title: '「초·중등교육법 시행령」 제65조(2026. 10. 29. 시행 학교민원 필요 조치)', url: 'https://www.law.go.kr/법령/초ㆍ중등교육법시행령', verifiedAt: '2026-11-03', region: 'chungnam', uses: ['support'] },
-    { title: '「지방교육자치에 관한 법률 시행령」(2026. 5. 12. 시행) 부칙 제2조(교육지원청 관할 경과조치)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?ancYnChk=0&chrClsCd=010202&efYd=20260512&lsiSeq=285789', verifiedAt: '2026-11-03', sourceUpdatedAt: '2026-05-06', region: 'chungnam', uses: ['finder'] },
-    { title: '「지방교육자치에 관한 법률 시행령」 종전 [별표 2](2023. 6. 27. 개정, 충남 교육지원청 14곳·관할 15개 시·군)', url: 'https://www.law.go.kr/LSW/flDownload.do?bylClsCd=110201&flSeq=129700305', verifiedAt: '2026-11-03', sourceUpdatedAt: '2023-06-27', region: 'chungnam', uses: ['finder'] }
+    { title: '「지방교육자치에 관한 법률 시행령」(2026. 5. 12. 시행) 부칙 제2조(교육지원청 관할 경과조치)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?ancYnChk=0&chrClsCd=010202&efYd=20260512&lsiSeq=285789', verifiedAt: '2026-11-03', sourceUpdatedAt: '2026-05-06', region: 'chungnam', uses: ['finder','support'] },
+    { title: '「지방교육자치에 관한 법률 시행령」 종전 [별표 2](2023. 6. 27. 개정, 충남 교육지원청 14곳·관할 15개 시·군)', url: 'https://www.law.go.kr/LSW/flDownload.do?bylClsCd=110201&flSeq=129700305', verifiedAt: '2026-11-03', sourceUpdatedAt: '2023-06-27', region: 'chungnam', uses: ['finder','support'] }
   ],
 
   hot: '1588-9331',
