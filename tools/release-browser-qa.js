@@ -44,7 +44,7 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
     assert.equal(content.regionCount,13);
     assert.equal(content.existingPrograms,161,'기존 12개 지역의 지원 프로그램 161개가 그대로여야 해요');
     assert.equal(content.programs,174);
-    assert.equal(content.publicLatest,'2026-10-29-school-complaint-procedure');
+    assert.equal(content.publicLatest,'2026-11-03-gyeongbuk');
     assert.ok(content.situation.includes('긴급'));
     await page.evaluate(() => {App.setRegion('incheon');App.setState({onboarding:false});App.nav('home');});
     const source=fs.readFileSync(path.join(ROOT,'tools/ui-check.js'),'utf8');
