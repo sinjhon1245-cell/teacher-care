@@ -38,9 +38,9 @@ const listen = () => new Promise(resolve => server.listen(0,'127.0.0.1',resolve)
     const content=await page.evaluate(() => {
       const item = SITUS.find(x => x.id === 'refusal-to-leave-occupation');
       return {regionCount:REGION_ORDER.length,programs:Object.values(REGIONS).reduce((n,r)=>n+r.programs.length,0),
-        existingPrograms:REGION_ORDER.filter(id=>!['gyeongbuk','sejong','chungnam'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
-        before13:REGION_ORDER.filter(id=>!['sejong','chungnam'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
-        before14:REGION_ORDER.filter(id=>id!=='chungnam').reduce((n,id)=>n+REGIONS[id].programs.length,0),
+        existingPrograms:REGION_ORDER.filter(id=>!['gyeongbuk','sejong','chungnam','jeonnamgwangju'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
+        before13:REGION_ORDER.filter(id=>!['sejong','chungnam','jeonnamgwangju'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
+        before14:REGION_ORDER.filter(id=>!['chungnam','jeonnamgwangju'].includes(id)).reduce((n,id)=>n+REGIONS[id].programs.length,0),
         agencyOnly:REGION_ORDER.filter(id=>!REGIONS[id].offices.length),
         publicLatest:UpdateUI.latest().id,situation:item.legalCaution};
     });
