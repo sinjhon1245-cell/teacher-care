@@ -35,6 +35,8 @@ jobs:
           node tools/check-school-complaint-law.js
           node tools/check-chungnam-region.js
           node tools/check-jeonnamgwangju-region.js
+          node --check tools/check-pr20-readability.js
+          node tools/check-pr20-readability.js
       - name: Full data, official links and maintenance report
         run: node tools/check-all.js --verbose
 
@@ -58,7 +60,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: teacher-care-pr10-screens
+          name: teacher-care-release-ui-screens
           path: /tmp/teacher-care-release-qa
           if-no-files-found: ignore
           retention-days: 7
