@@ -966,11 +966,11 @@ const App = {
           <p class="muted">${a.note}</p>
           <div class="result">
             <p class="result-title">${a.name}</p>
-            <p class="muted small">담당 · ${a.dept} · 관할 · ${a.area}</p>
+            <p class="muted small">${units([`담당 · ${a.dept}`, `관할 · ${a.area}`])}</p>
             ${this.facts([
-              ['연락처', linkifyPhone(a.contact)],
-              ['신고·심의', '{HOT2}'],
-              ['법률·심리·치료', '{HOT1}']
+              ['연락처', contactUnits(linkifyPhone(a.contact))],
+              ['신고·심의', contactUnits(R.terms.HOT2)],
+              ['법률·심리·치료', contactUnits(R.terms.HOT1)]
             ])}
             ${actionButtons(officeChannels(a))}
           </div>
@@ -997,11 +997,11 @@ const App = {
         ${office ? `
           <div class="result" aria-live="polite">
             <p class="result-title">${office.name}</p>
-            <p class="muted small">${office.dept ? `담당 · ${office.dept} · ` : ''}관할 · ${office.areas.join('·')}</p>
+            <p class="muted small">${units([...(office.dept ? [`담당 · ${office.dept}`] : []), `관할 · ${office.areas.join('·')}`])}</p>
             ${this.facts([
-              ['연락처', office.contact && /\d/.test(office.contact) ? linkifyPhone(office.contact) : ''],
-              ['신고·심의', '소속 교육지원청 또는 {HOT2}'],
-              ['법률·심리·치료', '{HOT1}']
+              ['연락처', office.contact && /\d/.test(office.contact) ? contactUnits(linkifyPhone(office.contact)) : ''],
+              ['신고·심의', contactUnits(`소속 교육지원청 또는 ${R.terms.HOT2}`)],
+              ['법률·심리·치료', contactUnits(R.terms.HOT1)]
             ])}
             ${actionButtons(officeChannels(office))}
           </div>
@@ -1587,7 +1587,7 @@ const App = {
         ${p.apply || p.contact || p.contacts ? this.facts([
           ['어디에 신청하나요?', p.apply || ''],
           // 용도가 다른 번호(contacts)는 용도별로 나눠 보여 줘요
-          ...(p.contacts ? p.contacts.map(c => [c.label, linkifyPhone(c.value)]) : [['연락처', p.contact ? linkifyPhone(p.contact) : '']])
+          ...(p.contacts ? p.contacts.map(c => [c.label, contactUnits(linkifyPhone(c.value))]) : [['연락처', p.contact ? contactUnits(linkifyPhone(p.contact)) : '']])
         ]) : `<p class="muted small">신청 방법·연락처는 아래 공식 안내나 소속 학교에 확인하세요.</p>`}
         ${this.supportDetail(p)}
         ${actionButtons(programChannels(p))}
@@ -2275,16 +2275,28 @@ function matchesGuideSearch(situ, query) {
 
 // 공통 데이터 안의 지역 토큰을 현재 지역 값으로 바꿔요. 지역 미선택이면 중립 문구를 써요.
 // 화면 글자 속 번호(전화번호·‘제2026-200호’ 같은 문서 번호)는 한 덩어리로 묶어 ‘052-’ / ‘243-8722’처럼 줄이 갈라지지 않게 해요.
-// 지역 토큰 값뿐 아니라 데이터 문장(신청 방법·시기·주의할 점·근거 제목) 속 번호도 같아요. 태그 속성 값은 건드리지 않아요
-const TEXT_NUMBER = /\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?/g;
+// 지역 토큰 값뿐 아니라 데이터 문장(신청 방법·시기·주의할 점·근거 제목) 속 번호도 같아요. 태그 속성 값은 건드리지 않아요.
+// 번호 뒤 ‘)가’ 같은 조사도 번호에 붙여 ‘…0344)’ / ‘가 안내해요’로 갈라지지 않게 해요.
+// 가운뎃점은 앞 글자에 붙어 줄 맨 앞에 혼자 오지 않아요(줄은 점 뒤에서만 바뀌어요). 짧은 괄호 묶음(‘(중·고)’)과 뒤가 두 글자 이하인 묶음(‘유·초·특수’)은 갈리지 않아요
+const TEXT_KEEP = /\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?(?:\)[가-힣]+)?|\((?=[^()\s]*·)[^()\s]{3,7}\)|[^\s·]·(?:[^\s·]·)*(?:[가-힣]{1,2}(?![가-힣·]))?/g;
 function T(str) {
   const R = REGIONS[App.state.regionId];
   const terms = R ? R.terms : NEUTRAL_TERMS;
   const token = (_, k) => k === 'TEL' ? (R ? telHref(R.hot) : 'tel:112') : terms[k];
   return String(str).split(/(<[^>]*>)/).map(part => {
     const filled = part.replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, token);
-    return part[0] === '<' ? filled : filled.replace(TEXT_NUMBER, m => `<span class="nowrap">${m}</span>`);
+    return part[0] === '<' ? filled : filled.replace(TEXT_KEEP, m => `<span class="${/^\d{2,4}-/.test(m) ? 'nowrap' : 'keep'}">${m}</span>`);
   }).join('');
+}
+
+// 구분 기호로 이어진 글을 의미 단위(.unit)로 나눠 줄이 단위 사이에서만 바뀌게 해요. 구분 기호 글자도 DOM에 그대로 남겨요
+function units(parts, seps = []) {
+  return `<span class="unit-list">${parts.map((p, i) => `<span class="unit">${i ? `<span class="unit-sep">${seps[i - 1] || ' · '}</span>` : ''}${p}</span>`).join('')}</span>`;
+}
+// ‘장학사 063-… · 주무관 063-…’처럼 ‘·’나 ‘/’로 이어진 연락처. 괄호 안의 구분 기호(‘(심리 … · 법률 …)’)는 나누지 않아요
+function contactUnits(text) {
+  const parts = String(text).split(/( · | \/ )(?![^()]*\))/);
+  return parts.length < 3 ? text : units(parts.filter((_, i) => i % 2 === 0), parts.filter((_, i) => i % 2));
 }
 
 // 02-1234-5678, 1600-8787, 032-1395(1번), 112 형태의 번호에 전화 링크를 걸어요

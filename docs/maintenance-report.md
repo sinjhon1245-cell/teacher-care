@@ -6,14 +6,14 @@
 | 항목 | 값 |
 | --- | --- |
 | 생성일 | 2026-11-04 (한국 시간) |
-| asset version | 20261104-1 |
+| asset version | 20261104-3 |
 | 최근 전체 확인일 | 2026-10-03 (모든 지역 안내를 마지막으로 다 확인한 날) |
-| 확인일 범위 | 2026-09-24 ~ 2026-11-04 (항목 560건) |
+| 확인일 범위 | 2026-09-24 ~ 2026-11-04 (항목 562건) |
 
 | 점검 | 결과 |
 | --- | --- |
 | 데이터 검증 | PASS (오류 0 · 주의 10) |
-| 공식 링크 | PASS (489개) |
+| 공식 링크 | PASS(확인 필요 있음) (491개) |
 | 오래된 정보 | 0 |
 | 재검토 필요 | 10 (reviewStatus 8 · 재확인일 지남 2) |
 | 지역 gap | 78 (+ 영역 밖 49) |
@@ -22,7 +22,7 @@
 | 그룹 | 11 / 11 |
 | 제도 | 10 |
 | 지원 프로그램 | 192 (서울 9 · 경기 11 · 인천 11 · 부산 11 · 충북 11 · 강원 12 · 울산 15 · 전북 14 · 경남 18 · 제주 16 · 대구 18 · 대전 15 · 경북 13 · 세종 6 · 충남 4 · 전남광주 8) |
-| 출처 | 325 (공통 15 · 교차 확인 1 · 서울 15 · 경기 19 · 인천 15 · 부산 15 · 충북 14 · 강원 14 · 울산 14 · 전북 40 · 경남 39 · 제주 27 · 대구 24 · 대전 22 · 경북 19 · 세종 13 · 충남 8 · 전남광주 11) |
+| 출처 | 327 (공통 15 · 교차 확인 1 · 서울 15 · 경기 19 · 인천 15 · 부산 15 · 충북 14 · 강원 14 · 울산 14 · 전북 40 · 경남 39 · 제주 27 · 대구 24 · 대전 22 · 경북 19 · 세종 13 · 충남 8 · 전남광주 13) |
 
 ## 다음 점검 항목
 
@@ -227,20 +227,21 @@
 | 전화번호(대표·교육지원청·기관) | 16 | volatile 180일 | 2026-10-07 (서울 전화번호) | 2027-04-05 | 2026-12-01 (D-27) | 0 | 0 |
 | 교육지원청 관할 | 16 | volatile 180일 | 2026-10-07 (서울 관할) | 2027-04-05 | 2026-12-01 (D-27) | 0 | 0 |
 | 출처(공통 근거) | 16 | stable 365일 | 2026-09-24 | 2027-09-24 | — | 0 | 0 |
-| 출처(지역) | 309 | volatile 180일 | 2026-09-24 (서울 출처) | 2027-03-23 | 2026-12-01 (D-27) | 0 | 0 |
+| 출처(지역) | 311 | volatile 180일 | 2026-09-24 (서울 출처) | 2027-03-23 | 2026-12-01 (D-27) | 0 | 0 |
 
 ## 링크 현황
 
-점검 시각: 2026-11-04 08:25(한국 시간) · 링크 489개(사용 위치 694곳)
+점검 시각: 2026-11-04 09:57(한국 시간) · 링크 491개(사용 위치 698곳)
 
 | 정상 | redirect | 확인 필요 | broken |
 | ---: | ---: | ---: | ---: |
-| 454 | 35 | 0 | 0 |
+| 455 | 35 | 1 | 0 |
 
 | 판정 | 상태 | 주소 | 위치 | 메모 |
 | --- | --- | --- | --- | --- |
-| 이동(redirect) | 200 | https://forteacher.gen.go.kr/sub/page.php?page_code=support_05 → https://forteacher.jge.go.kr/sub/page.php?page_code=support_05 | data/regions/jeonnamgwangju.js:24, data/regions/jeonnamgwangju.js:90 |  |
-| 이동(redirect) | 200 | https://forteacher.gen.go.kr/sub/page.php?page_code=support_07 → https://forteacher.jge.go.kr/sub/page.php?page_code=support_07 | data/regions/jeonnamgwangju.js:23, data/regions/jeonnamgwangju.js:46, data/regions/jeonnamgwangju.js:89 |  |
+| 확인 필요 | 400 | https://www.pen.go.kr/main/na/ntt/selectNttInfo.do?mi=30397&bbsId=2286&nttSn=1177765 | data/regions/busan.js:27 |  |
+| 이동(redirect) | 200 | https://forteacher.gen.go.kr/sub/page.php?page_code=support_05 → https://forteacher.jge.go.kr/sub/page.php?page_code=support_05 | data/regions/jeonnamgwangju.js:24, data/regions/jeonnamgwangju.js:92 |  |
+| 이동(redirect) | 200 | https://forteacher.gen.go.kr/sub/page.php?page_code=support_07 → https://forteacher.jge.go.kr/sub/page.php?page_code=support_07 | data/regions/jeonnamgwangju.js:23, data/regions/jeonnamgwangju.js:48, data/regions/jeonnamgwangju.js:91 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dep/jo/jobshare/selectJobShareView.do?dept_cd=7240365&mi=8210 → https://www.dge.go.kr/dep/sso/index.do | data/regions/daegu.js:41 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/jo/jobshare/selectJobShareView.do?mi=6935 → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:49 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/dgdbe/main.do → https://www.dge.go.kr/dgdbe/sso/index.do | data/regions/daegu.js:89 |  |
@@ -269,10 +270,10 @@
 | 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9805&cntntsId=4850 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:38, data/regions/daegu.js:133 |  |
 | 이동(redirect) | 200 | https://www.dge.go.kr/sch/cm/cntnts/cntntsView.do?mi=9806&cntntsId=4851 → https://www.dge.go.kr/sch/sso/index.do | data/regions/daegu.js:37, data/regions/daegu.js:131 |  |
 | 이동(redirect) | 200 | https://www.jbe.go.kr/human/index.jbe?menuCd=DOM_000002709006000000 → https://www.jbe.go.kr/human/board/list.jbe?boardId=BBS_0000501&menuCd=DOM_000002709006000000&contentsSid=2537&cpath=%2Fhuman | data/regions/jeonbuk.js:85, data/regions/jeonbuk.js:152, data/regions/jeonbuk.js:160 |  |
-| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=641&mi=1814 → https://www.jge.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=641&mi=1814 | data/regions/jeonnamgwangju.js:27, data/regions/jeonnamgwangju.js:92 |  |
-| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=642&mi=1815 → https://www.jge.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=642&mi=1815 | data/regions/jeonnamgwangju.js:25, data/regions/jeonnamgwangju.js:91 |  |
-| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=646&mi=1813 → https://www.jge.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=646&mi=1813 | data/regions/jeonnamgwangju.js:28, data/regions/jeonnamgwangju.js:93 |  |
-| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/main.do → https://www.jge.go.kr/thsupport/main.do | data/regions/jeonnamgwangju.js:47 |  |
+| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=641&mi=1814 → https://www.jge.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=641&mi=1814 | data/regions/jeonnamgwangju.js:27, data/regions/jeonnamgwangju.js:94 |  |
+| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=642&mi=1815 → https://www.jge.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=642&mi=1815 | data/regions/jeonnamgwangju.js:25, data/regions/jeonnamgwangju.js:93 |  |
+| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=646&mi=1813 → https://www.jge.go.kr/thsupport/cm/cntnts/cntntsView.do?cntntsId=646&mi=1813 | data/regions/jeonnamgwangju.js:28, data/regions/jeonnamgwangju.js:95 |  |
+| 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/main.do → https://www.jge.go.kr/thsupport/main.do | data/regions/jeonnamgwangju.js:49 |  |
 | 이동(redirect) | 200 | https://www.jne.go.kr/thsupport/na/ntt/selectNttList.do?mi=667&bbsId=339 → https://www.jge.go.kr/thsupport/na/ntt/selectNttList.do?mi=667&bbsId=339 | data/regions/jeonnamgwangju.js:26 |  |
 
 ## 지역별 gap
@@ -551,11 +552,11 @@
   다음 확인: 충남 학교민원대응지원팀의 관할별 접수 경로와 서식·처리 절차 확인
 - **충남 · 치유·복귀** — 부분적: 대표 온콜이 회복 지원을 연결한다고 공식 안내하나 별도 회복 프로그램 운영 시기·대상·신청 경로는 확인되지 않았어요\
   다음 확인: 2026 충남 회복·치유 프로그램 공식 계획·기수별 신청 시기 확인
-- **전남광주 · 상담·회복** — 부분적: 광주권은 홈페이지 상담 신청 경로, 전남권은 2026 계획 공지까지 안내했으나 통합 후 회기·대상은 미확인\
+- **전남광주 · 상담·회복** — 부분적: 광주권은 직접 온라인 심리상담 신청 경로, 전남권은 2026-10-15 갱신된 심리상담 안내·2026 신청서 위치까지 확인. 양 권역 통합 후 지원 회기·적용 대상은 미확인\
   다음 확인: 광주·전남 권역별 현재 상담 신청 서식과 대상·회기 확인
-- **전남광주 · 치료·비용** — 부분적: 전남권 치료비 관련 2026 계획이 공지되었으나 통합 후 비용·신청 자격은 원문으로 대조 중\
+- **전남광주 · 치료·비용** — 부분적: 전남권 2026-10-15 갱신 심리상담 안내에 신청서가 있으나 통합 후 치료비 지원 한도·신청 자격·기한은 독립 확인하지 못함\
   다음 확인: 2026 통합 이후 치료비 한도·신청 기한·대상 확인
-- **전남광주 · 법률** — 부분적: 각 권역 법률상담 신청 출발점·공식 안내는 제공. 통합 이후 담당 권역 재배정 여부 추가 확인\
+- **전남광주 · 법률** — 부분적: 광주권 전담변호사 상담 연락 경로 및 별도 법률지원단(학교 공문·변호사회 팩스) 신청 절차, 전남권 권역별 전담변호사 신청 출발점 확인. 통합 이후 담당 권역 재배정 여부 추가 확인\
   다음 확인: 통합교육청 2026 법률상담 담당자·권역별 신청 경로 재확인
 - **전남광주 · 수사·소송** — 부분적: 법률자문 출발점은 있으나 형사·민사 사건 대리/선임비 지원 내용과 신청경로는 확인하지 못함\
   다음 확인: 통합 뒤 소송비 지원 표준약관과 변호사 선임 절차 확인
