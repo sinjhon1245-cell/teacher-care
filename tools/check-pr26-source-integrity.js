@@ -21,6 +21,9 @@ assert.ok(counseling.channels.some(x=>x.type==='apply' && x.url===direct),'offic
 assert.ok(legal.channels.some(x=>x.url===legalGuide),'distinct legal-support application guide');
 assert.ok(legal.apply.includes('학교 내부결재') && legal.apply.includes('공문') && legal.apply.includes('팩스'));
 assert.ok(legal.caution.includes('서로 달라요'),'different counsel/legal team channels must be identified');
+assert.ok(legal.caution.includes('초·중·고·특수학교'),'official eligibility must not expand to unverified school types');
+assert.equal(legal.verifiedAt,'2026-11-04');
+assert.equal(counseling.verifiedAt,'2026-11-04');
 assert.ok([11,12].every(i=>j.sources[i].verifiedAt==='2026-11-04'));
 assert.ok(j.sources[11].url===legalGuide && j.sources[12].url===direct);
 assert.ok(!j.sources.some(x=>/nttSn=5172350/.test(x.url)),'removed Jeonnam notice must not return');
