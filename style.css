@@ -1,8 +1,8 @@
 /* 선생님 곁에 — 교사가 믿고 편안하게 읽는 공공서비스형 디자인 시스템
    색: 아이보리 바탕 + deep teal(기본 행동·선택) + warm orange(주의) + red(긴급만). 브랜드 색·로고는 그대로예요.
-   글꼴: Pretendard Variable 하나. 위계는 크기와 굵기로 함께 만들어요(제목 700 · 라벨·버튼 600 · 본문 400).
+   글꼴: Pretendard Variable 하나. 위계는 크기와 굵기로 함께 만들어요(카드 안 청록 소제목 800 · 제목 700 · 라벨·버튼 600 · 본문 400).
    공통 규칙
-   - 본문 17px(768px 이하 16px), 보조 글 15px, 배지 13px. 본문 줄 간격 1.6, 제목 1.35, 버튼·목록 1.4
+   - 본문 17px(768px 이하 16px), 카드 안 소제목 18px(17px), 보조 글 15px, 배지 13px. 본문 줄 간격 1.6, 제목 1.35, 버튼·목록 1.4
      글자 크기는 rem(브라우저 기본 16px = 1rem)으로 적어 사용자가 브라우저 글꼴을 키우면 함께 커져요. 여백·경계는 px
    - 카드: 흰 면 + 1px 테두리 + 12px 모서리. 큰 패널(도구·허브·단계·결과)은 14px 모서리와 옅은 그림자로 기존의 부드러운 인상을 유지
    - 선택 버튼(필터·유형)은 둥근 알약, 행동 버튼은 8px 모서리. 배지는 6px 모서리의 작은 이름표이고 버튼 안에 겹쳐 넣지 않아요
@@ -51,6 +51,8 @@
   --fs-h2: 1.4375rem;
   --fs-h3: 1.1875rem;
   --fs-h4: 1.0625rem;
+  /* 카드 안 소제목(내가 할 일·안내 상자·묶음 제목): 늘 본문보다 한 단계 크게 */
+  --fs-sub: 1.125rem;
   --fs-body: 1.0625rem;
   --fs-sm: 0.9375rem;
   --fs-xs: 0.8125rem;
@@ -61,7 +63,7 @@
   --num-size: 30px;
 }
 @media (max-width: 768px) {
-  :root { --fs-h1: 1.625rem; --fs-h2: 1.3125rem; --fs-h3: 1.125rem; --fs-h4: 1rem; --fs-body: 1rem; }
+  :root { --fs-h1: 1.625rem; --fs-h2: 1.3125rem; --fs-h3: 1.125rem; --fs-h4: 1rem; --fs-sub: 1.0625rem; --fs-body: 1rem; }
 }
 
 /* ══════════════ 기본 ══════════════ */
@@ -172,6 +174,13 @@ button:focus-visible, a:focus-visible, select:focus-visible, summary:focus-visib
 .tel-link { font-weight: 600; white-space: nowrap; }
 /* 문장 속 전화번호(지역 토큰 값): 줄이 번호 중간에서 갈라지지 않게 */
 .nowrap { white-space: nowrap; }
+/* 짧은 가운뎃점 묶음(‘(중·고)’·‘유·초·특수’)과 ‘글자·’ 한 쌍: 상자를 만들지 않아(contents) 버튼·선택 버튼 같은 flex 안에서도 글자가 칸으로 나뉘지 않아요 */
+.keep { display: contents; white-space: nowrap; }
+/* 연락처 단위(‘장학사 063-… · 주무관 063-…’): 줄은 단위 사이에서만 바뀌고, 구분 기호는 줄 맨 앞에 오면 왼쪽 밖으로 잘려 보이지 않아요.
+   clip-path의 왼쪽 5px은 전화 링크의 포커스 테두리(3px + 간격 2px)까지만 남겨요 */
+.unit-list { display: flex; flex-wrap: wrap; gap: 0 1em; clip-path: inset(-8px -8px -8px -5px); }
+.unit { position: relative; min-width: 0; text-wrap: balance; }
+.unit-sep { position: absolute; right: 100%; width: 1em; text-align: center; color: var(--muted); }
 
 /* 링크 복사·인쇄하기: 상세 아래의 보조 도구 */
 .share-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -241,17 +250,18 @@ details[open] > summary > .chevron::before { transform: translateY(2px) rotate(2
 /* 줄형: 카드 안의 신청 전 확인·공식 근거처럼 이어서 읽는 묶음 */
 .disclosure-line { margin-top: 12px; border-top: 1px solid var(--border); }
 .disclosure-line > summary { min-height: 48px; padding: 8px 0; }
-.disclosure-line .disclosure-title { font-size: 1rem; font-weight: 600; }
+.disclosure-line .disclosure-title { font-size: var(--fs-h4); font-weight: 700; }
 .disclosure-line > .disclosure-body { padding: 0 0 8px; }
 
 /* ── 안내 상자: 제목 한 줄 + 내용(문단 또는 목록) ── */
 .callout { margin: 12px 0 0; padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--note-border); background: var(--note-soft); }
-.callout-title { margin: 0 0 4px; font-size: 1rem; font-weight: 700; line-height: var(--lh-ui); }
+.callout-title { margin: 0 0 6px; font-size: var(--fs-sub); font-weight: 700; line-height: var(--lh-ui); }
 .callout > p:not(.callout-title) { margin: 0; max-width: var(--read); }
-/* 글머리표: 제목 글자 시작선 안쪽으로 한 글자만 들이고, 줄 사이는 본문과 같은 리듬 */
-.callout ul { margin: 0; padding-left: 1.15em; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; list-style: disc; }
-.callout li { max-width: var(--read); padding-left: 2px; }
-.callout li::marker { color: var(--muted); }
+/* 글머리표 목록(안내 상자·대응 절차 네 묶음 공통): 글머리표를 목록 바깥에 둬 둘째 줄이 첫 줄 글자 시작선에 저절로 맞아요.
+   항목 안 줄 간격(1.5)보다 항목 사이를 넓게 둬 두 줄 항목도 한 덩어리로 읽혀요 */
+.callout ul, .duty ul { margin: 0; padding-left: 1.15em; display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; list-style: disc; }
+.callout li, .duty li { max-width: var(--read); padding-left: 2px; line-height: 1.5; text-wrap: pretty; }
+.callout li::marker, .duty li::marker { color: var(--muted); }
 /* 의미마다 바탕 한 가지 + 같은 계열의 사방 1px 테두리(한쪽 굵은 선 없음). 긴급은 제목 색과 굵은 본문으로 구분해요 */
 .callout-info { background: var(--info-soft); border-color: var(--info-border); }
 .callout-info .callout-title { color: var(--primary-hover); }
@@ -272,19 +282,20 @@ details[open] > summary > .chevron::before { transform: translateY(2px) rotate(2
 
 /* ── 라벨·내용 목록: 줄마다 얇은 선으로 나눠 표처럼 훑어봐요. 칸이 좁으면(520px 미만) 라벨이 위로 ── */
 .facts { margin: 12px 0 0; container-type: inline-size; }
-.facts > div { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 0 16px; align-items: baseline; padding: 8px 0; }
+.facts > div { display: grid; grid-template-columns: 8em minmax(0, 1fr); gap: 2px 16px; align-items: baseline; padding: 10px 0; }
 .facts > div + div { border-top: 1px solid var(--border); }
 .facts > div:first-child { padding-top: 0; }
 .facts > div:last-child { padding-bottom: 0; }
-.facts dt { font-size: var(--fs-sm); font-weight: 600; line-height: 1.5; color: var(--muted); }
+.facts dt { font-size: var(--fs-h4); font-weight: 700; line-height: var(--lh-ui); color: var(--primary-hover); }
 .facts dd { margin: 0; }
-@container (max-width: 520px) {
+/* rem 기준: 글자를 키우면 라벨 칸이 커지는 만큼 더 넓은 칸에서도 라벨이 위로 올라가요 */
+@container (max-width: 32.5rem) {
   .facts > div { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ── 묶음(block): 상세 안의 작은 갈래(함께 확인할 제도·연결 가능한 지원·지금 해볼 일 등) ── */
 .block { margin: 12px 0 0; padding: 16px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-.block-title { margin: 0; font-size: var(--fs-h4); font-weight: 700; line-height: var(--lh-tight); color: var(--text); }
+.block-title { margin: 0; font-size: var(--fs-sub); font-weight: 800; line-height: var(--lh-tight); color: var(--primary-hover); }
 .block-desc { margin: 2px 0 0; font-size: var(--fs-sm); line-height: 1.5; color: var(--muted); }
 .block > .facts { margin-top: 10px; }
 /* 내가 직접 쓰는 회복·보호 제도 묶음은 따뜻한 바탕(기관 지원 묶음은 흰 바탕 + 테두리) — 기존 화면의 구분 그대로 */
@@ -741,7 +752,7 @@ body.is-landing { padding-bottom: 0; }
 .action-head {
   width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border-radius: var(--radius);
   border: none; background: none; cursor: pointer; padding: 16px 16px 16px 20px; min-height: 60px;
-  font-size: var(--fs-h4); font-weight: 700; line-height: var(--lh-tight); color: var(--text);
+  font-size: var(--fs-h3); font-weight: 700; line-height: var(--lh-tight); color: var(--text); /* 펼친 안의 소제목(--fs-sub)보다 한 단계 크게 */
 }
 .action-head:hover > .action-label, .action-head:hover .bf-title { color: var(--primary); }
 .action-label { min-width: 0; }
@@ -763,7 +774,7 @@ body.is-landing { padding-bottom: 0; }
 .finder-grid { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 28px; }
 .finder-label { margin-bottom: 6px; }
 .finder-select { width: 100%; max-width: 420px; }
-.finder-note { margin: 10px 0 0; font-size: var(--fs-sm); line-height: 1.55; color: var(--muted); }
+.finder-note { margin: 10px 0 0; max-width: var(--read); font-size: var(--fs-sm); line-height: 1.6; color: var(--muted); }
 .finder-grid > .result { margin-top: 14px; }
 .finder-hint { display: none; }
 @media (min-width: 1024px) {
@@ -830,11 +841,8 @@ body.is-landing { padding-bottom: 0; }
 .check.done { background: var(--primary-soft); border-color: transparent; }
 .check.done span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
 .check-note { margin: 12px 0 0; }
-.duty-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
-.duty-title { margin: 0 0 8px; font-size: 1rem; color: var(--text); }
-.duty ul { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
-.duty li { position: relative; padding-left: 16px; }
-.duty li::before { content: ''; position: absolute; left: 3px; top: .72em; width: 5px; height: 5px; border-radius: 50%; background: var(--faint); }
+.duty-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.duty-title { margin: 0 0 8px; font-size: var(--fs-sub); font-weight: 800; color: var(--primary-hover); }
 /* 행동 체크(지금 확인해 볼 일·지금 해볼 일): 묶음 안의 한 열 체크 목록 */
 .act-count { margin-left: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--muted); }
 .act-list { grid-template-columns: minmax(0, 1fr); margin-top: 12px; }
@@ -851,7 +859,7 @@ body.is-landing { padding-bottom: 0; }
 
 /* 대응 절차: 이 단계에서 함께 확인(회복·보호 제도 · 지원 찾기) */
 .step-links { margin-top: 16px; }
-.link-group-label { margin: 12px 0 0; font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
+.link-group-label { margin: 12px 0 0; font-size: 1rem; font-weight: 700; color: var(--primary-hover); }
 .link-group-label + .link-list { margin-top: 6px; }
 
 /* ══════════════ 상황별 도움 ══════════════ */
@@ -863,7 +871,7 @@ body.is-landing { padding-bottom: 0; }
 .situ-example-label { font-weight: 700; color: var(--text); margin-right: 2px; }
 .situ-main > .facts { margin-top: 16px; }
 /* 학교에 알릴 내용·남겨 두면 좋은 기록: 제도 상세 질문과 같은 모양(굵은 제목 + 진한 본문, 얇은 선) */
-.situ-main > .facts dt { color: var(--text); font-weight: 700; }
+.situ-main > .facts dt { font-size: var(--fs-sub); color: var(--text); }
 @media (min-width: 1024px) {
   /* PC: 같은 순서(먼저 할 일 → 피해야 할 행동 → 판단 참고 → 해볼 일 → 기록 → 제도 → 지원)를 두 단으로 흘려 두 열 높이를 자동으로 맞춰요.
      묶음은 중간에서 끊지 않아요(상황마다 왼쪽·오른쪽 내용 길이가 달라 고정 두 열은 한쪽이 크게 비었어요) */
@@ -917,7 +925,7 @@ body.is-landing { padding-bottom: 0; }
 .prot { scroll-margin-top: 80px; }
 .prot-icon { align-self: flex-start; margin-top: 1px; color: var(--primary); }
 .bf-head { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.bf-title { font-size: var(--fs-h4); font-weight: 700; }
+.bf-title { font-size: var(--fs-h3); font-weight: 700; }
 .prot-sum { font-size: var(--fs-sm); font-weight: 400; line-height: 1.5; color: var(--muted); }
 .bf-head .bf-badges { margin-top: 2px; }
 .support-item[hidden], .care-cat[hidden], [data-bf][hidden] { display: none; }
@@ -940,17 +948,18 @@ body.is-landing { padding-bottom: 0; }
 /* ── 제도 상세 질문·답변: 흰 바탕 위에서 질문(dt)은 굵게, 답(dd)은 진한 본문색, 질문 사이는 얇은 선 ──
    핵심 질문 ‘언제 사용할 수 있나요?·어떻게 요청하나요?’만 청록으로 한 단계 더 강조해요.
    질문마다 칸·바탕을 두면 상자가 겹쳐 답답해져서(2026-11-03 검토) 상자는 쓰지 않아요 */
-.bf-grid .facts dt { margin-bottom: 2px; color: var(--text); font-weight: 700; }
+.bf-grid .facts dt { font-size: var(--fs-sub); color: var(--text); }
 .bf-grid .facts dd { color: var(--text); }
 .bf-grid .facts > [data-field="when"] dt,
-.bf-grid .facts > [data-field="apply"] dt { color: var(--primary-hover); font-weight: 700; }
+.bf-grid .facts > [data-field="apply"] dt { color: var(--primary-hover); }
 
 /* 상황별 도움 ‘연결 가능한 지원’: 받을 수 있는 지원 / 연락할 곳을 위아래 두 줄로 나누고, 연락처는 누를 수 있는 번호 링크로 */
 .situ-supports .facts > div { display: block; padding: 10px 0; }
 .situ-supports .facts > div:first-child { padding-top: 0; }
 .situ-supports .facts > div:last-child { padding-bottom: 2px; }
-.situ-supports .facts dt { margin-bottom: 3px; }
-.situ-supports .facts > div:last-child dt { color: var(--primary-hover); font-weight: 700; }
+.situ-supports .facts { margin-top: 12px; }
+.situ-supports .facts dt { margin-bottom: 3px; font-size: 1rem; color: var(--text); }
+.situ-supports .facts > div:last-child dt { color: var(--primary-hover); }
 .situ-supports .facts dd { line-height: 1.55; }
 .situ-supports .facts .tel-link { font-weight: 600; white-space: nowrap; }
 
@@ -1206,7 +1215,8 @@ body.is-landing { padding-bottom: 0; }
   .check-list { grid-template-columns: minmax(0, 1fr); }
   .facts > div { grid-template-columns: minmax(0, 1fr); }
   .duty-grid { grid-template-columns: minmax(0, 1fr); }
-  .channel-row .btn { flex: 1 1 140px; }
+  /* 글자 폭만큼 차지해요: 나란히 안 들어가면 줄을 나눠 버튼마다 글자가 한 줄로 남아요(‘무주교육지원/청’처럼 이름이 갈리지 않게) */
+  .channel-row .btn { flex: 1 1 auto; }
   .support-item { padding: 18px 16px; }
   .directory li { flex-direction: column; gap: 2px; }
   .dir-contact { text-align: left; }
@@ -1303,7 +1313,7 @@ body.is-landing { padding-bottom: 0; }
   .action { border: none !important; }
   .action-body { border-top: none !important; padding: 0 !important; }
   .callout, .note { border: 1pt solid #888 !important; padding: 6pt 8pt !important; }
-  .callout-title, .block-title, .disclosure-title { color: #111 !important; }
+  .callout-title, .block-title, .disclosure-title, .duty-title, .facts dt { color: #111 !important; }
   .block { padding: 8pt 10pt !important; }
   .bf-badge, .badge, .tag { background: #fff !important; color: #111 !important; border: 1px solid #777 !important; }
   a { color: #111 !important; text-decoration: none !important; }
