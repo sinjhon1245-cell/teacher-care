@@ -1,6 +1,6 @@
 // 선생님 곁에 — 전국 공통 데이터
 // 절차·상황별 도움·회복·보호 제도(BENEFITS)·지원 유형(SUPPORT_TYPES)·FAQ처럼 어느 시·도에서나 같은 내용만 둬요.
-// 지역마다 다른 값(대표번호, 기관·사업 이름)은 {HOT}·{HOT1}·{HOT2}·{OFFICER}·{LEGAL}·{MUTUAL}·{SOS}·{MEDIATE}
+// 지역마다 다른 값(대표번호, 기관·사업 이름)은 {HOT}·{HOT1}·{HOT2}·{CARE}·{OFFICER}·{LEGAL}·{MUTUAL}·{SOS}·{MEDIATE}
 // 토큰으로 쓰고, data/regions/*.js 의 terms가 채워요. 전국 공통 긴급번호(112)만 여기에 직접 적어요.
 
 // 상단·하단 메뉴. 홈(어디부터) → 대응 절차(지금 할 일) → 상황별 도움(어떤 경우) → 회복·보호(내가 쓸 제도) → 지원 찾기(어디서 도움)
@@ -83,7 +83,7 @@ const QUICK = [
   { id: 'complaint', label: '반복 민원·특이민원으로 힘들어요', urgent: false, first: '민원을 혼자 감당하지 말고 학교민원대응팀과 관리자에게 이관을 요청하세요.', org: '학교민원대응팀, {SOS}, {HOT}', records: '민원 일시·방식·내용·반복 횟수', supports: '민원 응대 이관, {MEDIATE}, 특이민원 공동 대응', next: '반복·과도한 민원은 교육활동 침해 신고 검토 가능' },
   { id: 'abuse', label: '아동학대 신고를 받았어요', urgent: false, first: '혼자 대응하지 말고 즉시 학교 관리자에게 알리고 {HOT1}로 지원을 요청하세요.', org: '학교장·{OFFICER}, {HOT}, {LEGAL}', records: '해당 교육활동의 경위와 지도 근거(시간순)', supports: '아동학대 피신고 교원 지원, 법률 지원, 심리상담', next: '조사 절차 안내에 따라 대응, 진술 전 법률 상담 권장' },
   { id: 'legal', label: '법률 상담·경찰 조사 지원이 필요해요', urgent: false, first: '{HOT1}로 법률 상담을 신청하세요. {LEGAL} 연계도 받을 수 있어요.', org: '{LEGAL}', records: '사건 경과, 관련 서류·증거 목록, 출석요구서(해당 시)', supports: '법률 상담·자문, 수사·소송 대응 지원, 교원보호공제', next: '상담 후 필요 시 소송·수사 대응 지원 연계' },
-  { id: 'heal', label: '심리상담·치료가 필요해요', urgent: false, first: '{HOT1}로 심리상담·치료 지원을 신청하세요. 교육활동보호센터를 통해 전문 상담·치료기관과 연계돼요.', org: '교육활동보호센터, 전문 상담·치료기관', records: '별도 기록 없이 신청할 수 있어요. 치료비 지원은 진료 관련 서류가 필요해요', supports: '심리상담, 치료비 지원, 치유·회복 프로그램', next: '상담 → 필요 시 치료 연계 → 회복 프로그램 참여' }
+  { id: 'heal', label: '심리상담·치료가 필요해요', urgent: false, first: '{CARE}로 심리상담·치료 지원을 신청하세요. 교육활동보호센터를 통해 전문 상담·치료기관과 연계돼요.', org: '교육활동보호센터, 전문 상담·치료기관', records: '별도 기록 없이 신청할 수 있어요. 치료비 지원은 진료 관련 서류가 필요해요', supports: '심리상담, 치료비 지원, 치유·회복 프로그램', next: '상담 → 필요 시 치료 연계 → 회복 프로그램 참여' }
 ];
 
 // ══════════════ 회복·보호: 선생님이 스스로 사용할 수 있는 제도(BENEFITS) ══════════════
@@ -220,22 +220,22 @@ const BENEFITS = [
     supportLinks: { q: '법률 또는 공무상 재해 상담이 필요하신가요?', types: ['legal', 'care-cost'] } },
 
   { id: 'official-medical-care', category: 'care', t: '공무상 요양', icon: 'document', employment: 'public', badges: ['3년 안에 청구'],
-    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-01', reviewStatus: 'verified',
-    actions: [{ id: 'docs', t: '진단서(요양기간 기재)와 처음 진료한 병원 의무기록 준비하기' }, { id: 'story', t: '재해 경위를 시간순으로 정리하기' }, { id: 'confirm', t: '학교(기관장) 확인 절차 문의하기' }, { id: 'deadline', t: '사유 발생일부터 3년 안에 청구해야 한다는 점 기억하기' }],
+    verifiedAt: '2026-11-07', sourceUpdatedAt: '2026-10-01', reviewStatus: 'verified',
+    actions: [{ id: 'docs', t: '진단서(요양기간 기재)와 처음 진료한 병원 의무기록 준비하기' }, { id: 'story', t: '재해 경위를 시간순으로 정리하기' }, { id: 'confirm', t: '학교(기관장) 확인 절차 문의하기' }, { id: 'deadline', t: '사유 발생일부터 3년 안에 청구해야 한다는 점 기억하기' }, { id: 'counsel', t: '공무상 요양 중 심리상담비를 받으려면 상담 전에 공단 승인부터 신청하기' }],
     keywords: ['공무상 요양', '요양', '요양급여', '공무원연금공단', '공무상', '공상', '재해', '산재'],
     notice: '교육활동 침해 인정과 공무상 재해 인정은 별개의 판단이에요.',
     scope: '국·공립 교원(공무원) 기준이에요. 사립 교원은 사립학교교직원 연금법, 기간제 교원은 산재보험으로 안내돼요.',
     d: '교육활동 침해로 생긴 부상·질병이 공무상 재해로 인정되면 요양급여를 받고 공무상 병가·휴직을 검토할 수 있어요.',
     what: '공무수행 과정의 부상·질병을 공무상 재해로 인정받아 요양급여를 받는 제도예요. 민원인 등의 폭언 등으로 인한 업무상 정신적 스트레스가 원인인 질병도 공무상 질병에 포함될 수 있어요.',
     who: '공무상 부상·질병을 입은 국·공립 교원',
-    limit: '요양급여는 실제 요양기간 3년 범위에서 지급되고, 필요하면 연장할 수 있어요. 공무상 요양 중 받은 심리상담 비용도 지급받을 수 있어요.',
+    limit: '요양급여는 실제 요양기간 3년 범위에서 지급되고, 필요하면 연장할 수 있어요. 공무상 요양 중 공무상 재해로 심리상담을 받으면 심리상담비도 받을 수 있지만, 상담을 시작하기 전에 공무원연금공단의 승인을 먼저 받아야 해요(같은 사건에 1회, 상담 시작일부터 3개월·최대 10회 범위의 실비, 공무상 요양 승인기간 안에 마쳐야 해요). 교육청·교육활동보호센터의 심리상담 지원은 지역 기준으로 신청하는 별개 제도이고, 공단은 교원치유지원비와 겹치는 금액은 빼고 지급해요.',
     when: '급여 사유가 발생한 날부터 3년 안에 청구해요.',
     apply: '공무상 요양 승인신청서에 재해발생 경위서와 요양기간이 적힌 진단서를 붙여 기관(학교) 또는 공무원연금공단에 내요 → 기관장 확인 → 공무원재해보상심의회 심의 → 인사혁신처 결정. 본인이 공단에 직접 청구할 수도 있어요.',
     prepare: '공무상 요양 승인 신청서, 진단서 원본(요양기간 기재), 처음 진료한 병원의 의무기록지 사본, 상병 경위 조사서, 사건 기록·교육활동 침해 처리 자료 등 재해 입증자료',
     caution: '공무와 재해 사이에 상당한 인과관계가 없으면 공무상 재해로 보지 않아요. 교육청 치료비 지원과 함께 받을 수 있는지는 지역 기준을 확인하세요.',
     missed: ['가해자 손해배상 등으로 요양비가 나오지 않더라도, 공무상 병가를 쓰려면 공무상 요양 승인은 받아야 해요.'],
-    refs: ['accident-act', 'accident-decree', 'geps', 'bokmu-rule'],
-    basis: '공무원 재해보상법 제4조·제9조·제22조·제27조·제54조, 같은 법 시행령 제28조, 공무원연금공단 공무상 요양 승인 안내',
+    refs: ['accident-act', 'accident-decree', 'geps', 'geps-counsel', 'bokmu-rule'],
+    basis: '공무원 재해보상법 제4조·제9조·제22조·제27조·제54조, 같은 법 시행령 제28조·제39조, 공무원연금공단 공무상 요양 승인·심리상담비 안내',
     supportLinks: { q: '치료비 지원이나 법률 상담도 확인해 보세요.', types: ['care-cost', 'legal'] } },
 
   { id: 'separation', category: 'protect', t: '즉시 분리', icon: 'separate', employment: 'all', badges: ['위원회 결과 전에도'],
@@ -803,7 +803,7 @@ const SITUS = [
     "dont": "학생이나 보호자를 공개적으로 망신주거나 온라인으로 맞대응하기",
     "programs": "행정 지원, 법률 상담, 심리상담",
     "orgs": "학교장·{OFFICER}, {HOT1}",
-    "legalCaution": "",
+    "legalCaution": "모욕죄는 고소가 있어야 처벌할 수 있는 친고죄예요(형법 제311조·제312조). 고소는 원칙적으로 범인을 알게 된 날부터 6개월 안에 해야 하고, 예외가 있는지는 법률 상담으로 확인하세요(형사소송법 제230조). 친고죄는 교육감 고발 대상에서 빠지므로 지역교권보호위원회 신고와 별도로 고소권자가 고소해야 형사 절차가 시작돼요. 교육활동 침해 인정과 모욕죄 성립은 따로 판단해요.",
     "regionVariants": {}
   },
   {
@@ -2128,12 +2128,12 @@ const SITUS = [
       "치유·회복"
     ],
     "example": "사안 이후 잠을 잘 못 자거나 불안·두려움이 지속되고 학교에 가는 것이 힘들어짐",
-    "firstAction": "혼자 버티지 말고 {HOT1}로 심리상담·치료 지원을 요청하고 학교와 보호조치를 상의",
+    "firstAction": "혼자 버티지 말고 {CARE}로 심리상담·치료 지원을 요청하고 학교와 보호조치를 상의. 죽고 싶은 생각이 들거나 스스로를 해칠 것 같으면 지금 109(자살예방 상담전화, 24시간)에, 당장 위험하면 112·119에 연락",
     "report": "현재 어려움, 업무 수행에 미치는 영향, 특별휴가·병가 등 보호조치 필요 여부",
     "evidence": "치료비 지원이 필요한 경우 진료 관련 서류",
     "dont": "회복이 필요한 상태를 숨기거나 지원 신청을 미루기",
     "programs": "심리상담, 치료비 지원, 치유·회복 프로그램",
-    "orgs": "{HOT1}, 교육활동보호센터·전문 상담기관",
+    "orgs": "{CARE}, 교육활동보호센터·전문 상담기관, 위기 시 109·1577-0199(24시간)",
     "legalCaution": "",
     "regionVariants": {}
   },
@@ -2173,12 +2173,12 @@ const SITUS = [
       "치유·회복"
     ],
     "example": "교육활동 침해·민원·수사 등 이후 전문 상담·치료 또는 학교 복귀 지원을 받고 싶음",
-    "firstAction": "{HOT1}로 현재 필요한 상담·치료·회복 지원 종류를 문의하고 학교와 복귀에 필요한 조치를 상의",
+    "firstAction": "{CARE}로 현재 필요한 상담·치료·회복 지원 종류를 문의하고 학교와 복귀에 필요한 조치를 상의",
     "report": "현재 필요한 지원, 치료·상담 진행 여부, 복귀 시 필요한 배려",
     "evidence": "지원 신청에 필요한 진료·상담 서류가 있다면 보관",
     "dont": "지원 조건을 확인하지 않고 모든 비용을 개인 부담으로 먼저 처리하기",
     "programs": "심리상담, 치료 지원, 치유·회복, 복귀 지원",
-    "orgs": "{HOT1}, 교육활동보호센터·전문 상담기관",
+    "orgs": "{CARE}, 교육활동보호센터·전문 상담기관",
     "legalCaution": "",
     "regionVariants": {}
   }
@@ -2258,7 +2258,7 @@ const SUPPORT_TYPES = [
       what: '교육활동보호센터 전담상담사의 전화·대면 심리상담, 필요하면 전문상담기관·정신건강의학과 연계, 치유·회복 프로그램',
       who: '교육활동 침해 피해 교원(지역에 따라 아동학대 피신고·소진 교원도 지원)',
       when: '사안 직후부터 조사·심의 중, 종결 뒤에도 이용할 수 있어요. 상담 횟수는 지역마다 달라요.',
-      apply: '{HOT1} 또는 교육활동보호센터',
+      apply: '{CARE} 또는 교육활동보호센터',
       missed: ['비용 지원으로 인정되는 상담은 교육청이 정한 전문심리상담기관에서 받은 상담이에요. 먼저 기관을 안내받으세요.'],
       refs: ['jiwi-law', 'jiwi-decree', 'manual'], basis: '교원지위법 제20조제1항, 같은 법 시행령 제19조제1항, 교육활동 보호 매뉴얼(2026) 70쪽'
     },
@@ -2365,6 +2365,7 @@ const COMMON_PUBLIC_SOURCES = [
   { id: 'accident-act', title: '공무원 재해보상법 제4조(공무상 재해)·제9조(급여 청구)·제22조(요양급여)·제54조(시효)', url: 'https://www.law.go.kr/법령/공무원재해보상법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'accident-decree', title: '공무원 재해보상법 시행령 제28조(공무상 요양 승인 신청)', url: 'https://www.law.go.kr/법령/공무원재해보상법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'geps', title: '공무원연금공단 — 공무상 요양 승인(구비서류·청구 기한)', url: 'https://www.geps.or.kr/bizInformation_accidentCompensation_healthCare_careApproval', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'geps-counsel', title: '공무원연금공단 — 재활급여 심리상담비(상담 전 사전승인·지급기준)', url: 'https://www.geps.or.kr/bizInformation_accidentreturn_pay_mental', verifiedAt: '2026-11-07', region: 'common', uses: ['guide', 'care'] },
   { id: 'gukga', title: '국가공무원법 제73조(휴직의 효력) — 휴직 사유 소멸·기간 종료 후 30일 이내 신고와 복직', url: 'https://www.law.go.kr/법령/국가공무원법', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'school-complaint-law', title: '「초·중등교육법」(법률 제21580호, 2026. 10. 29. 시행) 제35조제3항(학교장 필요 조치)·제37조(학교민원대응팀 등)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285599&chrClsCd=010202&urlMode=lsInfoP&efYd=20261029&ancYnChk=0', verifiedAt: '2026-10-29', sourceUpdatedAt: '2026-04-28', region: 'common', uses: ['guide', 'support'] },
   { id: 'school-complaint-decree', title: '「초·중등교육법 시행령」(대통령령 제36785호, 2026. 10. 29. 시행) 제65조(퇴거요청 등 조치 절차)', url: 'https://www.law.go.kr/법령/초ㆍ중등교육법시행령', verifiedAt: '2026-10-29', sourceUpdatedAt: '2026-10-27', region: 'common', uses: ['guide', 'support'] }
@@ -2383,6 +2384,8 @@ const SOURCE_USES = ['guide', 'procedure', 'care', 'support', 'finder'];
 const NEUTRAL_TERMS = {
   HOT: '소속 시·도교육청 교육활동 보호 창구',
   HOT1: '소속 시·도교육청 교육활동 보호 창구(법률·심리 지원)',
+  // CARE: 심리상담·치료 신청 창구. 심리상담 문장은 {HOT1} 대신 {CARE}를 써요(법률 전용 창구로 안내되지 않게)
+  CARE: '소속 시·도교육청 교육활동보호센터(심리상담·치료)',
   HOT2: '소속 교육지원청(신고·심의)',
   OFFICER: '교육활동 보호 업무 담당자',
   LEGAL: '교육청 교원 법률 지원',

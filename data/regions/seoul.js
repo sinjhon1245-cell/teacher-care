@@ -36,7 +36,9 @@ registerRegion({
     { title: '서울특별시교육청 부서별 업무검색 — 초등교육과 교육활동보호(교육활동보호센터 상담사 02-6033-5824~5826)', url: 'https://www.sen.go.kr/user/mngrdept/BD_selectMngrDeptList.do', verifiedAt: '2026-10-07', region: 'seoul', uses: ['support'] },
     // 2026-10-23 확인: 공제 약관(위험대처 보호 서비스 대상·제외·신청서류, 소송비·재산 피해 한도)
     { title: '서울특별시학교안전공제회 「2026년 교원보호공제사업 약관」(2026. 3.)', url: 'https://www.ssia.or.kr/download/2026%EB%85%84%20%EA%B5%90%EC%9B%90%EB%B3%B4%ED%98%B8%EA%B3%B5%EC%A0%9C%EC%82%AC%EC%97%85%20%EC%95%BD%EA%B4%80.pdf', verifiedAt: '2026-10-23', region: 'seoul', uses: ['procedure', 'support'] },
-    { title: '「초·중등교육법」(법률 제21580호, 2026. 4. 28. 공포, 2026. 10. 29. 시행) 제37조(학교 민원대응팀·관할청 학교민원대응지원팀)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285599&chrClsCd=010202&urlMode=lsInfoP&efYd=20261029&ancYnChk=0', verifiedAt: '2026-10-26', sourceUpdatedAt: '2026-04-28', region: 'seoul', uses: ['support'] }
+    { title: '「초·중등교육법」(법률 제21580호, 2026. 4. 28. 공포, 2026. 10. 29. 시행) 제37조(학교 민원대응팀·관할청 학교민원대응지원팀)', url: 'https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285599&chrClsCd=010202&urlMode=lsInfoP&efYd=20261029&ancYnChk=0', verifiedAt: '2026-10-26', sourceUpdatedAt: '2026-04-28', region: 'seoul', uses: ['support'] },
+    { title: '북부교육지원청 직원 안내(학교생활교육과 교육활동보호지원 — SEM119 운영 장학사)', url: 'https://bbedu.sen.go.kr/FUS/DE/DEV11.do', verifiedAt: '2026-11-07', region: 'seoul', uses: ['finder'] },
+    { title: '성동광진교육지원청 직원 안내(교육부 1395 전화 연계 SEM119 업무 02-2286-3771)', url: 'https://sdgjedu.sen.go.kr/FUS/DE/DEV11.do', verifiedAt: '2026-11-07', region: 'seoul', uses: ['finder'] }
   ],
 
   // 02-1395: SEM119 대표전화(매뉴얼 p.93). 매뉴얼 p.93의 교육지원청별 내선(예: 동부 1-1)은 offices.contact에 함께 적어요.
@@ -52,7 +54,7 @@ registerRegion({
 
   // SOS(학교민원 전담 지원 조직)는 서울 공식 명칭을 확인하지 못해 비워 두었어요 → 중립 문구로 표시
   terms: {
-    HOT: '02-1395', HOT1: '02-1395', HOT2: '02-1395',
+    HOT: '02-1395', HOT1: '02-1395', CARE: '02-1395', HOT2: '02-1395',
     OFFICER: '교육활동 보호 업무 담당자',
     LEGAL: '교육활동보호 전담변호사·서울교육활동보호법률지원단',
     MUTUAL: '서울특별시학교안전공제회',
@@ -60,18 +62,20 @@ registerRegion({
   },
 
   // 11개 교육지원청(종전 시행령 [별표 2]). 연락처는 교육지원청별 SEM119 번호와 02-1395 내선(매뉴얼 p.93, 09:00~18:00).
-  // 2026. 10. 7. 교육지원청 직원 업무분장과 대조: 9곳은 SEM119 담당 번호로 일치. 북부(3499-6899)는 학교폭력제로센터 콜센터 담당 번호로, 성동광진(2286-3754)은 직원 목록에 없어 매뉴얼 기준으로 두고 02-1395 내선을 함께 안내해요
+  // 2026. 10. 7. 교육지원청 직원 업무분장과 대조: 9곳은 SEM119 담당 번호로 일치.
+  // 2026. 11. 7. Phase A: 매뉴얼 번호 중 북부 3499-6899는 학교폭력제로센터 콜센터 담당이라 SEM119 운영 장학사(6827 간사 유·초·특·중, 6802 간사 중·고)로,
+  // 성동광진 2286-3754는 직원 목록에 없어 ‘교육부 1395 전화 연계 SEM119 업무’ 담당 2286-3771로 바꿨어요(각 교육지원청 직원 안내). 통화 확인은 하지 않았어요
   offices: [
     { name: '동부교육지원청', areas: ['동대문구', '중랑구'], contact: 'SEM119 02-2210-0406 · 02-1395(1-1번)', url: 'https://dbedu.sen.go.kr' },
     { name: '서부교육지원청', areas: ['은평구', '서대문구', '마포구'], contact: 'SEM119 02-390-2211 · 02-1395(2-1번)', url: 'https://sbedu.sen.go.kr' },
     { name: '남부교육지원청', areas: ['구로구', '금천구', '영등포구'], contact: 'SEM119 02-2165-2182 · 02-1395(3-1번)', url: 'https://nbedu.sen.go.kr' },
-    { name: '북부교육지원청', areas: ['노원구', '도봉구'], contact: 'SEM119 02-1395(4-1번) · 02-3499-6899(매뉴얼 표기)', url: 'https://bbedu.sen.go.kr' },
+    { name: '북부교육지원청', areas: ['노원구', '도봉구'], contact: 'SEM119 02-1395(4-1번) · SEM119 담당 장학사 02-3499-6827(유·초·특·중) · 02-3499-6802(중·고)', url: 'https://bbedu.sen.go.kr' },
     { name: '중부교육지원청', areas: ['종로구', '중구', '용산구'], contact: 'SEM119 02-708-6683 · 02-1395(2-2번)', url: 'https://jbedu.sen.go.kr' },
     { name: '강동송파교육지원청', areas: ['강동구', '송파구'], contact: 'SEM119 02-3434-4458 · 02-1395(1-3번)', url: 'https://gdspedu.sen.go.kr' },
     { name: '강서양천교육지원청', areas: ['강서구', '양천구'], contact: 'SEM119 02-2600-0897 · 02-1395(2-3번)', url: 'https://gsycedu.sen.go.kr' },
     { name: '강남서초교육지원청', areas: ['강남구', '서초구'], contact: 'SEM119 02-3015-3426 · 02-1395(3-3번)', url: 'https://gnscedu.sen.go.kr', guideUrl: 'https://gnscedu.sen.go.kr/CMS/openedu/openedu13/openedu131/openedu1312/index.html' },
     { name: '동작관악교육지원청', areas: ['동작구', '관악구'], contact: 'SEM119 02-810-1702 · 02-1395(3-2번)', url: 'https://dgedu.sen.go.kr' },
-    { name: '성동광진교육지원청', areas: ['성동구', '광진구'], contact: 'SEM119 02-1395(1-2번) · 02-2286-3754(매뉴얼 표기)', url: 'https://sdgjedu.sen.go.kr', guideUrl: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/index.html' },
+    { name: '성동광진교육지원청', areas: ['성동구', '광진구'], contact: 'SEM119 02-1395(1-2번) · 1395 연계 SEM119 담당 02-2286-3771', url: 'https://sdgjedu.sen.go.kr', guideUrl: 'https://sdgjedu.sen.go.kr/CMS/admserv/admserv06/admserv0608/admserv060801/index.html' },
     { name: '성북강북교육지원청', areas: ['성북구', '강북구'], contact: 'SEM119 02-944-9395 · 02-1395(4-2번)', url: 'https://sbgbedu.sen.go.kr' }
   ].map(o => ({ ...o, hours: 'SEM119 09:00~18:00' })),
 

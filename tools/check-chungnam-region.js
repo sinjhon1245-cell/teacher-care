@@ -27,7 +27,10 @@ assert.equal(new Set(allAreas).size,15);
 const shared = REGIONS.chungnam.offices.find(x=>x.name==='논산계룡교육지원청');
 assert.ok(shared && shared.areas.includes('논산시') && shared.areas.includes('계룡시'));
 assert.equal(REGIONS.chungnam.programs.length,4);
-assert.ok(REGIONS.chungnam.programs.every(p=>!p.amount),'미확인 지원금 표시 금지');
+// 지원금은 충남교육청 원문(cne.go.kr)이 출처로 연결된 항목에만 적어요(지어낸 한도 방지). 2026-11-07 Phase A: 교원치유지원 원문 4건 확인 후 P03에 표시
+const cneLinked = p => [].concat(p.source).some(i => REGIONS.chungnam.sources[i] && /(^|\.)cne\.go\.kr$/.test(new URL(REGIONS.chungnam.sources[i].url).hostname));
+assert.ok(REGIONS.chungnam.programs.every(p=>!p.amount || cneLinked(p)),'원문 출처 없는 지원금 표시 금지');
+assert.ok(REGIONS.chungnam.programs.filter(p=>p.amount).every(p=>/확인/.test(p.timing||'') && /6개월/.test(p.timing||'') && /1년/.test(p.timing||'')),'충돌하는 신청 기한(6개월·1년)은 하나로 고르지 않고 함께 안내');
 assert.ok(REGIONS.chungnam.programs.some(p=>p.t.includes('교원안심 온콜')));
 assert.ok(REGIONS.chungnam.programs.some(p=>p.t.includes('학교민원대응팀')));
 assert.ok(!REGIONS.chungnam.programs.some(p=>/공제|법률동행단|200만 원/.test(p.t)),'2026 지역 조건 미확인 프로그램은 미등록');

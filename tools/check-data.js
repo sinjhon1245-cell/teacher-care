@@ -129,8 +129,21 @@ function checkUrl(tag, where, url) {
 }
 
 // 공통 데이터: 전국 공통 긴급번호(112) 외의 번호 금지
+// 예외는 보건복지부가 전국 동일번호로 운영하는 위기상담 번호뿐이에요(109·119는 하이픈이 없어 원래 검사 대상이 아니에요)
+const NATIONAL_COMMON_PHONES = ['1577-0199']; // 정신건강 위기상담전화(24시간, 보건복지부)
 const common = fs.readFileSync(path.join(root, 'data/common.js'), 'utf8');
-for (const n of phonesIn(common)) if (isValidPhone(n) || /^0\d/.test(n)) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
+for (const n of phonesIn(common)) if (!NATIONAL_COMMON_PHONES.includes(n) && (isValidPhone(n) || /^0\d/.test(n))) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
+
+// 심리상담 문장 전용 토큰 CARE: 16개 지역이 모두 직접 지정하고(빠지면 중립 문구로 바뀌어요), 법률 창구를 넣지 않아요
+for (const id of REGION_ORDER) {
+  const regionSrc = fs.readFileSync(path.join(root, `data/regions/${id}.js`), 'utf8');
+  if (!/\bCARE:\s*'/.test(regionSrc)) errors.push(`[${id}] terms.CARE가 없어요 — 심리상담·치료 신청 창구를 직접 적으세요`);
+  if (/변호사|법률/.test(REGIONS[id].terms.CARE || '')) errors.push(`[${id}] terms.CARE에 법률 창구가 들어 있어요: ${REGIONS[id].terms.CARE}`);
+}
+// 심리상담·치료를 신청하라는 공통 문장은 {HOT1}(법률·심리 겸용) 대신 {CARE}를 써요. 같은 줄에 법률 안내가 함께 있으면 겸용으로 봐요
+common.split(/\r?\n/).forEach((line, i) => {
+  if (line.includes('{HOT1}') && /심리상담|치료/.test(line) && !/법률/.test(line)) errors.push(`common.js:${i + 1} 심리상담 문장에 {HOT1}을 썼어요 — {CARE}를 쓰세요`);
+});
 
 // 공통 화면 근거: 특정 시·도교육청 도메인 자료는 넣지 않아요(교차검증 자료는 VALIDATION_SOURCES에)
 COMMON_PUBLIC_SOURCES.forEach((s, i) => {

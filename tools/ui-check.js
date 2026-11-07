@@ -60,7 +60,7 @@
       });
 
       // 8) 치환되지 않은 토큰·빈 값
-      const bad = mainEl.innerText.match(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}|undefined|\bnull\b/);
+      const bad = mainEl.innerText.match(/\{(HOT1|HOT2|HOT|CARE|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}|undefined|\bnull\b/);
       if (bad) fail(id, pg, '남은 토큰·빈 값', bad[0]);
 
       // 5) 헤더 ☎: 대표가 있으면 대표 번호로, 없으면 연락처 카드로 옮기는 버튼
