@@ -1323,7 +1323,7 @@ const App = {
             ${this.situBenefits(s)}
             <div class="block situ-supports">
               <p class="block-title">연결 가능한 지원</p>
-              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\{(HOT1|HOT2|HOT)\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
+              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\{(HOT1|HOT2|HOT|CARE)\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
               ${types.length ? `<ul class="link-list">${types.map(t => supportChip(t, this.R)).join('')}</ul>` : ''}
             </div>
           </div>
@@ -2284,7 +2284,7 @@ function T(str) {
   const terms = R ? R.terms : NEUTRAL_TERMS;
   const token = (_, k) => k === 'TEL' ? (R ? telHref(R.hot) : 'tel:112') : terms[k];
   return String(str).split(/(<[^>]*>)/).map(part => {
-    const filled = part.replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, token);
+    const filled = part.replace(/\{(HOT1|HOT2|HOT|CARE|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, token);
     return part[0] === '<' ? filled : filled.replace(TEXT_KEEP, m => `<span class="${/^\d{2,4}-/.test(m) ? 'nowrap' : 'keep'}">${m}</span>`);
   }).join('');
 }
@@ -2300,8 +2300,9 @@ function contactUnits(text) {
 }
 
 // 02-1234-5678, 1600-8787, 032-1395(1번), 112 형태의 번호에 전화 링크를 걸어요
+// 109(자살예방 상담전화)는 번호 뒤에 ‘·’·‘(’·빈칸·끝이 올 때만 잡아요(‘109쪽’ 같은 숫자는 그대로 둬요)
 function linkifyPhone(text) {
-  return String(text).replace(/(\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?|\b112\b)/g, m => {
+  return String(text).replace(/(\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?|\b112\b|(?<![\d-])109(?=[·(\s]|$))/g, m => {
     return '<a href="' + telHref(m) + '" class="tel-link">' + m + '</a>';
   });
 }
