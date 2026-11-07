@@ -41,6 +41,8 @@ jobs:
           node tools/check-pr20-readability.js
           node --check tools/check-phase-a-accuracy.js
           node tools/check-phase-a-accuracy.js
+          node --check tools/check-phase-b1-accuracy.js
+          node tools/check-phase-b1-accuracy.js
       - name: Full data, official links and maintenance report
         run: node tools/check-all.js --verbose
 

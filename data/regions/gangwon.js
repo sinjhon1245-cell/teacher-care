@@ -37,7 +37,21 @@ registerRegion({
     { title: '2026 학교민원처리 매뉴얼 안내(교육부 「학교민원 처리 매뉴얼」, 교육활동보호센터 자료마당 2026. 3. 10. 게시)', url: 'https://www.gwe.go.kr/main/bbs/view.do?key=m2307211167413&bbsSn=50047', verifiedAt: '2026-10-06', sourceUpdatedAt: '2026-03-10', region: 'gangwon', uses: ['guide', 'support'] },
     { title: '「강원특별자치도교육청 행정기구 설치조례」 제2조의2·[별표 2] 교육지원청의 명칭·위치 및 관할구역(2026. 10. 2. 신설·시행)', url: 'https://www.law.go.kr/자치법규/강원특별자치도교육청행정기구설치조례', verifiedAt: '2026-10-07', sourceUpdatedAt: '2026-10-02', region: 'gangwon', uses: ['finder'] },
     { title: '강원특별자치도교육청 — 교육지원청 안내(누리집 주소)', url: 'https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDY0NTg%3D', verifiedAt: '2026-10-06', region: 'gangwon', uses: ['finder'] },
-    { title: '강원특별자치도교육청 보도자료 「교권보호지원단, 교육활동 보호 위한 현장 대응 강화」(2026. 10. 20.)·붙임 교육활동보호 지원 현황(2026. 7. 1.~10. 16.)', url: 'https://www.gwe.go.kr/promotion/bbs/view.do?key=bTI2MTEwMjkzMzg2NjA=&bbsSn=57056', verifiedAt: '2026-11-04', sourceUpdatedAt: '2026-10-20', region: 'gangwon', uses: ['support'] }
+    { title: '강원특별자치도교육청 보도자료 「교권보호지원단, 교육활동 보호 위한 현장 대응 강화」(2026. 10. 20.)·붙임 교육활동보호 지원 현황(2026. 7. 1.~10. 16.)', url: 'https://www.gwe.go.kr/promotion/bbs/view.do?key=bTI2MTEwMjkzMzg2NjA=&bbsSn=57056', verifiedAt: '2026-11-04', sourceUpdatedAt: '2026-10-20', region: 'gangwon', uses: ['support'] },
+    { title: '춘천교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwcce.gwe.go.kr/jobShare/main.do?m=0604&s=gwcce', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '원주교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwwjed.gwe.go.kr/jobShare/main.do?m=1104&s=kwwje', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '강릉교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwgned.gwe.go.kr/jobShare/main.do?m=0806&s=gwgned', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '속초양양교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwsyed.gwe.go.kr/jobShare/main.do?m=0109&s=kwsyed', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '동해교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://kwthe.gwe.go.kr/jobShare/main.do?m=0705&s=kwthe', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '태백교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://kwtbe.gwe.go.kr/jobShare/main.do?m=0709&s=kwtbe', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '홍천교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwhce.gwe.go.kr/jobShare/main.do?m=1004&s=gwhce', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '횡성교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwhsed.gwe.go.kr/jobShare/main.do?m=090401&s=gwhsed', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '영월교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwywed.gwe.go.kr/jobShare/main.do?m=0106&s=gwywed', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '정선교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwjsed.gwe.go.kr/jobShare/main.do?m=0103&s=gwjsed', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '철원교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwcwed.gwe.go.kr/jobShare/main.do?m=0205&s=gwcwed', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '화천교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwhced.gwe.go.kr/jobShare/main.do?m=0704&s=gwhced', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '인제교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwijed.gwe.go.kr/jobShare/main.do?m=371535&s=kwije', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] },
+    { title: '고성교육지원청 조직구성 및 업무(교육활동 보호·지역교권보호위원회 담당 직위·전화, 2026. 11. 7. 확인 — 조직도에 지역번호 없이 표기, 누리집 대표번호 033-)', url: 'https://gwgsed.gwe.go.kr/jobShare/main.do?m=0704&s=kwksed', verifiedAt: '2026-11-07', region: 'gangwon', uses: ['finder'] }
   ],
 
   // 2026 공식 자료에서 교육활동보호 전용 단일 대표번호는 확인되지 않았어요(강원 게시 매뉴얼은 교육부 전국본).
@@ -72,25 +86,25 @@ registerRegion({
   // 17개 교육지원청 · 18개 시·군(「강원특별자치도교육청 행정기구 설치조례」 [별표 2], 2026. 10. 2. 시행 — 종전 시행령 [별표 2]와 같아요).
   // 교육지원청별 교육활동보호 담당 번호는 2026 공식 자료에서 확인되지 않아 contact를 비워 둬요(대표전화·다른 업무 번호를 넣지 않아요)
   offices: [
-    { name: '춘천교육지원청', areas: ['춘천시'], url: 'https://gwcce.gwe.go.kr/' },
-    { name: '원주교육지원청', areas: ['원주시'], url: 'https://gwwjed.gwe.go.kr/' },
-    { name: '강릉교육지원청', areas: ['강릉시'], url: 'https://gwgned.gwe.go.kr/' },
-    { name: '속초양양교육지원청', areas: ['속초시', '양양군'], url: 'https://gwsyed.gwe.go.kr/' },
-    { name: '동해교육지원청', areas: ['동해시'], url: 'https://kwthe.gwe.go.kr/' },
-    { name: '태백교육지원청', areas: ['태백시'], url: 'https://kwtbe.gwe.go.kr/' },
+    { name: '춘천교육지원청', areas: ['춘천시'], contact: '교육활동 보호 담당 장학사 033-259-1606 · 주무관 033-259-1638', url: 'https://gwcce.gwe.go.kr/' },
+    { name: '원주교육지원청', areas: ['원주시'], contact: '교육활동 보호 담당 장학사 033-760-5634 · 주무관 033-760-5637', url: 'https://gwwjed.gwe.go.kr/' },
+    { name: '강릉교육지원청', areas: ['강릉시'], contact: '교육활동 보호 담당 장학사 033-640-1224 · 주무관 033-640-1225', url: 'https://gwgned.gwe.go.kr/' },
+    { name: '속초양양교육지원청', areas: ['속초시', '양양군'], contact: '지역교권보호위원회 사안 접수 주무관 033-639-6012', url: 'https://gwsyed.gwe.go.kr/' },
+    { name: '동해교육지원청', areas: ['동해시'], contact: '교육활동 보호 담당 장학사 033-530-3010 · 주무관 033-530-3033', url: 'https://kwthe.gwe.go.kr/' },
+    { name: '태백교육지원청', areas: ['태백시'], contact: '교육활동 보호 담당 장학사 033-580-5570 · 주무관 033-580-5572', url: 'https://kwtbe.gwe.go.kr/' },
     { name: '삼척교육지원청', areas: ['삼척시'], url: 'https://sce.gwe.go.kr/' },
-    { name: '홍천교육지원청', areas: ['홍천군'], url: 'https://gwhce.gwe.go.kr/' },
-    { name: '횡성교육지원청', areas: ['횡성군'], url: 'https://gwhsed.gwe.go.kr/' },
-    { name: '영월교육지원청', areas: ['영월군'], url: 'https://gwywed.gwe.go.kr/' },
+    { name: '홍천교육지원청', areas: ['홍천군'], contact: '교육활동 보호 담당 장학사 033-430-1110 · 주무관 033-430-1112', url: 'https://gwhce.gwe.go.kr/' },
+    { name: '횡성교육지원청', areas: ['횡성군'], contact: '교육활동 보호 담당 장학사 033-340-0323 · 주무관 033-340-0312', url: 'https://gwhsed.gwe.go.kr/' },
+    { name: '영월교육지원청', areas: ['영월군'], contact: '교육활동 보호 담당 장학사 033-370-1120 · 주무관 033-370-1171', url: 'https://gwywed.gwe.go.kr/' },
     { name: '평창교육지원청', areas: ['평창군'], url: 'https://gwpce.gwe.go.kr/' },
-    { name: '정선교육지원청', areas: ['정선군'], url: 'https://gwjsed.gwe.go.kr/' },
-    { name: '철원교육지원청', areas: ['철원군'], url: 'https://gwcwed.gwe.go.kr/' },
-    { name: '화천교육지원청', areas: ['화천군'], url: 'https://gwhced.gwe.go.kr/' },
+    { name: '정선교육지원청', areas: ['정선군'], contact: '교육활동 보호 담당 장학사 033-560-8110 · 주무관 033-560-8113', url: 'https://gwjsed.gwe.go.kr/' },
+    { name: '철원교육지원청', areas: ['철원군'], contact: '교육활동 보호 담당 장학사 033-450-1070 · 주무관 033-450-1052', url: 'https://gwcwed.gwe.go.kr/' },
+    { name: '화천교육지원청', areas: ['화천군'], contact: '교육활동 보호 담당 장학사 033-440-1560 · 주무관 033-440-1563', url: 'https://gwhced.gwe.go.kr/' },
     { name: '양구교육지원청', areas: ['양구군'], url: 'https://gwyged.gwe.go.kr/' },
-    { name: '인제교육지원청', areas: ['인제군'], url: 'https://gwijed.gwe.go.kr/' },
-    { name: '고성교육지원청', areas: ['고성군'], url: 'https://gwgsed.gwe.go.kr/' }
+    { name: '인제교육지원청', areas: ['인제군'], contact: '교육활동 보호 담당 장학사 033-460-1050 · 주무관 033-460-1051', url: 'https://gwijed.gwe.go.kr/' },
+    { name: '고성교육지원청', areas: ['고성군'], contact: '교육활동 보호 담당 장학사 033-680-6011 · 주무관 033-680-6013', url: 'https://gwgsed.gwe.go.kr/' }
   ],
-  areaNote: '속초시와 양양군은 속초양양교육지원청 한 곳이 맡아요. 교육지원청별 교육활동보호 직통번호는 공식 자료에서 확인되지 않아, 사안 접수·지원은 도교육청 교육활동보호팀(유·초·특 033-258-5342, 중·고 033-258-5341)으로 안내해요.',
+  areaNote: '속초시와 양양군은 속초양양교육지원청 한 곳이 맡아요. 교육지원청 14곳은 각 교육지원청 조직도에 게시된 교육활동 보호 담당 번호를 함께 적었어요(2026. 11. 7. 조직도 기준). 삼척·평창·양구교육지원청은 조직도에서 담당 번호를 찾지 못해, 사안 접수·지원은 도교육청 교육활동보호팀(유·초·특 033-258-5342, 중·고 033-258-5341)으로 안내해요.',
 
   // source: sources 배열의 번호(둘 이상이면 배열). amount·eligibility·timing·documents·caution은 지원 찾기 ‘신청 전 확인할 것’에 보여요
   // 법률상담(변호사)·원스톱 법률 동행·공제 소송비, 마음 건강 치료비·공제 치료비는 대상·신청 경로·한도가 달라 따로 둬요
