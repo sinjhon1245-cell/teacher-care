@@ -969,8 +969,8 @@ const App = {
             <p class="muted small">${units([`담당 · ${a.dept}`, `관할 · ${a.area}`])}</p>
             ${this.facts([
               ['연락처', contactUnits(linkifyPhone(a.contact))],
-              ['신고·심의', contactUnits(R.terms.HOT2)],
-              ['법률·심리·치료', contactUnits(R.terms.HOT1)]
+              ['신고·심의', contactUnits(linkifyPhone(R.terms.HOT2))],
+              ['법률·심리·치료', contactUnits(linkifyPhone(R.terms.HOT1))]
             ])}
             ${actionButtons(officeChannels(a))}
           </div>
@@ -1000,8 +1000,8 @@ const App = {
             <p class="muted small">${units([...(office.dept ? [`담당 · ${office.dept}`] : []), `관할 · ${office.areas.join('·')}`])}</p>
             ${this.facts([
               ['연락처', office.contact && /\d/.test(office.contact) ? contactUnits(linkifyPhone(office.contact)) : ''],
-              ['신고·심의', contactUnits(`소속 교육지원청 또는 ${R.terms.HOT2}`)],
-              ['법률·심리·치료', contactUnits(R.terms.HOT1)]
+              ['신고·심의', contactUnits(linkifyPhone(`소속 교육지원청 또는 ${R.terms.HOT2}`))],
+              ['법률·심리·치료', contactUnits(linkifyPhone(R.terms.HOT1))]
             ])}
             ${actionButtons(officeChannels(office))}
           </div>

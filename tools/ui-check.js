@@ -91,6 +91,25 @@
           if (!R.agency || !res || !res.innerText.includes(R.agency.name)) fail(id, pg, '담당 기관 안내', '담당 기관 카드가 없어요');
           else if (!res.querySelector(`a[href="${R.agency.url}"]`)) fail(id, pg, '담당 기관 안내', '기관 누리집 버튼이 없어요');
         }
+        // 3-2) 찾기 결과의 전화번호는 모두 눌러서 걸 수 있어야 해요(연락처·신고·심의·법률·심리·치료 줄). 번호가 없는 글은 링크가 없어야 해요
+        const unlinkedPhones = el => {
+          const out = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          for (let n = w.nextNode(); n; n = w.nextNode()) if (!n.parentElement.closest('a')) out.push(...(n.textContent.match(PHONE) || []));
+          return out;
+        };
+        const checkResult = label => {
+          const res = document.querySelector('#finder .result');
+          if (!res) return;
+          const loose = unlinkedPhones(res);
+          if (loose.length) fail(id, pg, '찾기 결과 전화 링크', `${label}: ${loose.join(', ')} 링크 없음`);
+          const phoneOnce = new RegExp(PHONE.source);
+          res.querySelectorAll('a[href^="tel:"]').forEach(a => { if (!phoneOnce.test(a.innerText) && !/\b11[29]\b/.test(a.innerText)) fail(id, pg, '찾기 결과 전화 링크', `${label}: 번호 없는 글에 링크 ${a.innerText.trim()}`); });
+        };
+        if (R.offices.length) {
+          const areas = [...new Set(R.offices.flatMap(o => o.areas))];
+          for (const area of areas) { App.setState({ area }); checkResult(area); }
+          App.setState({ area: '' });
+        } else checkResult('담당 기관');
         // 4) 연락처 카드: 데이터의 번호가 모두 있고, 대표가 있으면 첫 전화가 대표
         const card = document.getElementById('contacts');
         const tels = card ? [...card.querySelectorAll('a[href^="tel:"]')].filter(visible) : [];
