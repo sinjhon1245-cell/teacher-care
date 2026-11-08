@@ -87,6 +87,13 @@ for (const p of [B, C, G, { ...base, validUntil: '2026-01-01' }, { ...B, status:
   assert.ok(strip(html).replace('상태: ', '').length >= 4, '배지는 색이 아니라 글자로 뜻을 전해요');
 }
 assert.equal(F.statusBadgeHtml(base), '', '확인 완료 항목은 배지 HTML이 비어요');
+// 겹침(최종 점검): 앞 순위 배지가 뒤의 중요한 사실을 숨기지 않아요 — 배지는 하나, 사실은 날짜 줄·기간 안내·카드 상세에 남아요
+assert.equal(badge({ ...G, status: '신청 전 확인' }), '신청 전 확인', '겹침: 신청 전 확인 + 자료 간 차이 → 운영 상태 배지');
+assert.equal(badge({ ...G, status: '2026 신청 마감' }), '2026 신청 마감', '겹침: 신청 마감 + 기한 충돌 → 운영 상태 배지');
+const expiredGone = { ...C, validUntil: '2026-10-31' };
+assert.equal(badge(expiredGone), '기간 확인 필요', '겹침: 기간 지남 + 원문 열람 불가 → 기간 배지');
+assert.match(line(expiredGone), /원문 게시물을 지금 열 수 없어요/, '겹침: 원문 열람 불가는 날짜 줄에 계속 보여요');
+assert.match(APP, /periodPassed\(p\) \? callout\('caution', '기간 확인'/, '겹침: 기간 지남은 배지와 함께 카드 안 기간 안내 상자로도 보여요');
 // 지원 카드 제목 줄에는 상태 배지 자리가 하나뿐이에요(인라인 배지를 다시 만들지 않게)
 const head = (APP.match(/<div class="support-head">[\s\S]*?<\/div>/) || [''])[0];
 assert.ok(head, '지원 카드 제목 줄(support-head)을 찾지 못했어요');
@@ -114,6 +121,9 @@ for (const { id, p, R: RR } of all) {
   if (p.checks && p.checks.conflict) {
     conflicts++;
     assert.equal(p.reviewStatus, 'review-needed', `${tag}: 자료 간 차이는 review-needed`);
+    // 배지가 운영 상태에 가려져도 차이 나는 기한·금액은 카드 상세 문구에서 보여야 해요
+    const detail = [p.timing, p.caution, p.amount, p.eligibility, p.target, p.apply].filter(Boolean).join(' ').replace(/\s+/g, '');
+    for (const v of p.checks.conflict.match(/\d+\s*(개월|년|일|만\s?원|회기)/g) || []) assert.ok(detail.includes(v.replace(/\s+/g, '')), `${tag}: 자료 간 차이 ‘${v}’가 카드 상세에 없어요`);
     if (!p.status || p.status === '현재 시행 중') assert.equal(b.text, '자료 간 차이', `${tag}: 자료 간 차이 배지`);
   }
   if (F.checkedScope(p)) {

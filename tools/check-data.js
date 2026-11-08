@@ -181,6 +181,11 @@ for (const id of REGION_ORDER) {
       if (typeof c.conflict !== 'string' || c.conflict.trim().length < 10) errors.push(`${tag}: checks.conflict는 무엇이 다른지 적은 문장이어야 해요`);
       if (p.reviewStatus !== 'review-needed') errors.push(`${tag}: 자료 간 차이(conflict)가 있으면 reviewStatus는 review-needed여야 해요`);
       if (!/확인/.test(why)) errors.push(`${tag}: 자료 간 차이가 있으면 기간·주의 문구에 확인할 곳을 적어야 해요`);
+      // 배지는 하나라 운영 상태 배지가 ‘자료 간 차이’를 가릴 수 있어요. 그래도 차이 나는 기한·금액·횟수는 카드 상세에서 보여야 해요
+      const shownText = [p.timing, p.caution, p.amount, p.eligibility, p.target, p.apply].filter(Boolean).join(' ').replace(/\s+/g, '');
+      (String(c.conflict).match(/\d+\s*(개월|년|일|만\s?원|회기)/g) || []).forEach(v => {
+        if (!shownText.includes(v.replace(/\s+/g, ''))) errors.push(`${tag}: 자료 간 차이의 ‘${v}’가 카드 상세(기간·주의·금액)에 없어요 — 배지가 가려져도 차이를 볼 수 있게 적어요`);
+      });
     }
   });
 }
