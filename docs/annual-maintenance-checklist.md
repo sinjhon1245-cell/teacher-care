@@ -5,7 +5,7 @@
 - 지금 할 일 목록: `node tools/check-all.js` → `docs/maintenance-report.md`의 **다음 점검 항목**(리포트는 이 도구로만 다시 만들어요. 직접 고치지 않아요)
 - 대상 지역(15곳, `index.html` 순서): 서울·경기·인천·부산·충북·강원·울산·전북·경남·제주·대구·대전·경북·세종·충남
 - 데이터 위치: 공통 `data/common.js` · 지역 `data/regions/seoul.js`, `gyeonggi.js`, `incheon.js`, `busan.js`, `chungbuk.js`, `gangwon.js`, `ulsan.js`, `jeonbuk.js`, `gyeongnam.js`, `jeju.js`, `daegu.js`, `daejeon.js`, `gyeongbuk.js`, `sejong.js`, `chungnam.js` · 지역 gap `tools/data/regional-gaps.js` · 업데이트 내역 `data/updates.js`
-- 배포 주소: **대표(교사에게 공유) https://teacher-care.vercel.app/** · 병행 운영 https://sinjhon1245-cell.github.io/teacher-care/ (둘 다 `main` push로 반영)
+- 배포 주소: **https://teacher-care.vercel.app/ 하나(Vercel Production, `main` 병합으로 반영)**. GitHub Pages·Netlify는 2026-11-08 비활성화했어요(README ‘배포’)
 - 원칙: **공식 원문으로 확인한 것만** 고쳐요. 한 지역 자료가 없다고 다른 지역 값을 옮겨 적지 않아요. 확인하지 못한 칸은 비워 두면 화면에서 숨겨져요.
 - 날짜 원칙: `verifiedAt`·`sourceUpdatedAt`·`reviewBy`는 **실제로 다시 확인했을 때만** 바꿔요. 점검 도구의 ‘주의’를 없애려고 날짜만 올리지 않아요.
 - 지역별 정확도 감사 문서(`docs/*-regional-accuracy-audit.md`, `regional-accuracy-audit-2026-10-07.md`)는 그 시점의 기록이에요. 새로 확인한 내용은 그해 기록(이 문서 사본)이나 새 감사 문서에 적고, 지난 감사 문서를 고쳐 쓰지 않아요.
@@ -33,9 +33,9 @@
 10. **asset version 변경** — `index.html`의 `<meta name="asset-version">`과 로컬 CSS·JS의 `?v=`를 같은 새 값(`YYYYMMDD-n`)으로
 11. **git diff review** — `git diff`로 의도한 줄만 바뀌었는지, `git diff --check`로 공백 오류
 12. **commit**
-13. **main push**(force push 금지)
+13. **PR 병합**(운영자 승인, squash, force push 금지)
 14. **Vercel Production 확인(대표)** — Vercel 프로젝트 `teacher-care`의 새 Production 배포가 Ready이고 커밋이 같은지, https://teacher-care.vercel.app/ 에서 새 asset version과 고친 내용 확인
-15. **GitHub Pages 확인(병행)** — Actions의 pages build and deployment 성공, https://sinjhon1245-cell.github.io/teacher-care/ 에서 같은 asset version 확인
+15. **(점검 대상 아님)** GitHub Pages·Netlify는 비활성화돼 있어요. 다시 켜지지 않았는지만 확인해요(두 예전 주소가 404)
 
 ## [1~2월] 새 기준 자료
 
