@@ -118,7 +118,7 @@ const BENEFIT_CATEGORIES = [
 
 const BENEFITS = [
   { id: 'special-leave', category: 'rest', t: '특별휴가', icon: 'calendar', employment: 'public', badges: ['5일 범위', '해당 시 5일 범위 추가'],
-    verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-02-27', reviewStatus: 'verified',
+    verifiedAt: '2026-11-20', sourceUpdatedAt: '2026-11-20', reviewStatus: 'verified',
     recognition: '교육활동 침해 피해 교원이어야 해요. 위원회 심의 전에도 학교장 판단으로 허가할 수 있고, 나중에 침해가 아니라고 판단되면 병가·연가로 정정돼요.',
     actions: [{ id: 'tell', t: '학교 관리자에게 현재 상황과 회복이 필요하다는 점 알리기' }, { id: 'ask', t: '특별휴가 부여 여부와 사용 시기를 학교장에게 확인하기' }, { id: 'timeline', t: '사건 경과를 시간순으로 정리하기' }, { id: 'proof', t: '신고서·진단서 등 나중에 갖출 증빙 확인하기' }, { id: 'next', t: '회복이 더 필요하면 병가 제도도 확인하기' }],
     keywords: ['특별휴가', '휴가', '마음돌봄휴가', '쉬고 싶어요'],
@@ -241,7 +241,7 @@ const BENEFITS = [
     supportLinks: { q: '치료비 지원이나 법률 상담도 확인해 보세요.', types: ['care-cost', 'legal'] } },
 
   { id: 'separation', category: 'protect', t: '즉시 분리', icon: 'separate', employment: 'all', badges: ['위원회 결과 전에도'],
-    verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
+    verifiedAt: '2026-11-20', sourceUpdatedAt: '2026-11-20', reviewStatus: 'verified',
     actions: [{ id: 'tell', t: '분리를 원한다는 뜻을 학교에 바로 알리기' }, { id: 'how', t: '수업·동선에서 바라는 분리 방식 정리하기' }, { id: 'period', t: '분리 기간과 장소를 학교에 확인하기' }],
     keywords: ['분리', '즉시 분리', '마주치기', '가해 학생'],
     d: '원하면 위원회 결과를 기다리지 않고 학교장이 침해 관련자와 즉시 분리해요.',
@@ -258,7 +258,7 @@ const BENEFITS = [
     supportLinks: { q: '신변 위협이 계속되나요?', types: ['safety'] } },
 
   { id: 'protection-request', category: 'protect', t: '보호조치 요청', icon: 'shield', employment: 'all',
-    verifiedAt: '2026-11-07', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
+    verifiedAt: '2026-11-20', sourceUpdatedAt: '2026-11-20', reviewStatus: 'verified',
     actions: [{ id: 'list', t: '필요한 보호조치(상담·치료·휴가 등) 정리하기' }, { id: 'ask', t: '학교장·담당자에게 보호조치 요청하기' }, { id: 'receipt', t: '치료·상담 영수증 보관하기' }],
     keywords: ['보호조치', '보호조치 요청', '치유', '교권 회복'],
     d: '관할청과 학교장은 침해 사실을 알게 되면 즉시 심리상담·치료 등 보호조치를 해야 해요.',
@@ -289,7 +289,7 @@ const BENEFITS = [
     basis: '교원지위법 시행령 제2조의3제2항제3호, 교육활동 보호 매뉴얼(2026) 71쪽' },
 
   { id: 'return-to-work', category: 'return', t: '복귀 준비(복직)', icon: 'sprout', employment: 'public', badges: ['30일 이내 신고'],
-    verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-02-19', reviewStatus: 'verified',
+    verifiedAt: '2026-11-20', sourceUpdatedAt: '2026-11-20', reviewStatus: 'verified',
     actions: [{ id: 'report', t: '휴직 사유가 없어지면 30일 이내 복직 신고하기' }, { id: 'protect', t: '복귀 뒤 필요한 보호조치(분리 등)를 학교와 상의하기' }, { id: 'support', t: '복귀 뒤에도 이용할 상담·회복 지원 확인하기' }],
     keywords: ['복직', '복귀', '복귀 준비', '출근', '휴직 끝'],
     scope: '국·공립 교원(교육공무원) 기준이에요. 사립 교원은 학교법인 정관을 따르고, 기간제 교원에게는 휴직·복직 규정이 적용되지 않아요.',
@@ -2361,7 +2361,7 @@ const SITE_AUTHOR = { name: '진진쌤', blogUrl: 'https://blog.naver.com/jinjin
 
 const COMMON_PUBLIC_SOURCES = [
   { id: 'manual', title: '교육부 「교육활동 보호 매뉴얼」(2026년도 일부 개정)', url: 'https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=327&boardSeq=105492&lev=0&searchType=null&statusYN=W&page=1&s=moe&m=0305&opType=N', verifiedAt: '2026-10-06', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
-  { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21350호, 2026. 2. 19. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-19', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
+  { id: 'jiwi-law', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법(법률 제21655호, 2026. 11. 20. 시행)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법', verifiedAt: '2026-11-20', sourceUpdatedAt: '2026-11-20', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'jiwi-decree', title: '교원의 지위 향상 및 교육활동 보호를 위한 특별법 시행령 — 제2조의3(시행계획 — 치료·전보 등 보호조치)·제17조(분리조치)·제19조(보호조치 비용)', url: 'https://www.law.go.kr/법령/교원의지위향상및교육활동보호를위한특별법시행령', verifiedAt: '2026-10-03', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'leave-rule', title: '「교원휴가에 관한 예규」(교육부예규 제104호, 2026. 2. 27. 시행) 제6조 병가·제8조 특별휴가', url: 'https://www.law.go.kr/행정규칙/교원휴가에관한예규', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-02-27', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
   { id: 'bokmu', title: '국가공무원 복무규정 제18조(병가, 2026. 10. 2. 시행)', url: 'https://www.law.go.kr/법령/국가공무원복무규정', verifiedAt: '2026-10-03', sourceUpdatedAt: '2026-10-02', region: 'common', uses: ['guide', 'procedure', 'care', 'support'] },
