@@ -1323,7 +1323,7 @@ const App = {
             ${this.situBenefits(s)}
             <div class="block situ-supports">
               <p class="block-title">연결 가능한 지원</p>
-              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\{(HOT1|HOT2|HOT)\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
+              ${this.facts([['받을 수 있는 지원', s.programs], ['연락할 곳', linkifyPhone(String(s.orgs || '').replace(/\{(HOT1|HOT2|HOT|CARE)\}/g, (_, key) => this.R ? this.R.terms[key] : NEUTRAL_TERMS[key]))]])}
               ${types.length ? `<ul class="link-list">${types.map(t => supportChip(t, this.R)).join('')}</ul>` : ''}
             </div>
           </div>
@@ -1579,7 +1579,7 @@ const App = {
       <li class="support-item" data-sp="${escapeAttr([p.t, p.sum, programAreas(p).join(' '), SUPPORT_TYPES.filter(t => inType(p, t)).map(t => t.label + ' ' + t.desc).join(' '), p.org].join(' '))}">
         <div class="support-head">
           <h3 class="sub-title">${titleHtml(p.t)}</h3>
-          ${p.status && p.status !== '현재 시행 중' ? `<span class="badge badge-accent">${p.status}</span>` : periodPassed(p) ? '<span class="badge badge-accent">기간 확인 필요</span>' : ''}
+          ${statusBadgeHtml(p)}
         </div>
         ${periodPassed(p) ? callout('caution', '기간 확인', `공식 안내의 기간(${fmtDate(p.validUntil)}까지)이 지났어요. 지금도 운영하는지, 지원 내용·신청 방법이 바뀌었는지 공식 안내나 담당 기관에 먼저 확인하세요.`, 'support-period') : ''}
         <p>${p.sum}</p>
@@ -1870,7 +1870,7 @@ function refsBox(refs, basis, verifiedAt) {
   if (!basis && !srcs.length) return '';
   return `
     <details class="disclosure disclosure-line bf-refs">
-      ${disclosureHead('공식 근거', srcs.length ? `${srcs.length}건 · ${fmtDate(verifiedAt || latestDate(srcs))} 확인` : '')}
+      ${disclosureHead('공식 근거', srcs.length ? `${srcs.length}건 · ${fmtDate(verifiedAt || latestDate(srcs))} 자료 확인` : '')}
       <div class="disclosure-body">
         ${basis ? `<p>${basis}</p>` : ''}
         ${srcs.length ? `<ul class="source-common">${srcs.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.title}<span class="sr-only"> (새 창)</span></a></li>`).join('')}</ul>` : ''}
@@ -2145,27 +2145,65 @@ function periodPassed(p) {
   return !!p.validUntil && UpdateUI.today() > p.validUntil;
 }
 
+// ── 검증 상태 표시(Phase C1, docs/audit/verification-status-design-20261107.md) ──
+// 날짜 문구는 ‘무엇을 확인했는지’만 말해요. 날짜가 지금 신청할 수 있다는 보장은 아니에요.
+//  · checks가 없는 항목(기존 데이터): ‘YYYY. M. D. 자료 확인’ — 공식 자료와 대조한 날
+//  · checks.terms: 대상·금액·기한·제외 조건을 원문으로 확인한 날 → ‘신청 조건 확인’
+//  · checks.route: 신청 페이지·서식·접수처를 확인한 날 → ‘신청 경로 확인’
+//  · 둘 다 있으면 더 이른 날짜를 써요(확인 범위를 넘겨 말하지 않게)
+// checks는 선택 필드예요. 근거 없이 채우지 않고, verifiedAt에서 자동으로 만들지 않아요(점검 도구가 출처 연결을 검사).
+function checkedScope(item) {
+  const c = item && item.checks;
+  if (!c) return null;
+  if (c.terms && c.route) return { label: '신청 조건·경로 확인', date: c.terms < c.route ? c.terms : c.route };
+  if (c.terms) return { label: '신청 조건 확인', date: c.terms };
+  if (c.route) return { label: '신청 경로 확인', date: c.route };
+  return null;
+}
+
+// 지원 카드 제목 옆 상태 배지는 하나만 보여요(배지가 늘지 않게). 앞에 있는 것이 우선해요.
+//  1) 운영 상태(status가 ‘현재 시행 중’이 아님: 신청 마감·시범 운영·신청 전 확인) — 운영 여부·방식이 다를 때
+//  2) 공식 기간이 지남(validUntil) — 운영 여부 재확인
+//  3) 원문 게시물을 열 수 없음(reviewStatus: source-unavailable)
+//  4) 공식 자료끼리 내용이 다름(checks.conflict) — 무엇이 다른지는 카드의 기간·주의 문구에 있어요
+//  5) 일부 신청 조건 미확인(reviewStatus: review-needed) — 제도가 없다는 뜻도, 신청할 수 없다는 뜻도 아니에요
+// 4)·5)는 경고색이 아닌 테두리 배지로 보여 주고, 색 없이 글자로 뜻이 전달돼요(화면 읽기 프로그램은 ‘상태:’를 함께 읽어요).
+function statusBadge(p) {
+  if (p.status && p.status !== '현재 시행 중') return { text: p.status, cls: 'badge badge-accent' };
+  if (periodPassed(p)) return { text: '기간 확인 필요', cls: 'badge badge-accent' };
+  if (p.reviewStatus === 'source-unavailable') return { text: '원문 열람 불가', cls: 'badge badge-check' };
+  if (p.checks && p.checks.conflict) return { text: '자료 간 차이', cls: 'badge badge-check' };
+  if (p.reviewStatus === 'review-needed') return { text: '조건 확인 필요', cls: 'badge badge-check' };
+  return null;
+}
+function statusBadgeHtml(p) {
+  const b = statusBadge(p);
+  return b ? `<span class="${b.cls}"><span class="sr-only">상태: </span>${b.text}</span>` : '';
+}
+
 // source는 sources 배열 번호 하나 또는 번호 배열이에요(근거 자료가 둘 이상이면 ‘근거 자료 1·2’)
 function sourceLine(R, item) {
   const ids = item.source === undefined ? [] : [].concat(item.source);
   const srcs = ids.map(i => R.sources[i]).filter(Boolean);
-  // 항목마다 적어 둔 확인일(verifiedAt)이 있으면 그 날짜, 없으면 근거 자료의 확인일
-  const date = fmtDate(item.verifiedAt || latestDate(srcs.length ? srcs : [R]) || R.verifiedAt);
+  // 확인 범위가 기록된 항목(checks)은 그 범위와 날짜, 아니면 자료와 대조한 날(verifiedAt, 없으면 근거 자료의 확인일)
+  const scope = checkedScope(item);
+  const when = scope ? `${fmtDate(scope.date)} ${scope.label}` : `${fmtDate(item.verifiedAt || latestDate(srcs.length ? srcs : [R]) || R.verifiedAt)} 자료 확인`;
   const links = srcs.filter(s => s.url).map((s, i, arr) =>
     `<a href="${s.url}" target="_blank" rel="noopener" title="${escapeAttr(s.title)}">근거 자료${arr.length > 1 ? ' ' + (i + 1) : ''}</a>`);
   // 원문 게시물이 사라진 항목은 날짜 옆에 짧게 알려요(reviewStatus: source-unavailable)
-  const gone = item.reviewStatus === 'source-unavailable' ? ' · 원문 게시물을 다시 확인하고 있어요' : '';
-  return `${date} 최종 확인${gone}${links.length ? ' · ' + links.join(' · ') : ''}`;
+  const gone = item.reviewStatus === 'source-unavailable' ? ' · 원문 게시물을 지금 열 수 없어요' : '';
+  return `${when}${gone}${links.length ? ' · ' + links.join(' · ') : ''}`;
 }
 
-// 접이식 출처 상자: 제목 · 최종 확인일 → 출처 목록(+ 안내 문구, + 공통 법적·정책 근거를 작게)
+// 접이식 출처 상자: 제목 · 자료 확인일 → 출처 목록(자료의 게시·시행일이 있으면 함께, + 안내 문구, + 공통 법적·정책 근거를 작게)
 function sourceBox(label, sources, verifiedAt, note, common) {
+  const dates = s => [s.sourceUpdatedAt ? `${fmtDate(s.sourceUpdatedAt)} 게시·시행` : '', s.verifiedAt ? `${fmtDate(s.verifiedAt)} 확인` : ''].filter(Boolean).join(', ');
   const list = arr => arr.map(s => `
-    <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}<span class="sr-only"> (새 창)</span></a>` : s.title}${s.verifiedAt ? ` <span class="muted">· ${fmtDate(s.verifiedAt)} 확인</span>` : ''}</li>
+    <li>${s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.title}<span class="sr-only"> (새 창)</span></a>` : s.title}${dates(s) ? ` <span class="muted">· ${dates(s)}</span>` : ''}</li>
   `).join('');
   return `
     <details class="disclosure disclosure-box source-box">
-      ${disclosureHead(label, `${fmtDate(verifiedAt)} 최종 확인 · 자료 ${sources.length + (common ? common.length : 0)}건`)}
+      ${disclosureHead(label, `${fmtDate(verifiedAt)} 자료 확인 · 자료 ${sources.length + (common ? common.length : 0)}건`)}
       <div class="disclosure-body">
         <ul>${list(sources)}</ul>
         ${note ? `<p>${note}</p>` : ''}
@@ -2284,7 +2322,7 @@ function T(str) {
   const terms = R ? R.terms : NEUTRAL_TERMS;
   const token = (_, k) => k === 'TEL' ? (R ? telHref(R.hot) : 'tel:112') : terms[k];
   return String(str).split(/(<[^>]*>)/).map(part => {
-    const filled = part.replace(/\{(HOT1|HOT2|HOT|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, token);
+    const filled = part.replace(/\{(HOT1|HOT2|HOT|CARE|TEL|OFFICER|LEGAL|MUTUAL|SOS|MEDIATE)\}/g, token);
     return part[0] === '<' ? filled : filled.replace(TEXT_KEEP, m => `<span class="${/^\d{2,4}-/.test(m) ? 'nowrap' : 'keep'}">${m}</span>`);
   }).join('');
 }
@@ -2300,8 +2338,9 @@ function contactUnits(text) {
 }
 
 // 02-1234-5678, 1600-8787, 032-1395(1번), 112 형태의 번호에 전화 링크를 걸어요
+// 109(자살예방 상담전화)는 번호 뒤에 ‘·’·‘(’·빈칸·끝이 올 때만 잡아요(‘109쪽’ 같은 숫자는 그대로 둬요)
 function linkifyPhone(text) {
-  return String(text).replace(/(\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?|\b112\b)/g, m => {
+  return String(text).replace(/(\d{2,4}-\d{3,4}(?:-\d{4})?(?:\(\d번\))?|\b112\b|(?<![\d-])109(?=[·(\s]|$))/g, m => {
     return '<a href="' + telHref(m) + '" class="tel-link">' + m + '</a>';
   });
 }

@@ -129,8 +129,66 @@ function checkUrl(tag, where, url) {
 }
 
 // 공통 데이터: 전국 공통 긴급번호(112) 외의 번호 금지
+// 예외는 보건복지부가 전국 동일번호로 운영하는 위기상담 번호뿐이에요(109·119는 하이픈이 없어 원래 검사 대상이 아니에요)
+const NATIONAL_COMMON_PHONES = ['1577-0199']; // 정신건강 위기상담전화(24시간, 보건복지부)
 const common = fs.readFileSync(path.join(root, 'data/common.js'), 'utf8');
-for (const n of phonesIn(common)) if (isValidPhone(n) || /^0\d/.test(n)) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
+for (const n of phonesIn(common)) if (!NATIONAL_COMMON_PHONES.includes(n) && (isValidPhone(n) || /^0\d/.test(n))) errors.push(`common.js에 지역 번호 직접 기재: ${n}`);
+
+// 심리상담 문장 전용 토큰 CARE: 16개 지역이 모두 직접 지정하고(빠지면 중립 문구로 바뀌어요), 법률 창구를 넣지 않아요
+for (const id of REGION_ORDER) {
+  const regionSrc = fs.readFileSync(path.join(root, `data/regions/${id}.js`), 'utf8');
+  if (!/\bCARE:\s*'/.test(regionSrc)) errors.push(`[${id}] terms.CARE가 없어요 — 심리상담·치료 신청 창구를 직접 적으세요`);
+  if (/변호사|법률/.test(REGIONS[id].terms.CARE || '')) errors.push(`[${id}] terms.CARE에 법률 창구가 들어 있어요: ${REGIONS[id].terms.CARE}`);
+}
+// 심리상담·치료를 신청하라는 공통 문장은 {HOT1}(법률·심리 겸용) 대신 {CARE}를 써요. 같은 줄에 법률 안내가 함께 있으면 겸용으로 봐요
+common.split(/\r?\n/).forEach((line, i) => {
+  if (line.includes('{HOT1}') && /심리상담|치료/.test(line) && !/법률/.test(line)) errors.push(`common.js:${i + 1} 심리상담 문장에 {HOT1}을 썼어요 — {CARE}를 쓰세요`);
+});
+
+// 검증 범위(checks, Phase C1 — 선택 필드): 화면에 ‘신청 조건 확인’·‘신청 경로 확인’·‘자료 간 차이’로 보이므로 근거와 맞아야 해요.
+//  · 쓸 수 있는 키: exists(제도 존재) · terms(대상·금액·기한·제외 조건) · route(신청 페이지·서식·접수처) · conflict(공식 자료 간 차이 요약)
+//  · 날짜는 YYYY-MM-DD이고 항목의 verifiedAt보다 늦을 수 없어요(verifiedAt = 마지막으로 대조한 날)
+//  · terms·route 날짜는 그날 또는 그 뒤에 확인한 출처(sources[].verifiedAt)가 항목에 연결돼 있어야 해요(출처가 있다는 것만으로 채우지 않음)
+//  · terms는 화면에 조건(대상·금액·기한·서류) 중 하나 이상이 있어야 하고, route는 신청 방법·연락처·신청 링크 중 하나가 있어야 해요
+//  · conflict가 있으면 reviewStatus는 review-needed이고, 기간·주의 문구에 ‘확인’ 안내(어디에 확인할지)가 있어야 해요
+//  · review-needed 항목은 무엇을 확인해야 하는지 기간·주의 문구로 알려야 해요(배지만 남지 않게)
+const CHECK_KEYS = ['exists', 'terms', 'route', 'conflict'];
+for (const id of REGION_ORDER) {
+  const r = REGIONS[id];
+  r.programs.forEach((p, i) => {
+    const tag = `[${id}] programs[${i}] ${p.t}`;
+    const why = `${p.timing || ''} ${p.caution || ''}`;
+    if (p.reviewStatus === 'review-needed' && !/확인/.test(why)) errors.push(`${tag}: review-needed인데 무엇을 확인할지 기간·주의 문구가 없어요`);
+    if (p.checks === undefined) return;
+    const c = p.checks;
+    if (!c || typeof c !== 'object' || Array.isArray(c)) { errors.push(`${tag}: checks는 객체여야 해요`); return; }
+    Object.keys(c).filter(k => !CHECK_KEYS.includes(k)).forEach(k => errors.push(`${tag}: checks에 알 수 없는 키 ${k}`));
+    for (const k of ['exists', 'terms', 'route']) {
+      if (c[k] === undefined) continue;
+      if (!ISO.test(c[k])) { errors.push(`${tag}: checks.${k} 날짜 형식 오류 ${c[k]}`); continue; }
+      if (c[k] > (process.env.CHECK_TODAY || require('./lib/freshness').kstToday())) errors.push(`${tag}: checks.${k}(${c[k]})가 미래 날짜예요`);
+      if (!p.verifiedAt) errors.push(`${tag}: checks가 있으면 verifiedAt도 적어요`);
+      else if (c[k] > p.verifiedAt) errors.push(`${tag}: checks.${k}(${c[k]})가 verifiedAt(${p.verifiedAt})보다 늦어요`);
+    }
+    const srcs = [].concat(p.source === undefined ? [] : p.source).map(n => r.sources[n]).filter(Boolean);
+    for (const k of ['terms', 'route']) {
+      if (!c[k]) continue;
+      if (!srcs.some(s => s.verifiedAt && s.verifiedAt >= c[k])) errors.push(`${tag}: checks.${k}(${c[k]})를 뒷받침하는, 그날 이후 확인한 출처가 연결돼 있지 않아요`);
+    }
+    if (c.terms && !['eligibility', 'amount', 'timing', 'documents', 'target'].some(f => p[f])) errors.push(`${tag}: checks.terms가 있는데 화면에 신청 조건이 없어요`);
+    if (c.route && !(p.apply || p.contact || (p.contacts || []).length || (p.channels || []).length)) errors.push(`${tag}: checks.route가 있는데 신청 방법·연락처·링크가 없어요`);
+    if (c.conflict !== undefined) {
+      if (typeof c.conflict !== 'string' || c.conflict.trim().length < 10) errors.push(`${tag}: checks.conflict는 무엇이 다른지 적은 문장이어야 해요`);
+      if (p.reviewStatus !== 'review-needed') errors.push(`${tag}: 자료 간 차이(conflict)가 있으면 reviewStatus는 review-needed여야 해요`);
+      if (!/확인/.test(why)) errors.push(`${tag}: 자료 간 차이가 있으면 기간·주의 문구에 확인할 곳을 적어야 해요`);
+      // 배지는 하나라 운영 상태 배지가 ‘자료 간 차이’를 가릴 수 있어요. 그래도 차이 나는 기한·금액·횟수는 카드 상세에서 보여야 해요
+      const shownText = [p.timing, p.caution, p.amount, p.eligibility, p.target, p.apply].filter(Boolean).join(' ').replace(/\s+/g, '');
+      (String(c.conflict).match(/\d+\s*(개월|년|일|만\s?원|회기)/g) || []).forEach(v => {
+        if (!shownText.includes(v.replace(/\s+/g, ''))) errors.push(`${tag}: 자료 간 차이의 ‘${v}’가 카드 상세(기간·주의·금액)에 없어요 — 배지가 가려져도 차이를 볼 수 있게 적어요`);
+      });
+    }
+  });
+}
 
 // 공통 화면 근거: 특정 시·도교육청 도메인 자료는 넣지 않아요(교차검증 자료는 VALIDATION_SOURCES에)
 COMMON_PUBLIC_SOURCES.forEach((s, i) => {

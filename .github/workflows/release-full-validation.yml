@@ -39,6 +39,14 @@ jobs:
           node tools/check-pr26-source-integrity.js
           node --check tools/check-pr20-readability.js
           node tools/check-pr20-readability.js
+          node --check tools/check-phase-a-accuracy.js
+          node tools/check-phase-a-accuracy.js
+          node --check tools/check-phase-b1-accuracy.js
+          node tools/check-phase-b1-accuracy.js
+          node --check tools/check-phase-b2-accuracy.js
+          node tools/check-phase-b2-accuracy.js
+          node --check tools/check-phase-c1-status.js
+          node tools/check-phase-c1-status.js
       - name: Full data, official links and maintenance report
         run: node tools/check-all.js --verbose
 
