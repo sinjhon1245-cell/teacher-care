@@ -38,7 +38,8 @@ registerRegion({
     { title: '인천광역시교육청 교육활동보호담당관 구성현황 — 교육지원청 교육활동 보호 담당자 연락처(2026. 6. 30. 갱신)', url: 'https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=11821&cntntsId=857', verifiedAt: '2026-10-07', sourceUpdatedAt: '2026-06-30', region: 'incheon', uses: ['support', 'finder'] },
     // 2026-10-23 추가: 아동학대 피신고·소진 교원 상담·치료비 200만 원(2026. 9. 1. 이후 적용), 치유·회복 프로그램 운영 방식
     { title: '인천광역시교육청 「2026년 하반기 교육활동 보호 학교관리자 역량강화 연수 원고」(1차시 주요 정책 — 상담·치유 지원 한도 변경, 2026. 8. 27. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?mi=11822&bbsId=1711&nttSn=3382835', verifiedAt: '2026-10-23', sourceUpdatedAt: '2026-08-27', region: 'incheon', uses: ['care', 'support'] },
-    { title: '인천광역시교육청 교육활동보호담당관 자료실 — 교육활동 보호 법률 지원 안내(신청 대상·신청 방법, 법률 지원 의뢰서 첨부 필수, 2026년 서식, 2026. 4. 24. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3369364&mi=11822', verifiedAt: '2026-11-07', sourceUpdatedAt: '2026-04-24', region: 'incheon', uses: ['support'] }
+    { title: '인천광역시교육청 교육활동보호담당관 자료실 — 교육활동 보호 법률 지원 안내(신청 대상·신청 방법, 법률 지원 의뢰서 첨부 필수, 2026년 서식, 2026. 4. 24. 게시)', url: 'https://www.ice.go.kr/ice/na/ntt/selectNttInfo.do?nttSn=3369364&mi=11822', verifiedAt: '2026-11-07', sourceUpdatedAt: '2026-04-24', region: 'incheon', uses: ['support'] },
+    { title: '인천광역시의회 교육위원회 — 영종·검단교육지원청 신설 조례안 원안 가결(2026. 11. 18. 발표, 본회의 의결·공포 전)', url: 'https://www.icouncil.go.kr/committee/bbs/bbsMsgDetail.do?bcd=report&cmcode=C601&msg_seq=4413&pgdiv=site2', verifiedAt: '2026-11-21', sourceUpdatedAt: '2026-11-18', region: 'incheon', uses: ['finder'] }
   ],
 
   // 대표번호와 ARS 안내(2026 교육활동보호 매뉴얼)
@@ -75,7 +76,7 @@ registerRegion({
     { name: '서부교육지원청', dept: '초등교육과', areas: ['서해구', '검단구'], contact: '교육활동 보호 담당 032-560-6618 · 032-1395(2-4번)', hours: '평일 근무 시간', url: 'https://seobu.ice.go.kr' },
     { name: '강화교육지원청', dept: '교육지원과', areas: ['강화군'], contact: '교육활동 보호 담당 032-930-7773 · 032-1395(2-5번)', hours: '평일 근무 시간', url: 'https://ganghwa.ice.go.kr' }
   ],
-  areaNote: '2026. 7. 1. 행정체제 개편 후 구역 기준이에요. 2027. 3. 1. 영종·검단교육지원청 신설과 서부 → 서해교육지원청 개칭을 담은 조례 개정안이 입법예고(2026. 9. 21.~10. 12.)됐어요. 조례가 바뀌기 전까지는 지금 구역이 기준이에요.',
+  areaNote: '2026. 7. 1. 행정체제 개편 후 구역 기준이에요. 2027. 3. 1. 영종·검단교육지원청 신설과 서부 → 서해교육지원청 개칭 조례안은 2026. 11. 18. 시의회 교육위원회 원안 가결이 발표됐어요. 본회의 의결·공포·시행 전에는 현재 관할과 담당 번호를 계속 안내해요.',
 
   // 홈 ‘놓치기 쉬운 권리·지원’ 카드에 붙는 인천 한 줄(HOME_HIGHLIGHTS id). 숫자는 대상·조건과 함께 써요
   highlights: {

@@ -20,7 +20,7 @@
 빌드 도구·프레임워크 없이 HTML·CSS·바닐라 JS로만 동작해요(빌드 단계 없이 저장소 파일을 그대로 배포).
 
 - **대표 주소(공유용): https://teacher-care.vercel.app/**
-- 보조 주소(병행 운영): https://sinjhon1245-cell.github.io/teacher-care/
+- 운영 플랫폼은 **Vercel 하나**예요(2026-11-08부터). GitHub Pages·Netlify는 운영하지 않아요(아래 ‘배포’).
 
 ## 파일 구조
 
@@ -326,7 +326,7 @@ npx serve .
 
 상단 5개 메뉴 이동은 History API(`pushState`·`popstate`)로 브라우저 뒤로가기·앞으로가기와 이어져요. 라우터나 경로(path) 주소는 쓰지 않아요.
 
-- 주소는 쿼리(`?region=…&page=…`)만 바꿔요(경로 주소 없음). 그래서 GitHub Pages에서 새로고침해도 404가 나지 않고, 새로고침하면 보던 화면이 다시 열려요.
+- 주소는 쿼리(`?region=…&page=…`)만 바꿔요(경로 주소 없음). 그래서 정적 호스팅에서 새로고침해도 404가 나지 않고, 새로고침하면 보던 화면이 다시 열려요.
 - 다른 메뉴로 가면 기록을 하나 쌓고(`push`), 같은 메뉴 안 이동은 현재 기록만 바꿔요(`replace`). 처음 들어올 때는 `replaceState`로 현재 화면만 등록해요.
 - 기록에는 메뉴와 그 메뉴에서 펼친 것(대응 절차 단계·회복·보호 제도·지원 유형)과 스크롤 위치만 담아요. 지역은 localStorage, 체크는 체크 저장소가 그대로 맡아요.
 - 뒤로가기로 복원하는 중에는 기록을 쌓지 않아 기록이 꼬이지 않아요. 검색어 입력은 기록을 만들지 않아요(한글 입력 영향 없음).
@@ -345,7 +345,7 @@ npx serve .
 
 ## 공유 링크·인쇄·비교·행동 체크
 
-- **공유 링크**: 주소에는 공유할 수 있는 핵심 상태만 넣어요(경로 라우팅 없음 → GitHub Pages에서 새로고침해도 404 없음).
+- **공유 링크**: 주소에는 공유할 수 있는 핵심 상태만 넣어요(경로 라우팅 없음 → 새로고침해도 404 없음).
   - `?region=incheon&page=care&benefit=special-leave` (회복·보호 제도) · `?region=common&page=care&compare=leave` (비교표)
   - `?region=seoul&page=guide&situ=physical-assault` (상황) · `?region=gyeonggi&page=support&type=legal` (지원 유형) · `?region=common&page=proc&step=2` (대응 절차 단계)
   - **링크 복사·인쇄·주소창의 주소에는 지역을 늘 적어요.** 시·도는 그 id, 공통(지역 미선택)은 `region=common`(내부에서는 지역 없음 `null`). 그래서 받는 사람이 다른 지역을 저장해 두었어도 보낸 사람이 보던 지역 그대로 열려요.
@@ -426,15 +426,21 @@ npx serve .
 
 **배포할 때마다 asset version을 올려요.** `index.html`의 `<meta name="asset-version" content="YYYYMMDD-n">`과 로컬 CSS·JS 태그의 `?v=` 값을 모두 같은 새 값으로 바꿔요(예: `20261003-2` → `20261004-1`). 브라우저가 예전 `app.js`와 새 데이터를 섞어 쓰지 않게 하려는 거예요. `node tools/check-data.js`가 값이 모두 같은지 확인해요.
 
-배포 순서: `node tools/check-all.js`(데이터·링크·리포트) → `git diff --check` → asset version 올리기 → 커밋 → `main` push → Vercel·GitHub Pages 배포 확인 → 실제 주소에서 확인.
+배포 순서: `node tools/check-all.js`(데이터·링크·리포트) → `git diff --check` → asset version 올리기 → 커밋 → 검토된 PR을 `main`에 병합(운영자 승인, squash 1회) → Vercel Production 배포 확인 → https://teacher-care.vercel.app/ 에서 확인.
 
 | 구분 | 주소 | 배포 방식 |
 | --- | --- | --- |
 | Production(대표, 교사에게 공유) | https://teacher-care.vercel.app/ | Vercel 프로젝트 `teacher-care`가 GitHub `main`에 연결돼 있어 push하면 자동 배포 |
-| 병행 운영(fallback) | https://sinjhon1245-cell.github.io/teacher-care/ | GitHub Pages(`main`, `.nojekyll` 포함). 지금도 그대로 유지해요 |
+| Preview(검토용) | PR마다 Vercel이 만드는 배포별 주소 | PR push 시 자동. 교사에게 공유하지 않아요 |
+
+**Vercel 단일 운영 정책(2026-11-08)**
+- 교사에게 공유하고 운영 검증·롤백하는 곳은 **Vercel Production `https://teacher-care.vercel.app/` 하나**예요.
+- GitHub Pages: 2026-11-08 비활성화(저장소 Settings → Pages). `https://sinjhon1245-cell.github.io/teacher-care/`는 404이고, 지난 배포 기록(Environments → github-pages)은 보존해요. `.nojekyll`은 기록을 위해 남겨 둬요. 다시 켜지 않아요.
+- Netlify `icnteachercare`: 2026-11-08 프로젝트 비활성화(Disable project). `icnteachercare.netlify.app`은 404이고, 프로젝트·배포 기록은 보존해요. 다시 켜지 않아요. PR에 붙는 Netlify 검사는 참고용이에요.
+- 롤백: Vercel Deployments에서 직전 정상 Production을 **Instant Rollback** + `main`에 `git revert`(asset version 새로 발급). force push·reset은 쓰지 않아요.
 
 - Vercel 설정: Framework Preset **Other**, Root Directory 저장소 루트, Build Command·Output Directory 없음. `vercel.json`은 두지 않아요(경로 라우팅 없이 `?page=…&region=…` 쿼리만 써서 rewrite가 필요 없어요).
-- 공유 링크·인쇄 머리글·의견 양식의 주소는 지금 열린 주소(`location.origin + location.pathname`)로 만들어요. Vercel에서 복사하면 `https://teacher-care.vercel.app/?region=…`, Pages에서 복사하면 Pages 주소가 돼요(특정 주소를 코드에 적지 않아요).
-- 지역·체크 저장(localStorage)은 주소(origin)마다 따로예요. Pages에서 저장한 값은 Vercel로 옮겨지지 않아요(옮기지 않아요).
+- 공유 링크·인쇄 머리글·의견 양식의 주소는 지금 열린 주소(`location.origin + location.pathname`)로 만들어요. 운영 주소에서 복사하면 `https://teacher-care.vercel.app/?region=…`가 돼요(특정 주소를 코드에 적지 않아요).
+- 지역·체크 저장(localStorage)은 주소(origin)마다 따로예요. 예전 GitHub Pages·Netlify 주소에서 저장한 값은 Vercel로 옮겨지지 않아요(옮기지 않아요).
 - Vercel의 배포별 주소(`teacher-care-<해시>-….vercel.app`)는 Vercel 기본 보호로 로그인이 필요해요. 공유는 대표 주소만 써요.
 - 작업은 기능 브랜치에서 하고 검토 후 `main`에 합쳐요. force push는 하지 않아요.

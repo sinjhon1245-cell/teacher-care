@@ -55,14 +55,24 @@ expect('[daegu] 소송비용', prog('daegu', /교원보호공제 소송비용/),
 
 // ── 3) 시행 예정 교원지위법: 시행일 전에는 현행처럼 쓰지 않아요 ─────────
 const today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); // 한국 날짜
+// num: 공통 출처 jiwi-law 제목에 적는 법률 호수. 시행 전에는 제목에 넣으면 실패해요(현행 법령처럼 보이지 않게).
+// textOnScreen: 화면 문구에도 반영해야 하는 개정인지(11. 20.은 위원회 구성 요건뿐이라 사이트 문구 0건 → 출처 제목만 갱신)
 const PENDING = [
-  { date: '2026-11-20', law: '법률 제21655호(제18조제3항 교사 위원 10분의 2 이상)', re: /10분의 2 이상|교사인 위원/ },
-  { date: '2026-12-03', law: '법률 제21717호(제19조 대면 또는 비대면 교육활동, 제2호가목 현저한 지장, 제29조 센터 설치·운영)', re: /대면 또는 비대면 교육활동|교육활동에 현저한 지장을 주는 방식/ }
+  { date: '2026-11-20', num: '제21655호', law: '법률 제21655호(제18조제3항 교사 위원 10분의 2 이상)', re: /10분의 2 이상|교사인 위원/, textOnScreen: false },
+  { date: '2026-12-03', num: '제21717호', law: '법률 제21717호(제19조 대면 또는 비대면 교육활동, 제2호가목 현저한 지장, 제29조 센터 설치·운영)', re: /대면 또는 비대면 교육활동|교육활동에 현저한 지장을 주는 방식/, textOnScreen: true }
 ];
+const jiwiTitle = ((D.COMMON_PUBLIC_SOURCES || []).find(s => s.id === 'jiwi-law') || {}).title || '';
 for (const x of PENDING) {
   const found = x.re.test(everything);
-  if (today < x.date) assert.ok(!found, `${x.date} 시행 전인 ${x.law} 문구를 현행처럼 썼어요`);
-  else if (!found) warn(`${x.date} 시행 ${x.law} — 시행일이 지났어요. docs/audit/pending-law-plan-2026-11-20-12-03.md 계획대로 반영 여부를 확인하세요`);
+  if (today < x.date) {
+    assert.ok(!found, `${x.date} 시행 전인 ${x.law} 문구를 현행처럼 썼어요`);
+    assert.ok(!jiwiTitle.includes(x.num), `${x.date} 시행 전인 ${x.num}을 공통 출처(jiwi-law) 제목에 현행처럼 적었어요 — 시행일 이후에 병합하세요`);
+    continue;
+  }
+  // 시행일 이후: 이 개정 또는 그 뒤에 시행된 개정의 호수가 출처 제목에 있으면 반영된 것으로 봐요
+  const titleOk = PENDING.filter(y => y.date >= x.date && today >= y.date).some(y => jiwiTitle.includes(y.num));
+  if (!titleOk) warn(`${x.date} 시행 ${x.law} — 시행일이 지났어요. 공통 출처 jiwi-law 제목을 갱신하세요(docs/audit/pending-law-plan-2026-11-20-12-03.md)`);
+  if (x.textOnScreen && !found) warn(`${x.date} 시행 ${x.law} — 시행일이 지났어요. 상황 카드 문구 반영 여부를 확인하세요(docs/audit/pending-law-plan-2026-11-20-12-03.md)`);
 }
 
 for (const w of warnings) console.log('주의: ' + w);
