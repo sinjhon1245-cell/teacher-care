@@ -38,7 +38,7 @@ assert.ok(UpdateUI.footerBlock().includes(latestDay.full));
 assert.ok(UpdateUI.footerBlock().includes('지원 정보 변경 내역 보기'));
 const dialog = UpdateUI.dialogHtml();
 assert.ok(dialog.includes('지원 정보 변경 내역'));
-assert.ok(dialog.includes('12개 지역 지원 안내 공식 자료 재대조'));
+assert.ok(dialog.includes('12개 지역 지원 정보 정정'));
 assert.ok(!dialog.includes('지역 선택과 화면 읽기 다듬기'));
 assert.ok(!dialog.includes('홈에서 다른 지역 안내 보기'));
 
