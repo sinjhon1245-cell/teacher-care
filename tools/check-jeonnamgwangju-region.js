@@ -29,5 +29,14 @@ const gw=R.programs.find(p=>p.t==='광주권 교원보호공제(2026 약관·신
 assert.ok(gw&&gw.reviewStatus==='review-needed'&&!gw.amount,'the new mutual aid must retain merger-terms caveat');
 assert.equal(gw.contact,'062-380-4158');
 assert.ok(gw.source.includes(10) && R.sources[10].url.includes('forteacher.jge.go.kr'));
+// 2026-11-28 주간 점검: 전남권 구 주소 접근 불가, 이전 확인일 및 기존 근거 유지.
+for (const p of R.programs.filter(p=>p.t.startsWith('전남권'))) {
+  assert.equal(p.reviewStatus,'source-unavailable');
+  assert.equal(p.status,'신청 전 확인');
+  assert.ok(p.apply.includes('관할 교육지원청') && p.caution.includes('2026. 11. 28.'));
+  assert.ok(p.verifiedAt < '2026-11-28','접속 실패로 확인일을 갱신하지 않음');
+}
+assert.equal(R.programs.filter(p=>p.t.startsWith('전남권')).length,3);
+assert.ok(R.hotSummary.includes('관할 교육지원청') && R.hotSummary.includes('기존'));
 assert.ok(D.REGION_ORDER.includes('chungnam')&&D.REGIONS.chungnam.programs.length===4);
 console.log('PASS integrated region: 16 regions / 192 entries; 24 educational offices / 27 jurisdictions; 8 source-linked entries, original 15 regions / 184 preserved');
