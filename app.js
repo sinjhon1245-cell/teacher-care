@@ -2365,6 +2365,15 @@ const UpdateUI = {
   // 공개 화면에서는 실제 지원 내용 변경만 표시합니다. 숨긴 항목의 id는 원본 기록에 유지합니다.
   list() { return typeof UPDATES !== 'undefined' && Array.isArray(UPDATES) ? UPDATES.filter(u => u.visibility !== 'internal' && u.type !== '기능 개선') : []; },
   latest() { return this.list()[0] || null; },
+  // 정기점검과 실제 공개 변경을 구분하여 읽음 상태를 유지합니다.
+  reviews() { return typeof WEEKLY_REVIEWS !== 'undefined' && Array.isArray(WEEKLY_REVIEWS) ? WEEKLY_REVIEWS : []; },
+  latestReview() { return this.reviews()[0] || null; },
+  reviewHtml() {
+    const reviews = this.reviews();
+    if (!reviews.length) return '';
+    const item = r => `<li class="update-item"><p class="update-meta"><time datetime="${r.checkedAt}">${this.day(r.checkedAt).full}</time><span class="update-type">정기점검</span></p><h4 class="update-title">${r.title}</h4><p class="update-summary">${r.summary}</p>${r.details && r.details.length ? `<ul class="update-details">${r.details.map(d => `<li>${d}</li>`).join('')}</ul>` : ''}</li>`;
+    return `<section aria-labelledby="weekly-review-title"><h3 class="update-title" id="weekly-review-title">주간 정기점검</h3><p class="update-dialog-note">매주 공식 자료를 점검하고 확인한 범위와 추가 확인 사항을 기록합니다. 점검일은 지원 정보의 공개 변경일과 다릅니다.</p><ol class="update-list">${item(reviews[0])}</ol>${reviews.length > 1 ? `<details><summary>이전 정기점검 ${reviews.length - 1}건 보기</summary><ol class="update-list">${reviews.slice(1).map(item).join('')}</ol></details>` : ''}</section>`;
+  },
   seenId() {
     const id = this._seen || storeGet(STORAGE_UPDATE_SEEN);
     if (!id || typeof UPDATES === 'undefined' || !Array.isArray(UPDATES)) return id;
@@ -2396,7 +2405,9 @@ const UpdateUI = {
     const u = this.latest();
     if (!u) return '';
     const isNew = this.unread();
-    return `<button type="button" class="update-chip${isNew ? ' is-new' : ''}" id="update-chip" aria-haspopup="dialog" onclick="UpdateUI.open('update-chip')">${isNew ? '<span class="update-dot" aria-hidden="true"></span>새 ' : ''}업데이트 ${this.day(u.date).short}<span class="sr-only"> 내역 보기</span></button>`;
+    const review = this.latestReview();
+    const label = !isNew && review && review.checkedAt > u.date ? `정기점검 ${this.day(review.checkedAt).short}` : `업데이트 ${this.day(u.date).short}`;
+    return `<button type="button" class="update-chip${isNew ? ' is-new' : ''}" id="update-chip" aria-haspopup="dialog" onclick="UpdateUI.open('update-chip')">${isNew ? '<span class="update-dot" aria-hidden="true"></span>새 ' : ''}${label}<span class="sr-only"> 내역 보기</span></button>`;
   },
 
   // 헤더 바로 아래 한 줄: 큰 업데이트면 안내바(모든 폭), 아니면 920px 이하에서만 ‘새 업데이트’ 한 줄(읽으면 사라져요)
@@ -2427,7 +2438,8 @@ const UpdateUI = {
     return `<div class="footer-update">
       <p class="footer-side-title">최근 지원 정보 변경</p>
       <p><span class="footer-update-date">${this.day(u.date).full}</span> ${u.title}</p>
-      <p class="footer-update-meta">${this.day(u.date).full} 기준 · ${REGION_ORDER.length}개 시·도 안내</p>
+      ${this.latestReview() ? `<p class="footer-update-meta">최근 정기점검 <span class="footer-update-date">${this.day(this.latestReview().checkedAt).full}</span> · 매주 점검</p>` : ''}
+      <p class="footer-update-meta">${REGION_ORDER.length}개 시·도 안내</p>
       <button type="button" class="link-btn small" id="footer-update-btn" aria-haspopup="dialog" onclick="UpdateUI.open('footer-update-btn')">지원 정보 변경 내역 보기 <span aria-hidden="true">→</span></button>
     </div>`;
   },
@@ -2445,6 +2457,8 @@ const UpdateUI = {
         <h2 class="update-dialog-title" id="update-dialog-title" tabindex="-1">지원 정보 변경 내역</h2>
         <button type="button" class="update-dialog-close" aria-label="업데이트 내역 닫기" onclick="UpdateUI.close()"><span aria-hidden="true">×</span></button>
       </div>
+      ${this.reviewHtml()}
+      <h3 class="update-title">실제 지원 정보 변경</h3>
       <p class="update-dialog-note">지원 지역, 법령, 지원 제도와 연락처 등 실제 안내 내용이 달라진 사항을 알려 드려요.</p>
       <ol class="update-list">${items}</ol>
       <div class="update-dialog-foot">${authorCredit()}<button type="button" class="btn btn-secondary" onclick="UpdateUI.close()">닫기</button></div>

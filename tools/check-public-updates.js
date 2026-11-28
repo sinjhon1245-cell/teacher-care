@@ -22,8 +22,8 @@ const context = vm.createContext({
   REGION_ORDER: Array(16).fill(null),
   console
 });
-vm.runInContext(updates + '\n' + uiSource + '\nvar TEST = { UPDATES, UpdateUI };', context, { timeout: 1000 });
-const { UPDATES, UpdateUI } = context.TEST;
+vm.runInContext(updates + '\n' + uiSource + '\nvar TEST = { UPDATES, WEEKLY_REVIEWS, UpdateUI };', context, { timeout: 1000 });
+const { UPDATES, WEEKLY_REVIEWS, UpdateUI } = context.TEST;
 
 const publicUpdates = UPDATES.filter(u => u.visibility !== 'internal' && u.type !== '기능 개선');
 assert.equal(UPDATES.filter(u => u.visibility === 'internal').length, 2, '기존 두 UI 변경은 내부 이력에 보존해야 합니다');
@@ -48,5 +48,24 @@ savedId = '2026-10-23-daejeon';
 assert.equal(UpdateUI.unread(), true, '기존 공개 변경을 읽지 않은 이용자는 새 소식을 받아야 합니다');
 savedId = null;
 assert.equal(UpdateUI.unread(), true, '첫 방문자는 공개 최신 내용을 새 소식으로 인식해야 합니다');
+
+// 정기점검 이력은 실제 변경 기록과 분리합니다.
+assert.ok(WEEKLY_REVIEWS.length > 0);
+const reviewIds = new Set();
+for (const [i,r] of WEEKLY_REVIEWS.entries()) {
+  assert.match(r.checkedAt, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(r.checkedAt <= UpdateUI.today() && new Date(r.checkedAt+'T00:00:00Z').toISOString().slice(0,10)===r.checkedAt);
+  assert.ok(!reviewIds.has(r.id) && r.id.startsWith(r.checkedAt)); reviewIds.add(r.id);
+  assert.ok(r.title && r.summary && r.details.length);
+  if(i>0) assert.ok(WEEKLY_REVIEWS[i-1].checkedAt > r.checkedAt,'정기점검 최신순·중복 금지');
+  assert.ok(!UPDATES.some(u=>u.id===r.id));
+}
+assert.equal(UpdateUI.latestReview().id,WEEKLY_REVIEWS[0].id);
+assert.ok(UpdateUI.footerBlock().includes('최근 정기점검') && UpdateUI.footerBlock().includes(UpdateUI.day(WEEKLY_REVIEWS[0].checkedAt).full));
+assert.ok(dialog.includes('주간 정기점검') && dialog.includes('실제 지원 정보 변경') && dialog.includes(WEEKLY_REVIEWS[0].summary));
+savedId = UpdateUI.latest().id;
+assert.equal(UpdateUI.unread(),false);
+assert.equal(UpdateUI.strip(),'','정기점검만으로 새 업데이트 알림을 띄우지 않음');
+if(WEEKLY_REVIEWS[0].checkedAt>UpdateUI.latest().date) assert.ok(UpdateUI.chip().includes('정기점검 '+UpdateUI.day(WEEKLY_REVIEWS[0].checkedAt).short));
 
 console.log(`PASS public updates: ${UPDATES.length} source · ${publicUpdates.length} public · latest ${UpdateUI.latest().date} · read-state/backward compatibility`);

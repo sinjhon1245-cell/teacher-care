@@ -31,6 +31,13 @@ assert.equal(REGIONS.chungnam.programs.length,4);
 const cneLinked = p => [].concat(p.source).some(i => REGIONS.chungnam.sources[i] && /(^|\.)cne\.go\.kr$/.test(new URL(REGIONS.chungnam.sources[i].url).hostname));
 assert.ok(REGIONS.chungnam.programs.every(p=>!p.amount || cneLinked(p)),'원문 출처 없는 지원금 표시 금지');
 assert.ok(REGIONS.chungnam.programs.filter(p=>p.amount).every(p=>/확인/.test(p.timing||'') && /6개월/.test(p.timing||'') && /1년/.test(p.timing||'')),'충돌하는 신청 기한(6개월·1년)은 하나로 고르지 않고 함께 안내');
+// 2026-11-28: 현재 충남교육청 신청·심리상담 웹 안내로 재확인한 조건.
+const healing = REGIONS.chungnam.programs.find(p=>p.t==='교육활동 침해 상담·회복 지원 연결');
+assert.ok(healing && healing.reviewStatus==='review-needed','충돌하는 기한·금액은 확인 필요 유지');
+assert.ok(/심의 전 긴급 보호/.test(healing.eligibility) && /심리적 소진/.test(healing.eligibility),'심의 전 긴급 보호·소진 교원도 신청 대상 안내');
+assert.ok(/해당자만/.test(healing.documents),'심의 결과 통보서는 해당자만 제출');
+assert.ok(/최대 2년/.test(healing.caution) && /중복 지원은 불가/.test(healing.caution) && /환수/.test(healing.caution),'지원 기간·중복 지원 및 환수 주의');
+assert.ok([8,9].every(i=>healing.source.includes(i) && REGIONS.chungnam.sources[i].verifiedAt >= '2026-11-28'),'재확인한 웹 출처 연결');
 assert.ok(REGIONS.chungnam.programs.some(p=>p.t.includes('교원안심 온콜')));
 assert.ok(REGIONS.chungnam.programs.some(p=>p.t.includes('학교민원대응팀')));
 assert.ok(!REGIONS.chungnam.programs.some(p=>/공제|법률동행단|200만 원/.test(p.t)),'2026 지역 조건 미확인 프로그램은 미등록');
